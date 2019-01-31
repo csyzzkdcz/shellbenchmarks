@@ -11,6 +11,7 @@ MeshConnectivity::MeshConnectivity()
     EV.resize(0, 2);
     EF.resize(0, 2);
     EOpp.resize(0, 2);
+    EOppIdx.resize(0, 2);
 }
 
 MeshConnectivity::MeshConnectivity(const Eigen::MatrixXi &F) : F(F)
@@ -50,6 +51,7 @@ MeshConnectivity::MeshConnectivity(const Eigen::MatrixXi &F) : F(F)
     EV.resize(nedges, 2);
     EF.resize(nedges, 2);
     EOpp.resize(nedges, 2);
+    EOppIdx.resize(nedges, 2);
     std::map<std::pair<int, int>, int> edgeIndices;
     
     int idx=0;
@@ -79,6 +81,7 @@ MeshConnectivity::MeshConnectivity(const Eigen::MatrixXi &F) : F(F)
         for (int j = 0; j < 2; j++)
         {
             EOpp(i, j) = oppositeVertex(i, j);
+            EOppIdx(i, j) = oppositeVertexIndex(i, j);
         }
     }
 
@@ -122,4 +125,18 @@ int MeshConnectivity::vertexOppositeFaceEdge(int face, int vertidx) const
     int edge = faceEdge(face, vertidx);
     int edgeorient = faceEdgeOrientation(face, vertidx);
     return edgeOppositeVertex(edge, 1 - edgeorient);
+}
+
+int MeshConnectivity::vertexOppositeFaceEdgeIndex(int face, int vertidx) const
+{
+    int edge = faceEdge(face, vertidx);
+    int edgeorient = faceEdgeOrientation(face, vertidx);
+    return edgeOppositeVertexIndex(edge, 1 - edgeorient);
+}
+
+int MeshConnectivity::faceOppositeVertex(int face, int vertidx) const
+{
+    int edge = faceEdge(face, vertidx);
+    int edgeorient = faceEdgeOrientation(face, vertidx);
+    return edgeFace(edge, 1 - edgeorient);
 }

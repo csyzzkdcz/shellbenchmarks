@@ -3,7 +3,7 @@
 
 #include "SimulationSetup.h"
 
-struct SimulationSetupNormal : public SimulationSetup
+class SimulationSetupNormal : public SimulationSetup
 {
     public:
     virtual void buildRestFundamentalForms(const SecondFundamentalFormDiscretization &sff) override;

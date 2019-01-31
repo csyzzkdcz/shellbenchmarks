@@ -19,7 +19,10 @@ public:
     int edgeVertex(int edge, int vertidx) const {return EV(edge,vertidx);}
     int edgeFace(int edge, int faceidx) const {return EF(edge,faceidx);}
     int edgeOppositeVertex(int edge, int faceidx) const { return EOpp(edge, faceidx); }
+    int edgeOppositeVertexIndex(int edge, int faceidx) const { return EOppIdx(edge, faceidx); }
     int vertexOppositeFaceEdge(int face, int vertidx) const;
+    int vertexOppositeFaceEdgeIndex(int face, int vertidx) const;
+    int faceOppositeVertex(int face, int vertidx) const;
 
     const Eigen::MatrixXi &faces() const { return F; }
 
@@ -39,6 +42,7 @@ private:
     Eigen::MatrixXi EV;
     Eigen::MatrixXi EF;
     Eigen::MatrixXi EOpp;
+    Eigen::MatrixXi EOppIdx;
 };
 
 #endif

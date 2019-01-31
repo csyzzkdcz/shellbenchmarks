@@ -21,7 +21,7 @@ void callback_func_coef(const alglib::real_1d_array &x, double &f, alglib::real_
 
 bool SimulationSetupFindAbar::loadAbars()
 {
-    std::ifstream infile(abarPath + "/L_list.dat");
+    std::ifstream infile(abarPath);
     if(!infile)
         return false;
     int num;
@@ -59,7 +59,9 @@ void SimulationSetupFindAbar::buildRestFundamentalForms(const SecondFundamentalF
         bbars[i].setZero();
     }
     
-    if(!loadAbars())
+//    testPenaltyTerm();
+    
+    if(!loadAbars() || penaltyCoef != 0)
         findFirstFundamentalForms(sff);
 
 }
@@ -73,11 +75,11 @@ void SimulationSetupFindAbar::findFirstFundamentalForms(const SecondFundamentalF
     bderivs.resize(nfaces);
     
     alglib::real_1d_array x;
-    double epsg = 1e-6;
+    double epsg = 0;
     double epsf = 0;
     double epsx = 0;
     double stpmax = 0;
-    alglib::ae_int_t maxits = 1e6;
+    alglib::ae_int_t maxits = 1e5;
     alglib::minlbfgsstate state;
     alglib::minlbfgsreport rep;
     x.setlength(3*nfaces);
@@ -91,6 +93,10 @@ void SimulationSetupFindAbar::findFirstFundamentalForms(const SecondFundamentalF
         x[3*i] = sqrt(atargets[i](0,0));
         x[3*i+1] = atargets[i](0,1)/x[3*i];
         x[3*i+2] = sqrt(atargets[i].determinant())/x[3*i];
+//
+//        x[3*i] = sqrt(abars[i](0,0));
+//        x[3*i+1] = abars[i](0,1)/x[3*i];
+//        x[3*i+2] = sqrt(abars[i].determinant())/x[3*i];
     }
     
     alglib::minlbfgscreate(x.length(),x, state);
@@ -131,7 +137,7 @@ void SimulationSetupFindAbar::findFirstFundamentalForms(const SecondFundamentalF
         abars[i] = abars[i] * abars[i].transpose();
     }
     
-    std::ofstream outfile(abarPath + "/L_list.dat",std::ios::trunc);
+    std::ofstream outfile(abarPath,std::ios::trunc);
     outfile<<x.length()<<"\n";
     for(int i=0;i<x.length()-1;i++)
     {
@@ -150,7 +156,7 @@ void SimulationSetupFindAbar::getFunctionGradient(const alglib::real_1d_array &x
     
     if(itrTimes%100 == 0)
     {
-        std::ofstream outfile(abarPath + "/L_list.dat",std::ios::trunc);
+        std::ofstream outfile(abarPath,std::ios::trunc);
         outfile<<x.length()<<"\n";
         for(int i=0;i<x.length()-1;i++)
         {
@@ -379,12 +385,83 @@ void SimulationSetupFindAbar::getFunctionGradient(const alglib::real_1d_array &x
     }
     gradvec.setFromTriplets(tripletlist.begin(), tripletlist.end());
     Eigen::VectorXd gradf = gradvec.transpose()*dE;
+    
+    std::cout<<"Iteration Times: "<<itrTimes<<std::endl;
+    std::cout<<"Elastic Term: "<<f<<"\t"<<"||Elastic Gradient||: "<<gradf.norm()<<std::endl;
+    
+    Eigen::VectorXd penaltyDerivative;
+    double penaltyTerm = computePenaltyTerm(x, penaltyDerivative);
+    
+    std::cout<<"Penalty Coefficient: "<<penaltyCoef<<"\t"<<"Penalty Term: "<<penaltyTerm<<"\t"<<"||Penalty Gradient||: "<<penaltyDerivative.norm()<<std::endl;
+    
+    f += penaltyCoef * penaltyTerm;
+    gradf += penaltyCoef * penaltyDerivative;
+    
     for(int i=0;i<df.length();i++)
     {
         df[i] = gradf(i);
     }
     
-    std::cout<<"Iteration Times: "<<itrTimes<<"\t"<<"Objective function: "<<f<<"\t"<<"||Gradient||: "<<gradf.norm()<<std::endl;
+    std::cout<<"Objective function: "<<f<<"\t"<<"||Gradient||: "<<gradf.norm()<<std::endl;
+}
+
+double SimulationSetupFindAbar::computePenaltyTerm(const alglib::real_1d_array &x, Eigen::VectorXd &derivative)
+{
+    int nfaces =  mesh.nFaces();
+    if(3*nfaces != x.length())
+        return -1;
+    derivative.resize(3 * nfaces);
+    derivative.setZero();
+    
+    double E = 0;
+    Eigen::Matrix<double, 2, 3> w;
+    w << 1, 0, 1,
+    -1, 1, 0;
+    
+    std::vector<Eigen::Matrix2d> Lderivs(3);
+    
+    Lderivs[0] << 1,0,
+                0,0;
+    
+    Lderivs[1] << 0,0,
+                1,0;
+    
+    Lderivs[2] << 0,0,
+                0,1;
+    
+    
+    for(int i = 0; i < nfaces; i++)
+    {
+        Eigen::Matrix2d L;
+        L << x[3*i], 0,
+        x[3*i+1], x[3*i+2];
+        for(int j = 0; j < 3; j++)
+        {
+            int oppVerIdx =  mesh.vertexOppositeFaceEdgeIndex(i, j);
+            int oppFace = mesh.faceOppositeVertex(i, j);
+            if (oppFace != -1)
+            {
+                Eigen::Matrix2d Lj;
+                Lj << x[3*oppFace], 0,
+                    x[3*oppFace+1], x[3*oppFace+2];
+                E += 1.0/2.0 * (w.col(j).transpose() * L * L.transpose() * w.col(j) - w.col(oppVerIdx).transpose() * Lj * Lj.transpose() * w.col(oppVerIdx)) * (w.col(j).transpose() * L * L.transpose() * w.col(j) - w.col(oppVerIdx).transpose() * Lj * Lj.transpose() * w.col(oppVerIdx));
+                
+                for(int k = 0; k < 3; k++)
+                {
+                    Eigen::Matrix2d abarderiv, abarderivj;
+                    abarderiv = Lderivs[k] * L.transpose() + L * Lderivs[k].transpose();
+                    abarderivj = Lderivs[k] * Lj.transpose() + Lj * Lderivs[k].transpose();
+                    
+                    derivative(3 * i + k) += (w.col(j).transpose() * L * L.transpose() * w.col(j) - w.col(oppVerIdx).transpose() * Lj * Lj.transpose() * w.col(oppVerIdx)) * (w.col(j).transpose() * abarderiv * w.col(j));
+                    
+                    derivative(3 * oppFace + k) += -(w.col(j).transpose() * L * L.transpose() * w.col(j) - w.col(oppVerIdx).transpose() * Lj * Lj.transpose() * w.col(oppVerIdx)) * (w.col(oppVerIdx).transpose() * abarderivj * w.col(oppVerIdx));
+                }
+            }
+            
+        }
+    }
+    
+    return E;
 }
 
 void SimulationSetupFindAbar::computeInvMatDeriv(Eigen::Matrix2d A, Eigen::Matrix<double, 4, 3> &dA)
@@ -509,4 +586,55 @@ void SimulationSetupFindAbar::testFucntionGradient(const SecondFundamentalFormDi
         alg_x1 = alg_x;
         
     }
+}
+
+void SimulationSetupFindAbar::testPenaltyTerm()
+{
+    std::string testMeshName = "../../benchmarks/TestModels/sphere/sphere_geometry.obj";
+//    std::string testMeshName = "../../benchmarks/TestModels/test_square.obj";
+    Eigen::MatrixXd V;
+    Eigen::MatrixXi F;
+    igl::readOBJ(testMeshName, V, F);
+    MeshConnectivity testMesh(F);
+    mesh = testMesh;
+    std::vector<Eigen::Matrix2d> abarTest;
+    int nfaces = F.rows();
+    abarTest.resize(nfaces);
+    alglib::real_1d_array x;
+    x.setlength(3*nfaces);
+    
+    for(int i=0; i<nfaces; i++)
+    {
+        abarTest[i] = firstFundamentalForm(testMesh, V, i, NULL, NULL);
+        srand((unsigned)time(NULL));
+        x[3*i] = sqrt(abarTest[i](0,0)) + 1e-3 * rand() / RAND_MAX;
+        x[3*i+1] = abarTest[i](0,1) / x[3*i] + 1e-3 * rand() / RAND_MAX;
+        x[3*i+2] = sqrt(abarTest[i].determinant())/x[3*i] + 1e-3 * rand() / RAND_MAX;
+    }
+    
+    Eigen::VectorXd derivative, derivative1;
+    
+    double E = computePenaltyTerm(x, derivative);
+    std::cout<<"The energy is "<<E<<std::endl;
+    std::cout<<"The norm of derivative is "<<derivative.norm()<<std::endl;
+    
+    srand((unsigned)time(NULL));
+    int selected_i = rand()%(nfaces*3);
+    Eigen::VectorXd eps(nfaces*3);
+    eps.setZero();
+    alglib::real_1d_array x1 = x;
+    for(int k=1;k<16;k++)
+    {
+        eps(selected_i) = pow(10,-k);
+        x1[selected_i] += pow(10,-k);
+        double E1 = computePenaltyTerm(x1, derivative1);
+        std::cout<<"Selected index is: "<<selected_i<<" Eplison is: "<<eps(selected_i)<<std::endl;
+        std::cout<<"finite difference is: "<<(E1-E)/(pow(10,-k))<<std::endl;
+        std::cout<<"gradient projection: "<<derivative.dot(eps)/eps(selected_i)<<std::endl;
+        std::cout<<"The different between the finite difference and gradient is: "<<std::abs((E1-E)/pow(10,-k) - derivative.dot(eps)/eps(selected_i))<<std::endl;
+        x1 = x;
+        
+    }
+    
+    std::cout<< E << std::endl;
 }

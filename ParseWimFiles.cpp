@@ -25,7 +25,7 @@ bool parseWimFiles(const std::string &prefixRes, const std::string &prefixTar, S
         return false;
     
     int beginIdx = prefixTar.rfind('/');
-    parsedSetup.abarPath = tarMeshName.substr(0, beginIdx);
+    parsedSetup.abarPath = prefixTar + std::string("_L_list.dat");
     
     int nedgedofs = sff.numExtraDOFs();
     parsedSetup.initialEdgeDOFs.resize(nedgedofs * parsedSetup.mesh.nEdges());

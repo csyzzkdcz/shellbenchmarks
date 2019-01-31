@@ -31,6 +31,7 @@ class SimulationSetup
     double thickness;
     double YoungsModulus;
     double PoissonsRatio;
+    double penaltyCoef;     // default value is 0
     
     std::string abarPath;
     std::vector<PostprocessTest> tests;

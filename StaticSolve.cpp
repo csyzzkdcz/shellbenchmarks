@@ -88,7 +88,7 @@ void takeOneStep(const SimulationSetup &setup, SimulationState &state, const Sec
         Eigen::VectorXd force = -derivative;
 //        for (int i = 0; i < nverts; i++)
 //            force.segment<3>(3 * i) += setup.externalForces.row(i).transpose();
-//        std::cout<<projM.cols()<<" "<<force.size()<<std::endl;
+//        std::cout<<force.norm()<<std::endl;
         Eigen::VectorXd reducedForce = projM * force;
         Eigen::SparseMatrix<double> reducedH = projM * H * projM.transpose();
         Eigen::SparseMatrix<double> I(freeDOFs, freeDOFs);
