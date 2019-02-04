@@ -9,22 +9,22 @@
 /* Begin PBXAggregateTarget section */
 		8A0B4EBB8CD44351BE634E9E /* ALL_BUILD */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = 70A06196782042DD90FC4255 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
+			buildConfigurationList = 3D7B99BB7CC24BDE9B477375 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
 			buildPhases = (
-				5E9633E1AAE14965BD7319DC /* CMake Rules */,
+				DB9381D63CA14752B0AEFD60 /* CMake Rules */,
 			);
 			dependencies = (
-				C981904C07C54C64B89F337A /* PBXTargetDependency */,
-				CD9C7FB6F15740E3B00BF2E3 /* PBXTargetDependency */,
+				365118318F3346828157307C /* PBXTargetDependency */,
+				AE36B539967542BAAC86EC09 /* PBXTargetDependency */,
 			);
 			name = ALL_BUILD;
 			productName = ALL_BUILD;
 		};
 		AF30682384B647CDA148A976 /* ZERO_CHECK */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = 23AB8B3A7C7D4347B05C6C7D /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
+			buildConfigurationList = 53425F02132E4A4985F48E0B /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
 			buildPhases = (
-				A96E807576674E3589F0D516 /* CMake Rules */,
+				E4A578F573FE4D70BE7C8C5A /* CMake Rules */,
 			);
 			dependencies = (
 			);
@@ -33,12 +33,12 @@
 		};
 		ECE72F5EC8084684801D2506 /* install */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = DD3D2E68118845F189AB7049 /* Build configuration list for PBXAggregateTarget "install" */;
+			buildConfigurationList = BCE70EC632E44034ADA93D4A /* Build configuration list for PBXAggregateTarget "install" */;
 			buildPhases = (
-				922014ABC21743B78F85C218 /* CMake PostBuild Rules */,
+				980A8B578CA449A087EE5CEC /* CMake PostBuild Rules */,
 			);
 			dependencies = (
-				58875C45CA1E4895B9344DC0 /* PBXTargetDependency */,
+				2EDC8CF58B3F47DA8AE8CB7A /* PBXTargetDependency */,
 			);
 			name = install;
 			productName = install;
@@ -46,64 +46,64 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		B559C32B78494894A51B36BB /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 7E088814A6874626B6A09B85 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt */; };
-		FCE3BE3327D34B13B9EB6E45 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/src/glad.c */ = {isa = PBXBuildFile; fileRef = FC6A8313B8A04D8099E05A0A /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/src/glad.c */; };
+		35822AB3C18043F887F45F8E /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/src/glad.c */ = {isa = PBXBuildFile; fileRef = 125D9BE7FF914703B8FC8FEF /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/src/glad.c */; };
+		37E3B11D395D4B148DB75482 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = AB5CC2F3FCB04A7CA4B3E4D6 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildStyle section */
-		14E591426BBD48C68BEB9249 /* MinSizeRel */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-			};
-			name = MinSizeRel;
-		};
-		3866B5D2244E4D8E8073A4D9 /* Debug */ = {
+		1D7F2070D8F644BFB7274201 /* Debug */ = {
 			isa = PBXBuildStyle;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 			};
 			name = Debug;
 		};
-		981BD012EF46410EAC1B8EEC /* RelWithDebInfo */ = {
+		437A6713821F40FCB129C3AA /* RelWithDebInfo */ = {
 			isa = PBXBuildStyle;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 			};
 			name = RelWithDebInfo;
 		};
-		D4F42C38190047B3BB1A5757 /* Release */ = {
+		4D2EF1EDC03A4561B4154B9C /* Release */ = {
 			isa = PBXBuildStyle;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 			};
 			name = Release;
 		};
+		5838180F8D864F8EA1005B16 /* MinSizeRel */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = MinSizeRel;
+		};
 /* End PBXBuildStyle section */
 
 /* Begin PBXContainerItemProxy section */
-		4E5F392F439D4800B322F18F /* PBXContainerItemProxy */ = {
+		2B35C2276DE94F93A8BF75CC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 263D98E9910F402B88E6261A /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = AF30682384B647CDA148A976;
 			remoteInfo = ZERO_CHECK;
 		};
-		ADC776EECFC740C78892A987 /* PBXContainerItemProxy */ = {
+		58ED21D693DC40C4B5B174F5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 263D98E9910F402B88E6261A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF30682384B647CDA148A976;
+			remoteInfo = ZERO_CHECK;
+		};
+		A75E0E1F01A048589A9C2813 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 263D98E9910F402B88E6261A /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 90B7A3FA0A2343418B7B5A32;
 			remoteInfo = glad;
 		};
-		B5804B285AEA4AB88F79F4F6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 263D98E9910F402B88E6261A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AF30682384B647CDA148A976;
-			remoteInfo = ZERO_CHECK;
-		};
-		C264A01C24F546F59BBBE329 /* PBXContainerItemProxy */ = {
+		CC03FC9309A047BDA319F9D1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 263D98E9910F402B88E6261A /* Project object */;
 			proxyType = 1;
@@ -113,61 +113,61 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		6CE9F175EDEB4A88AC401691 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		7E088814A6874626B6A09B85 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		BE8B1C0618E64A81AFF54BD8 /* glad */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libglad.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		FC6A8313B8A04D8099E05A0A /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/src/glad.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = glad.c; path = src/glad.c; sourceTree = SOURCE_ROOT; };
+		125D9BE7FF914703B8FC8FEF /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/src/glad.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = glad.c; path = src/glad.c; sourceTree = SOURCE_ROOT; };
+		AB5CC2F3FCB04A7CA4B3E4D6 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		CA5E4267510241F4A169AA46 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		E3271643420D453AAE5F1781 /* glad */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libglad.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
-		646C50E037AC413FB99BB826 /* ALL_BUILD */ = {
+		3BC36DFBAAA743BDB816723E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C9734FF9BE9B410192482C0D /* CMake Rules */,
-				6CE9F175EDEB4A88AC401691 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt */,
+				E3271643420D453AAE5F1781 /* glad */,
 			);
-			name = ALL_BUILD;
+			name = Products;
 			sourceTree = "<group>";
 		};
-		66B9ACE94E36492F8625A1A3 = {
-			isa = PBXGroup;
-			children = (
-				F1F0DAEE4D3742FDB3396F55 /* glad */,
-				646C50E037AC413FB99BB826 /* ALL_BUILD */,
-				F2D00857BCD54133B448CD27 /* Products */,
-			);
-			sourceTree = "<group>";
-		};
-		C9734FF9BE9B410192482C0D /* CMake Rules */ = {
+		4655EBBFFDDC44D895776EE3 /* CMake Rules */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = "CMake Rules";
 			sourceTree = "<group>";
 		};
-		E578EB4B03BE41DEB89AB2B6 /* Source Files */ = {
+		6D350CDE993C481F897C238B /* ALL_BUILD */ = {
 			isa = PBXGroup;
 			children = (
-				FC6A8313B8A04D8099E05A0A /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/src/glad.c */,
+				4655EBBFFDDC44D895776EE3 /* CMake Rules */,
+				CA5E4267510241F4A169AA46 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt */,
+			);
+			name = ALL_BUILD;
+			sourceTree = "<group>";
+		};
+		8266EB4E283B488F81D716A7 = {
+			isa = PBXGroup;
+			children = (
+				EC3E9B82782E4E4C87187AFD /* glad */,
+				6D350CDE993C481F897C238B /* ALL_BUILD */,
+				3BC36DFBAAA743BDB816723E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C4ABF9A81B424B03AAFCE00C /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				125D9BE7FF914703B8FC8FEF /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/src/glad.c */,
 			);
 			name = "Source Files";
 			sourceTree = "<group>";
 		};
-		F1F0DAEE4D3742FDB3396F55 /* glad */ = {
+		EC3E9B82782E4E4C87187AFD /* glad */ = {
 			isa = PBXGroup;
 			children = (
-				E578EB4B03BE41DEB89AB2B6 /* Source Files */,
-				7E088814A6874626B6A09B85 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt */,
+				C4ABF9A81B424B03AAFCE00C /* Source Files */,
+				AB5CC2F3FCB04A7CA4B3E4D6 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt */,
 			);
 			name = glad;
-			sourceTree = "<group>";
-		};
-		F2D00857BCD54133B448CD27 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				BE8B1C0618E64A81AFF54BD8 /* glad */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -175,18 +175,18 @@
 /* Begin PBXNativeTarget section */
 		90B7A3FA0A2343418B7B5A32 /* glad */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3201AB0DF5FF422E962B6108 /* Build configuration list for PBXNativeTarget "glad" */;
+			buildConfigurationList = 740E1836A10448569DE29008 /* Build configuration list for PBXNativeTarget "glad" */;
 			buildPhases = (
-				B9026BA3897749A0BEBC4174 /* Sources */,
+				AB26566357734CF585B9156F /* Sources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				B2C301237E43499F93FD275E /* PBXTargetDependency */,
+				319D9C0AE2274D24951276F2 /* PBXTargetDependency */,
 			);
 			name = glad;
 			productName = glad;
-			productReference = BE8B1C0618E64A81AFF54BD8 /* glad */;
+			productReference = E3271643420D453AAE5F1781 /* glad */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -198,18 +198,18 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1010;
 			};
-			buildConfigurationList = 01C0FCCE5D454D09B58DC188 /* Build configuration list for PBXProject "glad" */;
+			buildConfigurationList = 7BE91A4CED2C41138814275B /* Build configuration list for PBXProject "glad" */;
 			buildSettings = {
 			};
 			buildStyles = (
-				3866B5D2244E4D8E8073A4D9 /* Debug */,
-				D4F42C38190047B3BB1A5757 /* Release */,
-				14E591426BBD48C68BEB9249 /* MinSizeRel */,
-				981BD012EF46410EAC1B8EEC /* RelWithDebInfo */,
+				1D7F2070D8F644BFB7274201 /* Debug */,
+				4D2EF1EDC03A4561B4154B9C /* Release */,
+				5838180F8D864F8EA1005B16 /* MinSizeRel */,
+				437A6713821F40FCB129C3AA /* RelWithDebInfo */,
 			);
 			compatibilityVersion = "Xcode 3.2";
 			hasScannedForEncodings = 0;
-			mainGroup = 66B9ACE94E36492F8625A1A3;
+			mainGroup = 8266EB4E283B488F81D716A7;
 			projectDirPath = /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad;
 			projectRoot = "";
 			targets = (
@@ -222,7 +222,7 @@
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		073828427B314DA395385382 = {
+		1CC1C95BB090436EB57B35FB = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -237,7 +237,7 @@
 exit 0";
 			showEnvVarsInLog = 0;
 		};
-		1B0F2B56F6CE4046B99AD904 = {
+		55F6697A022942DCA9787C4C = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -252,33 +252,7 @@ exit 0";
 exit 0";
 			showEnvVarsInLog = 0;
 		};
-		5E9633E1AAE14965BD7319DC /* CMake Rules */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			name = "CMake Rules";
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "make -C /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/CMakeScripts/ALL_BUILD_cmakeRulesBuildPhase.make$CONFIGURATION all";
-			showEnvVarsInLog = 0;
-		};
-		8355757B3AD64E9B8028D4B6 = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# shell script goes here
-exit 0";
-			showEnvVarsInLog = 0;
-		};
-		922014ABC21743B78F85C218 /* CMake PostBuild Rules */ = {
+		980A8B578CA449A087EE5CEC /* CMake PostBuild Rules */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -289,7 +263,33 @@ exit 0";
 			shellScript = "make -C /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/CMakeScripts/install_postBuildPhase.make$CONFIGURATION all";
 			showEnvVarsInLog = 0;
 		};
-		A96E807576674E3589F0D516 /* CMake Rules */ = {
+		B454455DDF5D41C08375D832 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		DB9381D63CA14752B0AEFD60 /* CMake Rules */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "CMake Rules";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "make -C /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/CMakeScripts/ALL_BUILD_cmakeRulesBuildPhase.make$CONFIGURATION all";
+			showEnvVarsInLog = 0;
+		};
+		E4A578F573FE4D70BE7C8C5A /* CMake Rules */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -303,220 +303,41 @@ exit 0";
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		B9026BA3897749A0BEBC4174 /* Sources */ = {
+		AB26566357734CF585B9156F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FCE3BE3327D34B13B9EB6E45 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/src/glad.c */,
+				35822AB3C18043F887F45F8E /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/src/glad.c */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		58875C45CA1E4895B9344DC0 /* PBXTargetDependency */ = {
+		2EDC8CF58B3F47DA8AE8CB7A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8A0B4EBB8CD44351BE634E9E /* ALL_BUILD */;
-			targetProxy = C264A01C24F546F59BBBE329 /* PBXContainerItemProxy */;
+			targetProxy = CC03FC9309A047BDA319F9D1 /* PBXContainerItemProxy */;
 		};
-		B2C301237E43499F93FD275E /* PBXTargetDependency */ = {
+		319D9C0AE2274D24951276F2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AF30682384B647CDA148A976 /* ZERO_CHECK */;
-			targetProxy = 4E5F392F439D4800B322F18F /* PBXContainerItemProxy */;
+			targetProxy = 2B35C2276DE94F93A8BF75CC /* PBXContainerItemProxy */;
 		};
-		C981904C07C54C64B89F337A /* PBXTargetDependency */ = {
+		365118318F3346828157307C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AF30682384B647CDA148A976 /* ZERO_CHECK */;
-			targetProxy = B5804B285AEA4AB88F79F4F6 /* PBXContainerItemProxy */;
+			targetProxy = 58ED21D693DC40C4B5B174F5 /* PBXContainerItemProxy */;
 		};
-		CD9C7FB6F15740E3B00BF2E3 /* PBXTargetDependency */ = {
+		AE36B539967542BAAC86EC09 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 90B7A3FA0A2343418B7B5A32 /* glad */;
-			targetProxy = ADC776EECFC740C78892A987 /* PBXContainerItemProxy */;
+			targetProxy = A75E0E1F01A048589A9C2813 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		0305149929D14F1A82CA895A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " ";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
-			};
-			name = Debug;
-		};
-		0C0F41D5E2694B7E8ACF1C87 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " ";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
-			};
-			name = Debug;
-		};
-		10A25FDEC7AA499C949735B1 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				EXECUTABLE_PREFIX = lib;
-				EXECUTABLE_SUFFIX = .a;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 3;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = (/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/include);
-				INSTALL_PATH = "";
-				LIBRARY_STYLE = STATIC;
-				OTHER_CFLAGS = " -fPIC     -DNDEBUG  ";
-				OTHER_LIBTOOLFLAGS = " ";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = glad;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
-			};
-			name = Release;
-		};
-		140571A8E58E48FF86A6583B /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " ";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
-			};
-			name = MinSizeRel;
-		};
-		1B433D5A233C4B97BBCA3CEE /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " ";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
-			};
-			name = RelWithDebInfo;
-		};
-		21FD432E62474E0BB0117AA0 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk;
-				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/build;
-			};
-			name = Debug;
-		};
-		2D268EF71A044F4CBB1962AC /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " ";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
-			};
-			name = MinSizeRel;
-		};
-		35E66F0F5BAC4EC3AC9261BC /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " ";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
-			};
-			name = Debug;
-		};
-		54127442DBEA44E987969EFD /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				EXECUTABLE_PREFIX = lib;
-				EXECUTABLE_SUFFIX = .a;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 2;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = (/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/include);
-				INSTALL_PATH = "";
-				LIBRARY_STYLE = STATIC;
-				OTHER_CFLAGS = " -fPIC        -DNDEBUG  ";
-				OTHER_LIBTOOLFLAGS = " ";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = glad;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
-			};
-			name = RelWithDebInfo;
-		};
-		54C885CEDE6043B587FFADC7 /* MinSizeRel */ = {
+		009AD59FFA124F2E907DF076 /* MinSizeRel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
@@ -541,16 +362,32 @@ exit 0";
 			};
 			name = MinSizeRel;
 		};
-		69F27446EC024851AB9D4808 /* RelWithDebInfo */ = {
+		0930B0EFAA5241D9B2E924F6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk;
-				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/build;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/include);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CFLAGS = " -fPIC     -DNDEBUG  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glad;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
 			};
-			name = RelWithDebInfo;
+			name = Release;
 		};
-		74F00A88EC374D70AEC0F5AC /* RelWithDebInfo */ = {
+		0F04BD29E60A48D6AD81CE0E /* RelWithDebInfo */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
@@ -562,7 +399,7 @@ exit 0";
 				INSTALL_PATH = "";
 				OTHER_LDFLAGS = " ";
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
+				PRODUCT_NAME = ZERO_CHECK;
 				SECTORDER_FLAGS = "";
 				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
 				USE_HEADERMAP = NO;
@@ -570,7 +407,52 @@ exit 0";
 			};
 			name = RelWithDebInfo;
 		};
-		7EBDEF4B26F14332A9084BE3 /* MinSizeRel */ = {
+		1E5ED0EC5F104999A8AA3FCF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		1EACCF061E8445BBB23FDD09 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/include);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CFLAGS = " -fPIC        -DNDEBUG  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glad;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		2E8A29B50C8042D6AA95F148 /* MinSizeRel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
@@ -590,7 +472,7 @@ exit 0";
 			};
 			name = MinSizeRel;
 		};
-		89A385E3FCFF49658CBE6DBD /* RelWithDebInfo */ = {
+		38511C72D3E04E33BE5792CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
@@ -602,15 +484,64 @@ exit 0";
 				INSTALL_PATH = "";
 				OTHER_LDFLAGS = " ";
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
+				PRODUCT_NAME = ALL_BUILD;
 				SECTORDER_FLAGS = "";
 				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
 			};
+			name = Debug;
+		};
+		545DF7E7559F4550A800222B /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk;
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/build;
+			};
 			name = RelWithDebInfo;
 		};
-		9593422596354EB79D28CA68 /* Release */ = {
+		6D81F80029E04D18B5D92726 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		72315B0108884C69B7462D04 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		84D65958FD1047C28118A6E9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
@@ -630,16 +561,16 @@ exit 0";
 			};
 			name = Release;
 		};
-		9CA7351C9A35425BB8B63034 /* MinSizeRel */ = {
+		897722646EB0496691C6CCEB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk;
 				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/build;
 			};
-			name = MinSizeRel;
+			name = Release;
 		};
-		9CB2190F776844539C416A32 /* Release */ = {
+		8AAF78FD4C37470DB0CFD7E2 /* RelWithDebInfo */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
@@ -657,9 +588,47 @@ exit 0";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
 			};
-			name = Release;
+			name = RelWithDebInfo;
 		};
-		CB687FE6A6AF4FAEA13C348B /* Debug */ = {
+		B48A94B69A744DDEBCD87EE3 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		BD88B012C0684944B3708CD5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk;
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/build;
+			};
+			name = Debug;
+		};
+		BF943CBBCD51468FA36C4D3F /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk;
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/build;
+			};
+			name = MinSizeRel;
+		};
+		CA152885A73D4A45AEC8F0B4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
@@ -684,7 +653,7 @@ exit 0";
 			};
 			name = Debug;
 		};
-		D41428564DCC477396C27288 /* Release */ = {
+		CE8C8AA2F916466F8D59AD7E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
@@ -702,71 +671,102 @@ exit 0";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
 			};
-			name = Release;
+			name = Debug;
 		};
-		E3253847972F421A88E77449 /* Release */ = {
+		D259DA1503D94CBABCDFF20D /* MinSizeRel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk;
-				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/build;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
 			};
-			name = Release;
+			name = MinSizeRel;
+		};
+		DC1DD329C28A48EF877E31A2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		01C0FCCE5D454D09B58DC188 /* Build configuration list for PBXProject "glad" */ = {
+		3D7B99BB7CC24BDE9B477375 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				21FD432E62474E0BB0117AA0 /* Debug */,
-				E3253847972F421A88E77449 /* Release */,
-				9CA7351C9A35425BB8B63034 /* MinSizeRel */,
-				69F27446EC024851AB9D4808 /* RelWithDebInfo */,
+				38511C72D3E04E33BE5792CD /* Debug */,
+				6D81F80029E04D18B5D92726 /* Release */,
+				72315B0108884C69B7462D04 /* MinSizeRel */,
+				8AAF78FD4C37470DB0CFD7E2 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		23AB8B3A7C7D4347B05C6C7D /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
+		53425F02132E4A4985F48E0B /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				35E66F0F5BAC4EC3AC9261BC /* Debug */,
-				D41428564DCC477396C27288 /* Release */,
-				7EBDEF4B26F14332A9084BE3 /* MinSizeRel */,
-				89A385E3FCFF49658CBE6DBD /* RelWithDebInfo */,
+				CE8C8AA2F916466F8D59AD7E /* Debug */,
+				1E5ED0EC5F104999A8AA3FCF /* Release */,
+				2E8A29B50C8042D6AA95F148 /* MinSizeRel */,
+				0F04BD29E60A48D6AD81CE0E /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		3201AB0DF5FF422E962B6108 /* Build configuration list for PBXNativeTarget "glad" */ = {
+		740E1836A10448569DE29008 /* Build configuration list for PBXNativeTarget "glad" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				CB687FE6A6AF4FAEA13C348B /* Debug */,
-				10A25FDEC7AA499C949735B1 /* Release */,
-				54C885CEDE6043B587FFADC7 /* MinSizeRel */,
-				54127442DBEA44E987969EFD /* RelWithDebInfo */,
+				CA152885A73D4A45AEC8F0B4 /* Debug */,
+				0930B0EFAA5241D9B2E924F6 /* Release */,
+				009AD59FFA124F2E907DF076 /* MinSizeRel */,
+				1EACCF061E8445BBB23FDD09 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		70A06196782042DD90FC4255 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
+		7BE91A4CED2C41138814275B /* Build configuration list for PBXProject "glad" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0C0F41D5E2694B7E8ACF1C87 /* Debug */,
-				9CB2190F776844539C416A32 /* Release */,
-				140571A8E58E48FF86A6583B /* MinSizeRel */,
-				74F00A88EC374D70AEC0F5AC /* RelWithDebInfo */,
+				BD88B012C0684944B3708CD5 /* Debug */,
+				897722646EB0496691C6CCEB /* Release */,
+				BF943CBBCD51468FA36C4D3F /* MinSizeRel */,
+				545DF7E7559F4550A800222B /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		DD3D2E68118845F189AB7049 /* Build configuration list for PBXAggregateTarget "install" */ = {
+		BCE70EC632E44034ADA93D4A /* Build configuration list for PBXAggregateTarget "install" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0305149929D14F1A82CA895A /* Debug */,
-				9593422596354EB79D28CA68 /* Release */,
-				2D268EF71A044F4CBB1962AC /* MinSizeRel */,
-				1B433D5A233C4B97BBCA3CEE /* RelWithDebInfo */,
+				DC1DD329C28A48EF877E31A2 /* Debug */,
+				84D65958FD1047C28118A6E9 /* Release */,
+				D259DA1503D94CBABCDFF20D /* MinSizeRel */,
+				B48A94B69A744DDEBCD87EE3 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

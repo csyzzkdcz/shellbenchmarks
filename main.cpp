@@ -5,6 +5,7 @@
 #include "SimulationSetup/SimulationSetup.h"
 #include "SimulationSetup/SimulationSetupNormal.h"
 #include "SimulationSetup/SimulationSetupFindAbar.h"
+#include "SimulationSetup/SimulationSetupIpoptSolver.h"
 #include "ParseWimFiles.h"
 #include "StaticSolve.h"
 #include "SimulationState.h"
@@ -339,7 +340,7 @@ int main(int argc, char *argv[])
 //    compute_cylinder(resShape + "_geometry.obj");
 //    compute_sphere(resShape + "_geometry.obj");
     
-    setup = std::make_unique<SimulationSetupFindAbar>();
+    setup = std::make_unique<SimulationSetupIpoptSolver>();
     
 
     setup->penaltyCoef = 0;

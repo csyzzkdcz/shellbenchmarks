@@ -10,7 +10,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "StaticSolve.cpp"
-            timestampString = "570742599.564435"
+            timestampString = "570981673.565461"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "107"
@@ -26,7 +26,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "StaticSolve.cpp"
-            timestampString = "570742599.564494"
+            timestampString = "570981673.565515"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "75"
@@ -42,7 +42,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "StaticSolve.cpp"
-            timestampString = "570742599.56454"
+            timestampString = "570981673.5655529"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "131"
@@ -64,6 +64,38 @@
             startingLineNumber = "405"
             endingLineNumber = "405"
             landmarkName = "Viewer::load_mesh_from_file( const std::string &amp; mesh_file_name_string)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SimulationSetup/SimulationSetupIpoptSolver.cpp"
+            timestampString = "570981673.565621"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "35"
+            endingLineNumber = "35"
+            landmarkName = "SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundamentalFormDiscretization &amp;sff)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SimulationSetup/IfoptSoler.cpp"
+            timestampString = "570981673.5656689"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "267"
+            endingLineNumber = "267"
+            landmarkName = "optConstraint::FillJacobianBlock(std::string var_set, Jacobian &amp;jac_block)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

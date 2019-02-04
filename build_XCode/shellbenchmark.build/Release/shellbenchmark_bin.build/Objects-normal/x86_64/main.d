@@ -14,6 +14,10 @@ dependencies: \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/../alglib/linalg.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/../alglib/alglibmisc.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/../alglib/solvers.h \
+  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupIpoptSolver.h \
+  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/IfoptSolver.h \
+  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/../GeometryDerivatives.h \
+  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/../SecondFundamentalForm/MidedgeAverageFormulation.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/ParseWimFiles.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/StaticSolve.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationState.h \

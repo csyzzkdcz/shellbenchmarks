@@ -5,7 +5,7 @@
 #include "../alglib/stdafx.h"
 #include "../alglib/optimization.h"
 
-struct SimulationSetupFindAbar : public SimulationSetup
+class SimulationSetupFindAbar : public SimulationSetup
 {
     public:
     virtual void buildRestFundamentalForms(const SecondFundamentalFormDiscretization &sff) override;
