@@ -21,9 +21,11 @@ PostBuild.glfw.Debug: /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build
 PostBuild.glad.Debug: /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/Debug/shellbenchmark_bin
 /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/Debug/shellbenchmark_bin:\
 	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib/Debug/libalglib.a\
+	/Users/chenzhen/.local/lib/libifopt_ipopt.dylib\
 	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/imgui/Debug/libimgui.a\
 	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src/Debug/libglfw3.a\
-	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/Debug/libglad.a
+	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/Debug/libglad.a\
+	/Users/chenzhen/.local/lib/libifopt_core.dylib
 	/bin/rm -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/Debug/shellbenchmark_bin
 
 
@@ -61,9 +63,11 @@ PostBuild.glfw.Release: /Users/chenzhen/UT/Research/Projects/shellbenchmarks/bui
 PostBuild.glad.Release: /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/Release/shellbenchmark_bin
 /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/Release/shellbenchmark_bin:\
 	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib/Release/libalglib.a\
+	/Users/chenzhen/.local/lib/libifopt_ipopt.dylib\
 	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/imgui/Release/libimgui.a\
 	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src/Release/libglfw3.a\
-	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/Release/libglad.a
+	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/Release/libglad.a\
+	/Users/chenzhen/.local/lib/libifopt_core.dylib
 	/bin/rm -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/Release/shellbenchmark_bin
 
 
@@ -101,9 +105,11 @@ PostBuild.glfw.MinSizeRel: /Users/chenzhen/UT/Research/Projects/shellbenchmarks/
 PostBuild.glad.MinSizeRel: /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/MinSizeRel/shellbenchmark_bin
 /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/MinSizeRel/shellbenchmark_bin:\
 	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib/MinSizeRel/libalglib.a\
+	/Users/chenzhen/.local/lib/libifopt_ipopt.dylib\
 	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/imgui/MinSizeRel/libimgui.a\
 	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src/MinSizeRel/libglfw3.a\
-	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/MinSizeRel/libglad.a
+	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/MinSizeRel/libglad.a\
+	/Users/chenzhen/.local/lib/libifopt_core.dylib
 	/bin/rm -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/MinSizeRel/shellbenchmark_bin
 
 
@@ -141,9 +147,11 @@ PostBuild.glfw.RelWithDebInfo: /Users/chenzhen/UT/Research/Projects/shellbenchma
 PostBuild.glad.RelWithDebInfo: /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/RelWithDebInfo/shellbenchmark_bin
 /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/RelWithDebInfo/shellbenchmark_bin:\
 	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib/RelWithDebInfo/libalglib.a\
+	/Users/chenzhen/.local/lib/libifopt_ipopt.dylib\
 	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/imgui/RelWithDebInfo/libimgui.a\
 	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src/RelWithDebInfo/libglfw3.a\
-	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/RelWithDebInfo/libglad.a
+	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/RelWithDebInfo/libglad.a\
+	/Users/chenzhen/.local/lib/libifopt_core.dylib
 	/bin/rm -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/RelWithDebInfo/shellbenchmark_bin
 
 
@@ -170,6 +178,8 @@ PostBuild.alglib.RelWithDebInfo:
 
 
 # For each target create a dummy ruleso the target does not have to exist
+/Users/chenzhen/.local/lib/libifopt_core.dylib:
+/Users/chenzhen/.local/lib/libifopt_ipopt.dylib:
 /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib/Debug/libalglib.a:
 /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib/MinSizeRel/libalglib.a:
 /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib/RelWithDebInfo/libalglib.a:

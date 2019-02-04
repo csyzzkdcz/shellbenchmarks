@@ -28,6 +28,8 @@ class SimulationSetup
     Eigen::VectorXd initialEdgeDOFs;
     std::map<int, double> clampedDOFs;
     Eigen::MatrixXd externalForces; // same size as initialPos
+    
+    std::vector<Eigen::Matrix2d> initialAbars; // Abars on the rest shape
     double thickness;
     double YoungsModulus;
     double PoissonsRatio;

@@ -23,8 +23,6 @@
 
 std::unique_ptr<SimulationSetup> setup;
 SimulationState curState;
-Eigen::MatrixXd tarPos;
-Eigen::MatrixXd tarFaces;
 Eigen::VectorXd evec;
 int numSteps;
 double tolerance;
@@ -48,7 +46,7 @@ void compute_sphere(std::string rectPath)
          y = v
          z = R*cos(u / R) - R
          */
-        double R = 0.01;
+        double R = 0.5;
         double u = Vo(i,0);
         double v = Vo(i,1);
         double z = R - R*R/sqrt(R*R+u*u+v*v);
@@ -58,7 +56,7 @@ void compute_sphere(std::string rectPath)
         Vo(i,1) = y;
         Vo(i,2) = z;
     }
-    igl::writeOBJ("../../benchmarks/TestModels/sphere.obj", Vo, Fo);
+    igl::writeOBJ("../../benchmarks/TestModels/coarse/sphere/sphere_geometry.obj", Vo, Fo);
     
 }
 
@@ -71,7 +69,7 @@ void compute_hypar(std::string rectPath)
     {
         Vo(i,2) = 32*Vo(i,1) * Vo(i,0);
     }
-    igl::writeOBJ("../../benchmarks/TestModels/hypar.obj", Vo, Fo);
+    igl::writeOBJ("../../benchmarks/TestModels/coarse/hypar/hypar_geometry.obj", Vo, Fo);
 }
 
 void compute_cylinder(std::string rectPath)
@@ -86,14 +84,14 @@ void compute_cylinder(std::string rectPath)
          y = v
          z = R*cos(u / R) - R
          */
-        double R = 0.05;
+        double R = 0.5;
         double x = R*sin(Vo(i,0)/R);
         double z = R*cos(Vo(i,0)/R) - R;
         Vo(i,0) = x;
         Vo(i,2) = z;
     }
     int ind = rectPath.rfind("/");
-    igl::writeOBJ(rectPath.substr(0, ind) + "/resampled/cylinder_geometry.obj", Vo, Fo);
+    igl::writeOBJ("../../benchmarks/TestModels/coarse/cylinder/cylinder_geometry.obj", Vo, Fo);
 }
 
 void meshResample(int targetResolution)
@@ -203,7 +201,7 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
         
         if(isShowAbar)
         {
-            viewer.data().set_mesh(tarPos, setup->mesh.faces());
+            viewer.data().set_mesh(setup->initialPos, setup->mesh.faces());
         }
         igl::barycenter(viewer.data().V, setup->mesh.faces(), BC);
         
@@ -216,9 +214,9 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
             
             if(isShowAbar)
             {
-                a = firstFundamentalForm(setup->mesh, tarPos, i, NULL, NULL);
-                abar = setup->abars[i];
-                viewer.data().set_mesh(tarPos, setup->mesh.faces());
+                a = setup->abars[i];
+                abar = firstFundamentalForm(setup->mesh, setup->initialPos, i, NULL, NULL);
+        
                 
                 A = abar.inverse()*a;
                 //A = IU.inverse()*IM;
@@ -229,8 +227,9 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
                 double eigValue2 = es.eigenvalues()[1].real();
                 Eigen::VectorXd eigVec2 = es.eigenvectors().col(1).real();
                 
-                Vec1.row(i) = eigValue1*(eigVec1(0)*(tarPos.row(setup->mesh.faces()(i,1))-tarPos.row(setup->mesh.faces()(i,0))) + eigVec1(1)*(tarPos.row(setup->mesh.faces()(i,2))-tarPos.row(setup->mesh.faces()(i,0))));
-                Vec2.row(i) = eigValue2*(eigVec2(0)*(tarPos.row(setup->mesh.faces()(i,1))-tarPos.row(setup->mesh.faces()(i,0))) + eigVec2(1)*(tarPos.row(setup->mesh.faces()(i,2))-tarPos.row(setup->mesh.faces()(i,0))));
+                Vec1.row(i) = eigValue1*(eigVec1(0)*(setup->initialPos.row(setup->mesh.faces()(i,1))-setup->initialPos.row(setup->mesh.faces()(i,0))) + eigVec1(1)*(setup->initialPos.row(setup->mesh.faces()(i,2))-setup->initialPos.row(setup->mesh.faces()(i,0))));
+                Vec2.row(i) = eigValue2*(eigVec2(0)*(setup->initialPos.row(setup->mesh.faces()(i,1))-setup->initialPos.row(setup->mesh.faces()(i,0))) + eigVec2(1)*(setup->initialPos.row(setup->mesh.faces()(i,2))-setup->initialPos.row(setup->mesh.faces()(i,0))));
+                
             }
             else
             {
@@ -246,8 +245,9 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
                 double eigValue2 = es.eigenvalues()[1].real();
                 Eigen::VectorXd eigVec2 = es.eigenvectors().col(1).real();
                 
-                Vec1.row(i) = eigValue1*(eigVec1(0)*(curState.curPos.row(setup->mesh.faces()(i,1))-curState.curPos.row(setup->mesh.faces()(i,0))) + eigVec1(1)*(curState.curPos.row(setup->mesh.faces()(i,2))-curState.curPos.row(setup->mesh.faces()(i,0))));
+                Vec1.row(i) = eigValue1*(eigVec1(0)*(curState.curPos.row(setup->mesh.faces()(i,1))-curState.curPos.row(setup->mesh.faces()(i,0)))+ eigVec1(1)*(curState.curPos.row(setup->mesh.faces()(i,2))-curState.curPos.row(setup->mesh.faces()(i,0))));
                 Vec2.row(i) = eigValue2*(eigVec2(0)*(curState.curPos.row(setup->mesh.faces()(i,1))-curState.curPos.row(setup->mesh.faces()(i,0))) + eigVec2(1)*(curState.curPos.row(setup->mesh.faces()(i,2))-curState.curPos.row(setup->mesh.faces()(i,0))));
+                
             }
             
            
@@ -256,6 +256,7 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
         const Eigen::RowVector3d red(1,0,0), black(0,0,0);
         viewer.data().add_edges(BC,BC+Vec1, red);
         viewer.data().add_edges(BC,BC+Vec2, black);
+        
     }
     
     if(isShowFaceColor)
@@ -265,6 +266,11 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
         igl::ColorMapType vizColor = igl::COLOR_MAP_TYPE_PARULA;
         Eigen::VectorXd Z(nfaces);
         Eigen::MatrixXd faceColors(nfaces, 3);
+        
+        if(isShowAbar)
+        {
+            viewer.data().set_mesh(setup->initialPos, setup->mesh.faces());
+        }
         
         for(int i=0;i<nfaces;i++)
         {
@@ -276,9 +282,8 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
 //                Eigen::MatrixXd F;
 //                igl::readOBJ(tarShape + "_geometry.obj", V, F);
 //                a = firstFundamentalForm(setup->mesh, V, i, NULL, NULL);
-                a = firstFundamentalForm(setup->mesh, tarPos, i, NULL, NULL);
-                abar = setup->abars[i];
-                viewer.data().set_mesh(tarPos, setup->mesh.faces());
+                a = setup->abars[i];
+                abar = firstFundamentalForm(setup->mesh, setup->initialPos, i, NULL, NULL);
             }
             else
             {
@@ -302,7 +307,9 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
 
 int main(int argc, char *argv[])
 {
-//    compute_cylinder();
+//    compute_cylinder("../../benchmarks/TestModels/coarse/cylinder/draped_rect_geometry.obj");
+//    compute_sphere("../../benchmarks/TestModels/coarse/sphere/draped_rect_geometry.obj");
+//    compute_hypar("../../benchmarks/TestModels/coarse/hypar/draped_rect_geometry.obj");
 //    return;
     numSteps = 30;
     tolerance = 1e-6;
@@ -324,8 +331,8 @@ int main(int argc, char *argv[])
     //    igl::readOBJ("../../benchmarks/TestModels/sphere_geometry.obj", Vt, Ft);
     //    curState.curPos = Vt;
     //jitter(1e-6);
-    resShape = "../../benchmarks/TestModels/" + selectedType + "/draped_rect";
-    tarShape = "../../benchmarks/TestModels/" + selectedType + "/" + selectedType;
+    resShape = "../../benchmarks/TestModels/coarse/" + selectedType + "/draped_rect";
+    tarShape = "../../benchmarks/TestModels/coarse/" + selectedType + "/" + selectedType;
     
 //    meshResample(512);
 //    compute_hypar(resShape + "_geometry.obj");
@@ -334,8 +341,7 @@ int main(int argc, char *argv[])
     
     setup = std::make_unique<SimulationSetupFindAbar>();
     
-    igl::readOBJ(tarShape + "_geometry.obj", tarPos, tarFaces);
-    
+
     setup->penaltyCoef = 0;
     
     bool ok = parseWimFiles(resShape, tarShape, *setup, sff);
@@ -510,8 +516,9 @@ int main(int argc, char *argv[])
             else if (selected == 3)
                 selectedType = "cylinder";
             
-            resShape = "../../benchmarks/TestModels/" + selectedType + "/draped_rect";
-            tarShape = "../../benchmarks/TestModels/" + selectedType + "/" + selectedType;
+            resShape = "../../benchmarks/TestModels/coarse/" + selectedType + "/draped_rect";
+            tarShape = "../../benchmarks/TestModels/coarse/" + selectedType + "/" + selectedType;
+            
             bool ok = parseWimFiles(resShape, tarShape, *setup, sff);
             if (!ok)
             {
@@ -521,12 +528,13 @@ int main(int argc, char *argv[])
                 return -1;
             }
             
-            if (selected == 3)
+           // if (selected == 3 || selected == 2)
             {
                 Eigen::MatrixXd Vt;
                 Eigen::MatrixXi Ft;
-                igl::readOBJ(tarShape + ".obj", Vt, Ft);
+                igl::readOBJ(tarShape + "_geometry.obj", Vt, Ft);
                 curState.curPos = Vt;
+                numSteps = 1;
             }
         }
         

@@ -23,7 +23,8 @@ public:
     int vertexOppositeFaceEdge(int face, int vertidx) const;
     int vertexOppositeFaceEdgeIndex(int face, int vertidx) const;
     int faceOppositeVertex(int face, int vertidx) const;
-
+    Eigen::VectorXi getBoundaryLoop() const { return boundaryLoop; }
+    
     const Eigen::MatrixXi &faces() const { return F; }
 
     //int oppositeFace(int face, int vertidx) const;
@@ -43,6 +44,7 @@ private:
     Eigen::MatrixXi EF;
     Eigen::MatrixXi EOpp;
     Eigen::MatrixXi EOppIdx;
+    Eigen::VectorXi boundaryLoop;
 };
 
 #endif

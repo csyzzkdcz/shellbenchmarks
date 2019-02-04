@@ -50,6 +50,8 @@ void SimulationSetupFindAbar::buildRestFundamentalForms(const SecondFundamentalF
     int nfaces = mesh.nFaces();
     abars.resize(nfaces);
     bbars.resize(nfaces);
+    
+    initialAbars.resize(nfaces);
 
     lameAlpha = YoungsModulus * PoissonsRatio / (1.0 - PoissonsRatio * PoissonsRatio);
     lameBeta = YoungsModulus / 2.0 / (1.0 + PoissonsRatio);
@@ -57,9 +59,11 @@ void SimulationSetupFindAbar::buildRestFundamentalForms(const SecondFundamentalF
     for (int i = 0; i < nfaces; i++)
     {
         bbars[i].setZero();
+        initialAbars[i] = firstFundamentalForm(mesh, initialPos, i, NULL, NULL);
     }
     
 //    testPenaltyTerm();
+//    return;
     
     if(!loadAbars() || penaltyCoef != 0)
         findFirstFundamentalForms(sff);
@@ -93,7 +97,7 @@ void SimulationSetupFindAbar::findFirstFundamentalForms(const SecondFundamentalF
         x[3*i] = sqrt(atargets[i](0,0));
         x[3*i+1] = atargets[i](0,1)/x[3*i];
         x[3*i+2] = sqrt(atargets[i].determinant())/x[3*i];
-//
+
 //        x[3*i] = sqrt(abars[i](0,0));
 //        x[3*i+1] = abars[i](0,1)/x[3*i];
 //        x[3*i+2] = sqrt(abars[i].determinant())/x[3*i];
@@ -433,6 +437,7 @@ double SimulationSetupFindAbar::computePenaltyTerm(const alglib::real_1d_array &
     for(int i = 0; i < nfaces; i++)
     {
         Eigen::Matrix2d L;
+        
         L << x[3*i], 0,
         x[3*i+1], x[3*i+2];
         for(int j = 0; j < 3; j++)
@@ -444,17 +449,77 @@ double SimulationSetupFindAbar::computePenaltyTerm(const alglib::real_1d_array &
                 Eigen::Matrix2d Lj;
                 Lj << x[3*oppFace], 0,
                     x[3*oppFace+1], x[3*oppFace+2];
-                E += 1.0/2.0 * (w.col(j).transpose() * L * L.transpose() * w.col(j) - w.col(oppVerIdx).transpose() * Lj * Lj.transpose() * w.col(oppVerIdx)) * (w.col(j).transpose() * L * L.transpose() * w.col(j) - w.col(oppVerIdx).transpose() * Lj * Lj.transpose() * w.col(oppVerIdx));
                 
+                // Compute the tranfermation matrix M
+                
+                Eigen::Vector3d oppNormal, curNormal, oppEdge;
+                
+                oppNormal = faceNormal(mesh, initialPos, oppFace, oppVerIdx, NULL, NULL);
+                curNormal = faceNormal(mesh, initialPos, i, j, NULL, NULL);
+                
+                oppNormal = oppNormal/oppNormal.norm();
+                curNormal = curNormal/curNormal.norm();
+                
+                oppEdge = initialPos.row(mesh.faceVertex(i, (j + 1)%3)) - initialPos.row(mesh.faceVertex(i, (j + 2)%3));
+                oppEdge = oppEdge/oppEdge.norm();
+                
+                Eigen::Matrix3d A, A1, T;
+                A.col(0) = oppEdge;
+                A.col(1) = curNormal;
+                A.col(2) = oppEdge.cross(curNormal);
+                
+                A1.col(0) = oppEdge;
+                A1.col(1) = oppNormal;
+                A1.col(2) = oppEdge.cross(oppNormal);
+                
+                T = A1*A.inverse();
+                
+                Eigen::Matrix<double, 3, 2> R;
+                Eigen::Matrix<double, 3, 2> oppR;
+                
+                R.col(0) = initialPos.row(mesh.faceVertex(i, 1)) - initialPos.row(mesh.faceVertex(i, 0));
+                R.col(1) = initialPos.row(mesh.faceVertex(i, 2)) - initialPos.row(mesh.faceVertex(i, 0));
+                
+                oppR.col(0) = initialPos.row(mesh.faceVertex(oppFace, 1)) - initialPos.row(mesh.faceVertex(oppFace, 0));
+                oppR.col(1) = initialPos.row(mesh.faceVertex(oppFace, 2)) - initialPos.row(mesh.faceVertex(oppFace, 0));
+                
+                Eigen::Matrix2d M = (oppR.transpose() * oppR).inverse() * oppR.transpose() * T * R;
+                
+//                std::cout<<L * L.transpose()<<std::endl<<std::endl<<std::endl;
+//                std::cout<<R.transpose()*R<<std::endl<<std::endl;
+//                std::cout<<M.transpose() * Lj * Lj.transpose() * M<<std::endl<<std::endl;
+//                std::cout<<M<<std::endl<<std::endl;
+//
+//                std::cout<<T * R<<std::endl<<std::endl;;
+//                std::cout<<M(0,0) * oppR.col(0) + M(1,0) * oppR.col(1)<<std::endl<<std::endl;
+//                std::cout<<M(0,1) * oppR.col(0) + M(1,1) * oppR.col(1)<<std::endl<<std::endl;
+                
+               
+                
+                 E += 1.0/2.0 * ( (L * L.transpose() - M.transpose() * Lj * Lj.transpose() * M) * (L * L.transpose() - M.transpose() * Lj * Lj.transpose() * M).transpose() ).trace() / sqrt(initialAbars[i].determinant()); // devided by det(A0) to make it scalar irrelavent
+                
+//               double value =  1.0/2.0 * (w.col(j).transpose() * L * L.transpose() * w.col(j) - w.col(oppVerIdx).transpose() * Lj * Lj.transpose() * w.col(oppVerIdx)) * (w.col(j).transpose() * L * L.transpose() * w.col(j) - w.col(oppVerIdx).transpose() * Lj * Lj.transpose() * w.col(oppVerIdx));
+//
+//               E += value / sqrt(initialAbars[i].determinant());
+                
+
                 for(int k = 0; k < 3; k++)
                 {
                     Eigen::Matrix2d abarderiv, abarderivj;
                     abarderiv = Lderivs[k] * L.transpose() + L * Lderivs[k].transpose();
                     abarderivj = Lderivs[k] * Lj.transpose() + Lj * Lderivs[k].transpose();
                     
-                    derivative(3 * i + k) += (w.col(j).transpose() * L * L.transpose() * w.col(j) - w.col(oppVerIdx).transpose() * Lj * Lj.transpose() * w.col(oppVerIdx)) * (w.col(j).transpose() * abarderiv * w.col(j));
-                    
-                    derivative(3 * oppFace + k) += -(w.col(j).transpose() * L * L.transpose() * w.col(j) - w.col(oppVerIdx).transpose() * Lj * Lj.transpose() * w.col(oppVerIdx)) * (w.col(oppVerIdx).transpose() * abarderivj * w.col(oppVerIdx));
+                     derivative(3 * i + k) += ( abarderiv * (L * L.transpose() - M.transpose() * Lj * Lj.transpose() * M).transpose() ).trace() / sqrt(initialAbars[i].determinant());
+
+                     derivative(3 * oppFace + k) += - ( M.transpose() * abarderivj * M * (L * L.transpose() - M.transpose() * Lj * Lj.transpose() * M).transpose() ).trace() / sqrt(initialAbars[i].determinant());
+
+//                   value = (w.col(j).transpose() * L * L.transpose() * w.col(j) - w.col(oppVerIdx).transpose() * Lj * Lj.transpose() * w.col(oppVerIdx)) * (w.col(j).transpose() * abarderiv * w.col(j));
+//
+//                   derivative(3 * i + k) += value / sqrt(initialAbars[i].determinant());
+//
+//                   value = -(w.col(j).transpose() * L * L.transpose() * w.col(j) - w.col(oppVerIdx).transpose() * Lj * Lj.transpose() * w.col(oppVerIdx)) * (w.col(oppVerIdx).transpose() * abarderivj * w.col(oppVerIdx));
+//
+//                   derivative(3 * oppFace + k) += value / sqrt(initialAbars[i].determinant());
                 }
             }
             
@@ -573,7 +638,6 @@ void SimulationSetupFindAbar::testFucntionGradient(const SecondFundamentalFormDi
     Eigen::VectorXd eps(nfaces*3);
     eps.setZero();
     alg_x1 = alg_x;
-    selected_i = 0;
     for(int k=3;k<16;k++)
     {
         eps(selected_i) = pow(10,-k);
@@ -591,13 +655,14 @@ void SimulationSetupFindAbar::testFucntionGradient(const SecondFundamentalFormDi
 void SimulationSetupFindAbar::testPenaltyTerm()
 {
     std::string testMeshName = "../../benchmarks/TestModels/sphere/sphere_geometry.obj";
-//    std::string testMeshName = "../../benchmarks/TestModels/test_square.obj";
+//    std::string testMeshName = "../../benchmarks/TestModels/backup/test_square.obj";
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
     igl::readOBJ(testMeshName, V, F);
     MeshConnectivity testMesh(F);
     mesh = testMesh;
     std::vector<Eigen::Matrix2d> abarTest;
+    initialPos = V;
     int nfaces = F.rows();
     abarTest.resize(nfaces);
     alglib::real_1d_array x;
@@ -606,10 +671,15 @@ void SimulationSetupFindAbar::testPenaltyTerm()
     for(int i=0; i<nfaces; i++)
     {
         abarTest[i] = firstFundamentalForm(testMesh, V, i, NULL, NULL);
+        initialAbars[i] = abarTest[i];
         srand((unsigned)time(NULL));
-        x[3*i] = sqrt(abarTest[i](0,0)) + 1e-3 * rand() / RAND_MAX;
-        x[3*i+1] = abarTest[i](0,1) / x[3*i] + 1e-3 * rand() / RAND_MAX;
-        x[3*i+2] = sqrt(abarTest[i].determinant())/x[3*i] + 1e-3 * rand() / RAND_MAX;
+//        x[3*i] = sqrt(abarTest[i](0,0)) + 1e-3 * rand()/RAND_MAX;
+//        x[3*i+1] = abarTest[i](0,1) / x[3*i] + 1e-3 * rand()/RAND_MAX;
+//        x[3*i+2] = sqrt(abarTest[i].determinant())/x[3*i] + 1e-3 * rand()/RAND_MAX;
+        
+        x[3*i] = sqrt(abarTest[i](0,0));
+        x[3*i+1] = abarTest[i](0,1) / x[3*i];
+        x[3*i+2] = sqrt(abarTest[i].determinant())/x[3*i];
     }
     
     Eigen::VectorXd derivative, derivative1;

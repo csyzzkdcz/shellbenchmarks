@@ -1,4 +1,5 @@
 #include "MeshConnectivity.h"
+#include <igl/boundary_loop.h>
 
 #include <vector>
 #include <map>
@@ -12,12 +13,14 @@ MeshConnectivity::MeshConnectivity()
     EF.resize(0, 2);
     EOpp.resize(0, 2);
     EOppIdx.resize(0, 2);
+    boundaryLoop.resize(0);
 }
 
 MeshConnectivity::MeshConnectivity(const Eigen::MatrixXi &F) : F(F)
 {
     std::map<std::pair<int, int>, Eigen::Vector2i > edgeFaces;
     int nfaces = F.rows();
+    igl::boundary_loop(F, boundaryLoop);
     for(int i=0; i<nfaces; i++)
     {
         for(int j=0; j<3; j++)

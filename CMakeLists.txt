@@ -6,6 +6,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 # Use C++14
 set (CMAKE_CXX_STANDARD 14)
 
+set(CMAKE_PREFIX_PATH "$ENV{HOME}/.local")
+
 # libigl
 option(LIBIGL_USE_STATIC_LIBRARY "Use libigl as static library" OFF)
 option(LIBIGL_WITH_ANTTWEAKBAR       "Use AntTweakBar"    OFF)
@@ -27,12 +29,18 @@ option(LIBIGL_WITH_VIEWER            "Use OpenGL viewer"  ON)
 option(LIBIGL_WITH_XML               "Use XML"            OFF)
 
 find_package(LIBIGL REQUIRED QUIET)
+find_package(ifopt REQUIRED)
 
 # Add your project files
 file(GLOB SRCFILES *.cpp SecondFundamentalForm/*.cpp SimulationSetup/*.cpp SecondFundamentalForm/*.h SimulationSetup/*.h)
+
+# find_package(ifopt REQUIRED)
+message("Found IFOPT at ${ifopt_INCLUDE_DIRS} from $ENV(ifopt}")
+
+include_directories( ${ifopt_INCLUDE_DIRS} )
 
 # External libs
 add_subdirectory(alglib)
 
 add_executable(${PROJECT_NAME}_bin ${SRCFILES})
-target_link_libraries(${PROJECT_NAME}_bin igl::core igl::opengl_glfw igl::opengl_glfw_imgui alglib)
+target_link_libraries(${PROJECT_NAME}_bin igl::core igl::opengl_glfw igl::opengl_glfw_imgui alglib ifopt::ifopt_ipopt)

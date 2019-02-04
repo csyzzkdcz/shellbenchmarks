@@ -344,6 +344,9 @@ glad_BINARY_DIR:STATIC=/Users/chenzhen/UT/Research/Projects/shellbenchmarks/buil
 //Value Computed by CMake
 glad_SOURCE_DIR:STATIC=/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad
 
+//The directory containing a CMake configuration file for ifopt.
+ifopt_DIR:PATH=/Users/chenzhen/.local/share/ifopt/cmake
+
 //Dependencies for the target
 imgui_LIB_DEPENDS:STATIC=general;glad;general;glfw;
 
