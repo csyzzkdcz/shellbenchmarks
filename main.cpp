@@ -1,6 +1,19 @@
 #include <igl/opengl/glfw/Viewer.h>
-#include "MeshConnectivity.h"
+
 #include <random>
+#include <igl/opengl/glfw/imgui/ImGuiMenu.h>
+#include <igl/opengl/glfw/imgui/ImGuiHelpers.h>
+#include <igl/decimate.h>
+#include <igl/upsample.h>
+#include <imgui/imgui.h>
+#include <memory>
+//#include <igl/triangle/triangulate.h>
+//#include "SecondFundamentalForm/MidedgeAngleSinFormulation.h"
+//#include "SecondFundamentalForm/MidedgeAngleTanFormulation.h"
+#include "SecondFundamentalForm/MidedgeAverageFormulation.h"
+#include "MeshConnectivity.h"
+#include "GeometryDerivatives.h"
+#include "BuildModels.h"
 #include "ElasticShell.h"
 #include "SimulationSetup/SimulationSetup.h"
 #include "SimulationSetup/SimulationSetupNormal.h"
@@ -9,17 +22,7 @@
 #include "ParseWimFiles.h"
 #include "StaticSolve.h"
 #include "SimulationState.h"
-#include <igl/opengl/glfw/imgui/ImGuiMenu.h>
-#include <igl/opengl/glfw/imgui/ImGuiHelpers.h>
-#include <igl/decimate.h>
-#include <igl/upsample.h>
-#include <imgui/imgui.h>
-//#include <igl/triangle/triangulate.h>
-//#include "SecondFundamentalForm/MidedgeAngleSinFormulation.h"
-//#include "SecondFundamentalForm/MidedgeAngleTanFormulation.h"
-#include "SecondFundamentalForm/MidedgeAverageFormulation.h"
-#include "GeometryDerivatives.h"
-#include <memory>
+
 
 
 std::unique_ptr<SimulationSetup> setup;
@@ -30,110 +33,13 @@ double tolerance;
 bool isShowVerField = false;
 bool isShowFaceColor = false;
 bool isShowAbar =  false;
-enum tarShapes { sphere=0, saddle, hypar, cylinder };
-static tarShapes selected = sphere;
+
+enum Methods {Normal=0, alglibSolver, ipoptSolver};
+static Methods methodType =  ipoptSolver;
+
 std::string resShape = "";
 std::string tarShape = "";
-
-void compute_sphere(std::string rectPath)
-{
-    Eigen::MatrixXd Vo;
-    Eigen::MatrixXi Fo;
-    igl::readOBJ(rectPath, Vo, Fo);
-    for(int i=0;i<Vo.rows();i++)
-    {
-        /*
-         x = R*sin(u / R)
-         y = v
-         z = R*cos(u / R) - R
-         */
-        double R = 0.5;
-        double u = Vo(i,0);
-        double v = Vo(i,1);
-        double z = R - R*R/sqrt(R*R+u*u+v*v);
-        double x = (R-z)/R*u;
-        double y = (R-z)/R*v;
-        Vo(i,0) = x;
-        Vo(i,1) = y;
-        Vo(i,2) = z;
-    }
-    igl::writeOBJ("../../benchmarks/TestModels/coarse/sphere/sphere_geometry.obj", Vo, Fo);
-    
-}
-
-void compute_hypar(std::string rectPath)
-{
-    Eigen::MatrixXd Vo;
-    Eigen::MatrixXi Fo;
-    igl::readOBJ(rectPath, Vo, Fo);
-    for(int i=0;i<Vo.rows();i++)
-    {
-        Vo(i,2) = 32*Vo(i,1) * Vo(i,0);
-    }
-    igl::writeOBJ("../../benchmarks/TestModels/coarse/hypar/hypar_geometry.obj", Vo, Fo);
-}
-
-void compute_cylinder(std::string rectPath)
-{
-    Eigen::MatrixXd Vo;
-    Eigen::MatrixXi Fo;
-    igl::readOBJ(rectPath, Vo, Fo);
-    for(int i=0;i<Vo.rows();i++)
-    {
-        /*
-         x = R*sin(u / R)
-         y = v
-         z = R*cos(u / R) - R
-         */
-        double R = 0.5;
-        double x = R*sin(Vo(i,0)/R);
-        double z = R*cos(Vo(i,0)/R) - R;
-        Vo(i,0) = x;
-        Vo(i,2) = z;
-    }
-    int ind = rectPath.rfind("/");
-    igl::writeOBJ("../../benchmarks/TestModels/coarse/cylinder/cylinder_geometry.obj", Vo, Fo);
-}
-
-void meshResample(int targetResolution)
-{
-//    Eigen::MatrixXd V;
-//    Eigen::MatrixXi E;
-//    Eigen::MatrixXd H;
-//
-//    // Triangulated interior
-//    Eigen::MatrixXd V2;
-//    Eigen::MatrixXi F2;
-//    V.resize(8,1);
-//    E.resize(8,1);
-//
-//    V << -1,-1, 1,-1, 1,1, -1, 1,
-//
-//    E << 0,1, 1,2, 2,3, 3,0,
-//
-//
-//    // Triangulate the interior
-//    igl::triangle::triangulate(V,E,H,"a0.005q",V2,F2);
-    
-    // Plot the generated mesh
-    Eigen::MatrixXd Vcurr;
-    Eigen::MatrixXi Fcurr;
-    igl::readOBJ("../../benchmarks/DrapedRect/3876_triangles/draped_rect_geometry.obj", Vcurr, Fcurr);
-    while ( Fcurr.rows() < targetResolution * 2)
-    {
-        Eigen::MatrixXd Vtmp = Vcurr;
-        Eigen::MatrixXi Ftmp = Fcurr;
-        igl::upsample(Vtmp, Ftmp, Vcurr, Fcurr, 1);
-    }
-    Eigen::MatrixXd V;
-    Eigen::MatrixXi F;
-    Eigen::VectorXi J;
-
-    igl::decimate(Vcurr, Fcurr, targetResolution, V, F, J);
-//    igl::writeOBJ("../../benchmarks/TestModels/resampled/draped_rect_geometry.obj",V2,F2);
-    
-    
-}
+std::string curPath = "";
 
 
 void postProcess()
@@ -171,30 +77,18 @@ void reset()
 void repaint(igl::opengl::glfw::Viewer &viewer)
 {
     viewer.data().clear();
+    viewer.core.background_color<<1,1,1,1;
+    if(curState.curPos.rows() == 0)
+        return;
     viewer.data().set_mesh(curState.curPos, setup->mesh.faces());
     Eigen::MatrixXd colors(setup->initialPos.rows(), 3);
-    //    igl::jet(evec, true, colors);
-    //    for (auto &it : setup->clampedDOFs)
-    //    {
-    //        int vid = it.first / 3;
-    //        colors(vid, 0) = 1.0;
-    //        colors(vid, 1) = 0.0;
-    //        colors(vid, 2) = 0.0;
-    //    }
-    //    viewer.data().set_colors(colors);
     
     colors.col(0).setConstant(1.0);
     colors.col(1).setConstant(1.0);
     colors.col(2).setConstant(0);
-    //    for (int i=0;i<op->p_fixed_index.size();i++)
-    //    {
-    //        colors(op->p_fixed_index[i], 0) = 1.0;
-    //        colors(op->p_fixed_index[i], 1) = 0.0;
-    //        colors(op->p_fixed_index[i], 2) = 0.0;
-    //    }
+    
     viewer.data().set_colors(colors);
     viewer.data().line_width = 2;
-    viewer.core.background_color<<1,1,1,1;
     
     if(isShowVerField)
     {
@@ -279,10 +173,6 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
             
             if(isShowAbar)
             {
-//                Eigen::MatrixXd V;
-//                Eigen::MatrixXd F;
-//                igl::readOBJ(tarShape + "_geometry.obj", V, F);
-//                a = firstFundamentalForm(setup->mesh, V, i, NULL, NULL);
                 a = setup->abars[i];
                 abar = firstFundamentalForm(setup->mesh, setup->initialPos, i, NULL, NULL);
             }
@@ -308,53 +198,15 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
 
 int main(int argc, char *argv[])
 {
-//    compute_cylinder("../../benchmarks/TestModels/coarse/cylinder/draped_rect_geometry.obj");
-//    compute_sphere("../../benchmarks/TestModels/coarse/sphere/draped_rect_geometry.obj");
-//    compute_hypar("../../benchmarks/TestModels/coarse/hypar/draped_rect_geometry.obj");
-//    return;
-    numSteps = 30;
+    numSteps = 1;
     tolerance = 1e-6;
     
     std::string selectedType = "sphere";
     
     MidedgeAverageFormulation sff;
-    //MidedgeAngleTanFormulation sff;
-    //MidedgeAngleSinFormulation sff;
-    //std::string problem = "benchmarks/ClampedCylindricalShell/2496_triangles/cantilever_cylindrical_shell";
-    //std::string problem = "C:/Users/evouga/Documents/wim/tests/trivial/trivial";
-    //std::string problem = "D:/Dropbox/Dropbox/ShellBenchmarks/CantileverPlate/17640_triangles/cantilever_plate";
-    //std::string problem = "benchmarks/CrushedCylinder/4900_triangles/crushed_cylinder";
-    
-    //    setup = std::make_unique<SimulationSetupFindAbar>();
-    
-    //    Eigen::MatrixXd Vt;
-    //    Eigen::MatrixXi Ft;
-    //    igl::readOBJ("../../benchmarks/TestModels/sphere_geometry.obj", Vt, Ft);
-    //    curState.curPos = Vt;
-    //jitter(1e-6);
-    resShape = "../../benchmarks/TestModels/coarse/" + selectedType + "/draped_rect";
-    tarShape = "../../benchmarks/TestModels/coarse/" + selectedType + "/" + selectedType;
-    
-//    meshResample(512);
-//    compute_hypar(resShape + "_geometry.obj");
-//    compute_cylinder(resShape + "_geometry.obj");
-//    compute_sphere(resShape + "_geometry.obj");
     
     setup = std::make_unique<SimulationSetupIpoptSolver>();
     
-
-    setup->penaltyCoef = 0;
-    
-    bool ok = parseWimFiles(resShape, tarShape, *setup, sff);
-    if (!ok)
-    {
-        std::cerr << "Couldn't load problem: " << std::endl;
-        std::cerr << "Rest Shape: "<< resShape << std::endl;
-        std::cerr << "Target Shape: "<< tarShape << std::endl;
-        return -1;
-    }
-    
-    reset();
     igl::opengl::glfw::Viewer viewer;
     
     // Attach a menu plugin
@@ -365,7 +217,6 @@ int main(int argc, char *argv[])
     menu.callback_draw_viewer_menu = [&]()
     {
         // Draw parent menu content
-        // menu.draw_viewer_menu();
         // Workspace
         if (ImGui::CollapsingHeader("Workspace", ImGuiTreeNodeFlags_DefaultOpen))
         {
@@ -390,19 +241,25 @@ int main(int argc, char *argv[])
             if (ImGui::Button("Load##Mesh", ImVec2((w-p)/2.f, 0)))
             {
                 viewer.data().clear();
-//                viewer.open_dialog_load_mesh();
-                std::string fname = igl::file_dialog_open();
+                curPath = igl::file_dialog_open();
                 Eigen::MatrixXi F;
 
-                if (fname.length() == 0)
+                if (curPath.length() == 0)
                 {
                     std::cout<<"Loading mesh failed"<<std::endl;
                 }
                 else
                 {
-                    igl::readOBJ(fname, curState.curPos, F);
+                    int idx = curPath.rfind("/");
+                    curPath = curPath.substr(0,idx);
+                    idx = curPath.rfind("/");
+                    selectedType = curPath.substr(idx+1, curPath.size()-1);
+                    tarShape = curPath + "/" + selectedType ;
+                    resShape = curPath + "/" + "draped_rect";
+                    igl::readOBJ(tarShape + "_geometry.obj", curState.curPos, F);
+                    std::cout<<curPath<<std::endl;
+                    setup->mesh = MeshConnectivity(F);
                 }
-//                curState.curPos = viewer.data().F;
                 repaint(viewer);
             }
             ImGui::SameLine(0, p);
@@ -506,36 +363,23 @@ int main(int argc, char *argv[])
                      );
         
         
-        if (ImGui::Combo("Target Shapes", (int *)(&selected), "sphere\0saddle\0hypar\0cylinder\0\0"))
+        if (ImGui::Combo("Methods", (int *)(&methodType), "Normal\0alglibSolver\0ifOptSolver\0\0"))
         {
-            if (selected == 0)
-                selectedType = "sphere";
-            else if (selected == 1)
-                selectedType = "saddle";
-            else if (selected == 2)
-                selectedType = "hypar";
-            else if (selected == 3)
-                selectedType = "cylinder";
-            
-            resShape = "../../benchmarks/TestModels/coarse/" + selectedType + "/draped_rect";
-            tarShape = "../../benchmarks/TestModels/coarse/" + selectedType + "/" + selectedType;
-            
-            bool ok = parseWimFiles(resShape, tarShape, *setup, sff);
-            if (!ok)
+            if (methodType == 0)
             {
-                std::cerr << "Couldn't load problem: " << std::endl;
-                std::cerr << "Rest Shape: "<< resShape << std::endl;
-                std::cerr << "Target Shape: "<< tarShape << std::endl;
-                return -1;
+                setup = std::make_unique<SimulationSetupNormal>();
             }
-            
-           // if (selected == 3 || selected == 2)
+            else if (methodType == 1)
             {
-                Eigen::MatrixXd Vt;
-                Eigen::MatrixXi Ft;
-                igl::readOBJ(tarShape + "_geometry.obj", Vt, Ft);
-                curState.curPos = Vt;
-                numSteps = 1;
+                setup = std::make_unique<SimulationSetupFindAbar>();
+                setup->abarPath = curPath + "/alglibSolver" + "/" + selectedType + "_L_list_" +std::to_string(int(-log(setup->penaltyCoef))) + ".dat";
+                std::cout<<setup->abarPath<<std::endl;
+            }
+            else if (methodType == 2)
+            {
+                setup = std::make_unique<SimulationSetupIpoptSolver>();
+                setup->abarPath = curPath + "/ifOptSolver" + "/" + selectedType + "_L_list_0" +std::to_string(int(-log(setup->penaltyCoef)))+ ".dat";
+                std::cout<<setup->abarPath<<std::endl;
             }
         }
         
@@ -558,9 +402,18 @@ int main(int argc, char *argv[])
             reset();
             repaint(viewer);
         }
-        if (ImGui::Button("Recompute Abars", ImVec2(-1, 0)))
+        if (ImGui::Button("load and Compute", ImVec2(-1, 0)))
         {
-            parseWimFiles(resShape, tarShape, *setup, sff);
+            bool ok = parseWimFiles(resShape, tarShape, *setup, sff);
+            if (!ok)
+            {
+                std::cerr << "Couldn't load problem: " << std::endl;
+                std::cerr << "Rest Shape: "<< resShape << std::endl;
+                std::cerr << "Target Shape: "<< tarShape << std::endl;
+                return -1;
+            }
+            setup->buildRestFundamentalForms(sff);
+            setup->penaltyCoef = 0;
         }
         if (ImGui::InputInt("Interpolation Steps", &numSteps))
         {

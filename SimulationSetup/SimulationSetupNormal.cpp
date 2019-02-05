@@ -14,3 +14,8 @@ void SimulationSetupNormal::buildRestFundamentalForms(const SecondFundamentalFor
         bbars[i] = sff.secondFundamentalForm(mesh, initialPos, initialEdgeDOFs, i, NULL, NULL);
     }
 }
+
+bool SimulationSetupNormal::loadAbars()
+{
+    return true;
+}

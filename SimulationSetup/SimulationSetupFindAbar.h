@@ -13,7 +13,7 @@ class SimulationSetupFindAbar : public SimulationSetup
     void getFunctionGradient(const alglib::real_1d_array &x, double &f, alglib::real_1d_array &df);
     
     void testFucntionGradient(const SecondFundamentalFormDiscretization &sff);
-    bool loadAbars();   // The path is given by abarPath + "L_list.dat".  abar = L*L^T
+    bool loadAbars() override;   // The path is given by abarPath + "L_list.dat".  abar = L*L^T
     void saveAbars();
     
     private:

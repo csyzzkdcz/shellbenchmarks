@@ -90,18 +90,24 @@
          }
 
          VectorXd GetValues() const override;
+         
+         VectorXd getValues(Eigen::VectorXd x) const;
 
          VecBound GetBounds() const override
          {
              VecBound b(GetRows());
              for(int i=0;i<GetRows();i++)
              {
-                b.at(i) = Bounds(0.0,0.0);
+                b.at(i) = Bounds(-1e-7,1e-7);
              }
              return b;
          }
 
          void FillJacobianBlock(std::string var_set, Jacobian& jac_block) const override;
+         
+         void fillJacobianBlock(Eigen::VectorXd x, Jacobian& jac_block) const;
+         
+         void testValueJacobian(Eigen::VectorXd x);
 
      private:
          void convertVariable2ABbarsPos(Eigen::VectorXd x, std::vector<Eigen::Matrix2d> &abars, std::vector<Eigen::Matrix2d> &bbars, Eigen::MatrixXd &curPos) const;
@@ -127,7 +133,14 @@
          optCost(const std::string& name) : CostTerm(name){}
 
          double GetCost() const override;
+         
+         double getCost(Eigen::VectorXd x) const;
+         
          void FillJacobianBlock(std::string var_set, Jacobian &jac) const override;
+         
+         void fillJacobianBlock(Eigen::VectorXd x, Jacobian &jac) const;
+         
+         void testCostJacobian(Eigen::VectorXd x);
 
      private:
          Eigen::MatrixXd _tarPos;

@@ -70,36 +70,44 @@ void optConstraint::convertVariable2ABbarsPos(Eigen::VectorXd x, std::vector<Eig
 Eigen::VectorXd optConstraint::GetValues() const
 {
     Eigen::VectorXd x = GetVariables()->GetComponent("var_set")->GetValues();
+    return getValues(x);
+}
 
+Eigen::VectorXd optConstraint::getValues(Eigen::VectorXd x) const
+{
     std::vector<Eigen::Matrix2d> abars;
     std::vector<Eigen::Matrix2d> bbars;
     Eigen::MatrixXd curPos;
-
+    
     convertVariable2ABbarsPos(x, abars, bbars, curPos);
-
+    
     Eigen::VectorXd derivative;
     Eigen::VectorXd edgeDOFS(0);
     MidedgeAverageFormulation sff;
     elasticEnergy(_mesh, curPos, edgeDOFS, _lameAlpha, _lameBeta, _thickness, abars, bbars, sff, &derivative, NULL);
-
+//    std::cout<<"The norm of the constrains is "<<derivative.norm()<<std::endl;
     return derivative;
 }
 
 void optConstraint::FillJacobianBlock(std::string var_set, Jacobian &jac_block) const
 {
     Eigen::VectorXd x = GetVariables()->GetComponent("var_set")->GetValues();
+    fillJacobianBlock(x, jac_block);
+}
 
+void optConstraint::fillJacobianBlock(Eigen::VectorXd x, Jacobian &jac_block) const
+{
     std::vector<Eigen::Matrix2d> abars;
     std::vector<Eigen::Matrix2d> bbars;
     Eigen::MatrixXd curPos;
-
+    
     convertVariable2ABbarsPos(x, abars, bbars, curPos);
-
+    
     std::vector<Eigen::Triplet<double> > hessian;
     Eigen::VectorXd edgeDOFS(0);
     MidedgeAverageFormulation sff;
     elasticEnergy(_mesh, curPos, edgeDOFS, _lameAlpha, _lameBeta, _thickness, abars, bbars, sff, NULL, &hessian);
-
+    
     int nfaces =  _mesh.nFaces();
     int nverts = x.size() / 3 - nfaces;
 
@@ -264,49 +272,114 @@ void optConstraint::FillJacobianBlock(std::string var_set, Jacobian &jac_block) 
         }
     }
     
-    Jacobian jacEntire(3*nverts, 3*(nverts+nfaces));
-    jacEntire.setFromTriplets(hessian.begin(), hessian.end());
+//    Jacobian jacEntire(3*nverts, 3*(nverts+nfaces));
+//    jacEntire.setFromTriplets(hessian.begin(), hessian.end());
     Eigen::VectorXi boundary = _mesh.getBoundaryLoop();
     jac_block.resize(3*nverts, 3*(nverts+nfaces));
     jac_block.setZero();
-    
+    jac_block.setFromTriplets(hessian.begin(), hessian.end());
+    std::vector<Eigen::Triplet<double>> nonzeroCols;
     for(int i=0; i<boundary.size(); i++)
     {
-        jac_block.row(3*boundary(i)) = jacEntire.row(3*boundary(i));
-        jac_block.row(3*boundary(i) + 1) = jacEntire.row(3*boundary(i) + 1);
-        jac_block.row(3*boundary(i) + 2) = jacEntire.row(3*boundary(i) + 2);
+        for(int k=0; k<3; k++)
+            nonzeroCols.push_back(Eigen::Triplet<double>(3*boundary(i) + k, 3*boundary(i) + k, 1));
     }
-
+    for(int i=0; i<nfaces; i++)
+    {
+        for(int k=0; k<3; k++)
+            nonzeroCols.push_back(Eigen::Triplet<double>(3*i + 3*nverts + k, 3*i + 3*nverts + k, 1));
+    }
+    Jacobian nonzeroColMat;
+    nonzeroColMat.resize(3*(nverts+nfaces), 3*(nverts+nfaces));
+    nonzeroColMat.setFromTriplets(nonzeroCols.begin(), nonzeroCols.end());
+    jac_block = jac_block*nonzeroColMat;
 }
 
+
+void optConstraint::testValueJacobian(Eigen::VectorXd x)
+{
+    int nfaces = _mesh.nFaces();
+    int nverts =  x.size() / 3 - nfaces;
+    
+    Eigen::VectorXi boundary = _mesh.getBoundaryLoop();
+    
+    Eigen::VectorXd epsVec(x.size());
+    srand((unsigned)time(NULL));
+    for(int i=0; i<boundary.size(); i++)
+    {
+        for(int k=0; k<3; k++)
+        {
+            double epsValue =  random();
+            epsVec(3*boundary(i) + k) = epsValue;
+        }
+    }
+    
+    for(int i=0; i<nfaces; i++)
+    {
+        for(int k=0; k<3; k++)
+        {
+            double epsValue =  random();
+            epsVec(3*nverts + 3*i + k) = epsValue;
+        }
+    }
+    
+    epsVec = epsVec.normalized();
+    
+    Eigen::VectorXd value = getValues(x);
+    Jacobian J;
+    fillJacobianBlock(x, J);
+    
+    int selectedIdx = rand() % x.size();
+    
+    for(int i=3; i< 13; i++)
+    {
+        double eps =  pow(10,-i);
+        Eigen::VectorXd x1 = x + eps * epsVec;
+        Eigen::VectorXd value1 = getValues(x1);
+        std::cout<<"EPS is "<<eps<<" Selected index is "<<selectedIdx<<std::endl;
+        std::cout<<"Finite difference is "<< (value1(i) - value(i))/eps << " gradient is "<<(J*epsVec)(i)<<std::endl;
+        std::cout<<"Error is "<<abs( (value1(i) - value(i))/eps - (J*epsVec)(i) )<<std::endl<<std::endl;;
+        std::cout<<"The total norm of Finite difference is "<< ( (value1 - value)/eps ).norm()<<" gradient is " <<(J*epsVec).norm()<<std::endl;
+        std::cout<<"The norm of difference is "<<( (value1 - value)/eps - J*epsVec ).norm()<<std::endl<<std::endl;
+    }
+}
+
+
+
+// optCost Class
 double optCost::GetCost() const
 {
     VectorXd  x = GetVariables()->GetComponent("var_set")->GetValues();
+    return getCost(x);
 
+}
+
+double optCost::getCost(Eigen::VectorXd x) const
+{
     int nfaces =  _mesh.nFaces();
     int nverts = x.size() / 3 - nfaces;
-
+    
     double E = 0;
     Eigen::Matrix<double, 2, 3> w;
     w << 1, 0, 1,
     -1, 1, 0;
-
+    
     std::vector<Eigen::Matrix2d> Lderivs(3);
-
+    
     Lderivs[0] << 1,0,
     0,0;
-
+    
     Lderivs[1] << 0,0,
     1,0;
-
+    
     Lderivs[2] << 0,0,
     0,1;
-
-
+    
+    
     for(int i = 0; i < nfaces; i++)
     {
         Eigen::Matrix2d L;
-
+        
         L << x(3*i + 3*nverts), 0,
         x(3*i+1 + 3*nverts), x(3*i+2 + 3*nverts);
         for(int j = 0; j < 3; j++)
@@ -318,107 +391,105 @@ double optCost::GetCost() const
                 Eigen::Matrix2d Lj;
                 Lj << x(3*oppFace + 3*nverts), 0,
                 x(3*oppFace+1 + 3*nverts), x(3*oppFace+2 + 3*nverts);
-
+                
                 // Compute the tranfermation matrix M
-
+                
                 Eigen::Vector3d oppNormal, curNormal, oppEdge;
-
+                
                 oppNormal = faceNormal(_mesh, _initialPos, oppFace, oppVerIdx, NULL, NULL);
                 curNormal = faceNormal(_mesh, _initialPos, i, j, NULL, NULL);
-
+                
                 oppNormal = oppNormal/oppNormal.norm();
                 curNormal = curNormal/curNormal.norm();
-
+                
                 oppEdge = _initialPos.row(_mesh.faceVertex(i, (j + 1)%3)) - _initialPos.row(_mesh.faceVertex(i, (j + 2)%3));
                 oppEdge = oppEdge/oppEdge.norm();
-
+                
                 Eigen::Matrix3d A, A1, T;
                 A.col(0) = oppEdge;
                 A.col(1) = curNormal;
                 A.col(2) = oppEdge.cross(curNormal);
-
+                
                 A1.col(0) = oppEdge;
                 A1.col(1) = oppNormal;
                 A1.col(2) = oppEdge.cross(oppNormal);
-
+                
                 T = A1*A.inverse();
-
+                
                 Eigen::Matrix<double, 3, 2> R;
                 Eigen::Matrix<double, 3, 2> oppR;
-
+                
                 R.col(0) = _initialPos.row(_mesh.faceVertex(i, 1)) - _initialPos.row(_mesh.faceVertex(i, 0));
                 R.col(1) = _initialPos.row(_mesh.faceVertex(i, 2)) - _initialPos.row(_mesh.faceVertex(i, 0));
-
+                
                 oppR.col(0) = _initialPos.row(_mesh.faceVertex(oppFace, 1)) - _initialPos.row(_mesh.faceVertex(oppFace, 0));
                 oppR.col(1) = _initialPos.row(_mesh.faceVertex(oppFace, 2)) - _initialPos.row(_mesh.faceVertex(oppFace, 0));
-
+                
                 Eigen::Matrix2d M = (oppR.transpose() * oppR).inverse() * oppR.transpose() * T * R;
-
-                //                std::cout<<L * L.transpose()<<std::endl<<std::endl<<std::endl;
-                //                std::cout<<R.transpose()*R<<std::endl<<std::endl;
-                //                std::cout<<M.transpose() * Lj * Lj.transpose() * M<<std::endl<<std::endl;
-                //                std::cout<<M<<std::endl<<std::endl;
-                //
-                //                std::cout<<T * R<<std::endl<<std::endl;;
-                //                std::cout<<M(0,0) * oppR.col(0) + M(1,0) * oppR.col(1)<<std::endl<<std::endl;
-                //                std::cout<<M(0,1) * oppR.col(0) + M(1,1) * oppR.col(1)<<std::endl<<std::endl;
-
+                
+                
                 Eigen::Matrix2d initialAbar = firstFundamentalForm(_mesh, _initialPos, i, NULL, NULL);
-
-
+                
+                
                 E += 1.0/2.0 * ( (L * L.transpose() - M.transpose() * Lj * Lj.transpose() * M) * (L * L.transpose() - M.transpose() * Lj * Lj.transpose() * M).transpose() ).trace() / sqrt(initialAbar.determinant()); // devided by det(A0) to make it scalar irrelavent
-
+                
                 //               double value =  1.0/2.0 * (w.col(j).transpose() * L * L.transpose() * w.col(j) - w.col(oppVerIdx).transpose() * Lj * Lj.transpose() * w.col(oppVerIdx)) * (w.col(j).transpose() * L * L.transpose() * w.col(j) - w.col(oppVerIdx).transpose() * Lj * Lj.transpose() * w.col(oppVerIdx));
                 //
                 //               E += value / sqrt(initialAbars[i].determinant());
-
-
+                
+                
             }
-
+            
         }
     }
-
+    
     E = _lambda * E;
-
+    
     Eigen::VectorXi boundary =  _mesh.getBoundaryLoop();
-
+    
     for(int i=0; i<boundary.size(); i++)
     {
         E += 0.5 * (x.segment<3>(3*boundary(i)).transpose() - _tarPos.row(boundary(i))) * (x.segment<3>(3*boundary(i)).transpose() - _tarPos.row(boundary(i))).transpose();
     }
-
+    
     return E;
-
+    
 }
+
 
 void optCost::FillJacobianBlock(std::string var_set, Jacobian &jac) const
 {
     VectorXd  x = GetVariables()->GetComponent("var_set")->GetValues();
-    std::vector<Eigen::Triplet<double>> J;
+    fillJacobianBlock(x, jac);
+}
 
+void optCost::fillJacobianBlock(Eigen::VectorXd x, Jacobian &jac) const
+{
+    std::vector<Eigen::Triplet<double>> J;
+    
     int nfaces =  _mesh.nFaces();
     int nverts = x.size() / 3 - nfaces;
-
+    
     Eigen::Matrix<double, 2, 3> w;
     w << 1, 0, 1,
     -1, 1, 0;
-
+    
     std::vector<Eigen::Matrix2d> Lderivs(3);
-
+    
     Lderivs[0] << 1,0,
     0,0;
-
+    
     Lderivs[1] << 0,0,
     1,0;
-
+    
     Lderivs[2] << 0,0,
     0,1;
-
-
+    
+    
     for(int i = 0; i < nfaces; i++)
     {
         Eigen::Matrix2d L;
-
+        
         L << x(3*i + 3*nverts), 0,
         x(3*i+1 + 3*nverts), x(3*i+2 + 3*nverts);
         for(int j = 0; j < 3; j++)
@@ -430,79 +501,124 @@ void optCost::FillJacobianBlock(std::string var_set, Jacobian &jac) const
                 Eigen::Matrix2d Lj;
                 Lj << x(3*oppFace + 3*nverts), 0,
                 x(3*oppFace+1 + 3*nverts), x(3*oppFace+2 + 3*nverts);
-
+                
                 // Compute the tranfermation matrix M
-
+                
                 Eigen::Vector3d oppNormal, curNormal, oppEdge;
-
+                
                 oppNormal = faceNormal(_mesh, _initialPos, oppFace, oppVerIdx, NULL, NULL);
                 curNormal = faceNormal(_mesh, _initialPos, i, j, NULL, NULL);
-
+                
                 oppNormal = oppNormal/oppNormal.norm();
                 curNormal = curNormal/curNormal.norm();
-
+                
                 oppEdge = _initialPos.row(_mesh.faceVertex(i, (j + 1)%3)) - _initialPos.row(_mesh.faceVertex(i, (j + 2)%3));
                 oppEdge = oppEdge/oppEdge.norm();
-
+                
                 Eigen::Matrix3d A, A1, T;
                 A.col(0) = oppEdge;
                 A.col(1) = curNormal;
                 A.col(2) = oppEdge.cross(curNormal);
-
+                
                 A1.col(0) = oppEdge;
                 A1.col(1) = oppNormal;
                 A1.col(2) = oppEdge.cross(oppNormal);
-
+                
                 T = A1*A.inverse();
-
+                
                 Eigen::Matrix<double, 3, 2> R;
                 Eigen::Matrix<double, 3, 2> oppR;
-
+                
                 R.col(0) = _initialPos.row(_mesh.faceVertex(i, 1)) - _initialPos.row(_mesh.faceVertex(i, 0));
                 R.col(1) = _initialPos.row(_mesh.faceVertex(i, 2)) - _initialPos.row(_mesh.faceVertex(i, 0));
-
+                
                 oppR.col(0) = _initialPos.row(_mesh.faceVertex(oppFace, 1)) - _initialPos.row(_mesh.faceVertex(oppFace, 0));
                 oppR.col(1) = _initialPos.row(_mesh.faceVertex(oppFace, 2)) - _initialPos.row(_mesh.faceVertex(oppFace, 0));
-
+                
                 Eigen::Matrix2d M = (oppR.transpose() * oppR).inverse() * oppR.transpose() * T * R;
-
-
+                
+                
                 Eigen::Matrix2d initialAbar = firstFundamentalForm(_mesh, _initialPos, i, NULL, NULL);
-
-
+                
+                
                 for(int k = 0; k < 3; k++)
                 {
                     Eigen::Matrix2d abarderiv, abarderivj;
                     abarderiv = Lderivs[k] * L.transpose() + L * Lderivs[k].transpose();
                     abarderivj = Lderivs[k] * Lj.transpose() + Lj * Lderivs[k].transpose();
-
+                    
                     double result;
-
+                    
                     result = _lambda * ( abarderiv * (L * L.transpose() - M.transpose() * Lj * Lj.transpose() * M).transpose() ).trace() / sqrt(initialAbar.determinant());
-
+                    
                     J.push_back(Eigen::Triplet<double>(0, 3 * i + k + 3*nverts, result));
-
+                    
                     result = - _lambda * ( M.transpose() * abarderivj * M * (L * L.transpose() - M.transpose() * Lj * Lj.transpose() * M).transpose() ).trace() / sqrt(initialAbar.determinant());
-
+                    
                     J.push_back(Eigen::Triplet<double>(0, 3 * oppFace + k + 3*nverts, result));
                 }
-
-
+                
+                
             }
-
+            
         }
     }
     Eigen::VectorXi boundary =  _mesh.getBoundaryLoop();
-
+    
     for(int i=0; i<boundary.size(); i++)
     {
         for(int k=0; k<3; k++)
         {
             double result = x(3*boundary(i)+k) - _tarPos(boundary(i), k);
-            J.push_back(Eigen::Triplet<double>(0, 3 * boundary(i), result));
+            J.push_back(Eigen::Triplet<double>(0, 3 * boundary(i)+k, result));
         }
     }
     
     jac.resize(1, 3*(nverts + nfaces));
     jac.setFromTriplets(J.begin(), J.end());
+}
+
+
+void optCost::testCostJacobian(Eigen::VectorXd x)
+{
+    int nfaces = _mesh.nFaces();
+    int nverts =  x.size() / 3 - nfaces;
+    
+    Eigen::VectorXi boundary = _mesh.getBoundaryLoop();
+    
+    Eigen::VectorXd epsVec(x.size());
+    srand((unsigned)time(NULL));
+    for(int i=0; i<boundary.size(); i++)
+    {
+        for(int k=0; k<3; k++)
+        {
+            double epsValue =  random();
+            epsVec(3*boundary(i) + k) = epsValue;
+        }
+    }
+    
+    for(int i=0; i<nfaces; i++)
+    {
+        for(int k=0; k<3; k++)
+        {
+            double epsValue =  random();
+            epsVec(3*nverts + 3*i + k) = epsValue;
+        }
+    }
+    
+    epsVec = epsVec.normalized();
+    
+    double value = getCost(x);
+    Jacobian J;
+    fillJacobianBlock(x, J);
+    
+    for(int i=3; i< 13; i++)
+    {
+        double eps =  pow(10,-i);
+        Eigen::VectorXd x1 = x + eps * epsVec;
+        double value1 = getCost(x1);
+        std::cout<<"EPS is "<<eps<<std::endl;
+        std::cout<< "Gradient is "<<(J*epsVec)(0,0)<< " Finite difference is "<<(value1 - value)/eps<<std::endl;
+        std::cout<< "The error is "<<abs((J*epsVec)(0,0) - (value1 - value)/eps)<<std::endl;
+    }
 }

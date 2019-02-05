@@ -7,6 +7,8 @@ class SimulationSetupNormal : public SimulationSetup
 {
     public:
     virtual void buildRestFundamentalForms(const SecondFundamentalFormDiscretization &sff) override;
+    
+    bool loadAbars() override;
 };
 
 

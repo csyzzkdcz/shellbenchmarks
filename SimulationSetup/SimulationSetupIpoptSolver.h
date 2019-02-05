@@ -10,6 +10,7 @@ class SimulationSetupIpoptSolver : public SimulationSetup
 public:
     virtual void buildRestFundamentalForms(const SecondFundamentalFormDiscretization &sff) override;
     void findFirstFundamentalForms(const SecondFundamentalFormDiscretization &sff);
+    bool loadAbars() override;   // The path is given by abarPath + "L_list.dat".  abar = L*L^T
     
 private:
     std::vector<Eigen::Matrix<double, 4, 9> > aderivs;
