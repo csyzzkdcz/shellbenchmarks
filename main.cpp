@@ -17,7 +17,7 @@
 #include "ElasticShell.h"
 #include "SimulationSetup/SimulationSetup.h"
 #include "SimulationSetup/SimulationSetupNormal.h"
-#include "SimulationSetup/SimulationSetupFindAbar.h"
+#include "SimulationSetup/SimulationSetupAlglibSolver.h"
 #include "SimulationSetup/SimulationSetupIpoptSolver.h"
 #include "ParseWimFiles.h"
 #include "StaticSolve.h"
@@ -40,6 +40,10 @@ static Methods methodType =  ipoptSolver;
 std::string resShape = "";
 std::string tarShape = "";
 std::string curPath = "";
+
+double thickness;
+double penaltyCoef;
+int expCoef;
 
 
 void postProcess()
@@ -72,6 +76,14 @@ void reset()
     evec.resize(curState.curPos.rows());
     evec.setZero();
     
+}
+
+void setTarget()
+{
+    std::cout << std::endl << "Set Target" << std::endl << std::endl;
+    curState.curPos = setup->targetPos;
+    curState.curEdgeDOFs = setup->initialEdgeDOFs;
+    numSteps = 1;
 }
 
 void repaint(igl::opengl::glfw::Viewer &viewer)
@@ -198,7 +210,7 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
 
 int main(int argc, char *argv[])
 {
-    numSteps = 1;
+    numSteps = 30;
     tolerance = 1e-6;
     
     std::string selectedType = "sphere";
@@ -371,22 +383,43 @@ int main(int argc, char *argv[])
             }
             else if (methodType == 1)
             {
-                setup = std::make_unique<SimulationSetupFindAbar>();
-                setup->abarPath = curPath + "/alglibSolver" + "/" + selectedType + "_L_list_" +std::to_string(int(-log(setup->penaltyCoef))) + ".dat";
+                setup = std::make_unique<SimulationSetupAlglibSolver>();
+                setup->penaltyCoef = penaltyCoef;
+                if(penaltyCoef == 0)
+                    expCoef = 0;
+                else
+                    expCoef = int(-std::log10(penaltyCoef));
+                // if(std::log10(penaltyCoef) > 0)
+                //     setup->abarPath = curPath + "/alglibSolver" + "/" + selectedType + "_L_list_p_" + std::to_string(int(penaltyCoef)) + ".dat";
+                // else
+                    setup->abarPath = curPath + "/alglibSolver" + "/" + selectedType + "_L_list_" +std::to_string(expCoef) + ".dat";
                 std::cout<<setup->abarPath<<std::endl;
             }
             else if (methodType == 2)
             {
                 setup = std::make_unique<SimulationSetupIpoptSolver>();
-                setup->abarPath = curPath + "/ifOptSolver" + "/" + selectedType + "_L_list_0" +std::to_string(int(-log(setup->penaltyCoef)))+ ".dat";
+                setup->penaltyCoef = penaltyCoef;
+                if(penaltyCoef == 0)
+                    expCoef = 0;
+                else
+                    expCoef = int(-std::log10(penaltyCoef));
+                // if(penaltyCoef > 0)
+                //     setup->abarPath = curPath + "/ifOptSolver" + "/" + selectedType + "_L_list_p_" + std::to_string(int(penaltyCoef)) + ".dat";
+                // else
+                    setup->abarPath = curPath + "/ifOptSolver" + "/" + selectedType + "_L_list_" +std::to_string(expCoef)+ ".dat";
                 std::cout<<setup->abarPath<<std::endl;
             }
         }
         
         if (ImGui::CollapsingHeader("Parameters", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            double thickness = setup->thickness;
-            double penaltyCoef = setup->penaltyCoef;
+            thickness = setup->thickness;
+            penaltyCoef = setup->penaltyCoef;
+            if(penaltyCoef == 0)
+                expCoef = 0;
+            else
+                expCoef = int(-std::log10(penaltyCoef));
+            
             if (ImGui::InputDouble("Thickness", &thickness))
             {
                 setup->thickness = thickness;
@@ -394,12 +427,31 @@ int main(int argc, char *argv[])
             if (ImGui::InputDouble("Penalty Coefficient", &penaltyCoef))
             {
                 setup->penaltyCoef = penaltyCoef;
+                if(penaltyCoef == 0)
+                    expCoef = 0;
+                else
+                    expCoef = int(-std::log10(penaltyCoef));
+                if(setup->abarPath != "")
+                {
+                    int idx = setup->abarPath.rfind("_");
+                    // if(std::log10(penaltyCoef) > 0)
+                    //     setup->abarPath = setup->abarPath.substr(0, idx) + "_" + std::to_string(int(penaltyCoef)) + ".dat";
+                    // else
+                        setup->abarPath = setup->abarPath.substr(0, idx) + "_" + std::to_string(expCoef) + ".dat";
+                    std::cout<<setup->abarPath<<std::endl;
+                }
+
             }
         }
         
         if (ImGui::Button("Reset", ImVec2(-1, 0)))
         {
             reset();
+            repaint(viewer);
+        }
+        if(ImGui::Button("Set Target", ImVec2(-1,0)))
+        {
+            setTarget();
             repaint(viewer);
         }
         if (ImGui::Button("load and Compute", ImVec2(-1, 0)))
@@ -413,7 +465,7 @@ int main(int argc, char *argv[])
                 return -1;
             }
             setup->buildRestFundamentalForms(sff);
-            setup->penaltyCoef = 0;
+            setup->penaltyCoef = penaltyCoef;
         }
         if (ImGui::InputInt("Interpolation Steps", &numSteps))
         {
@@ -433,6 +485,7 @@ int main(int argc, char *argv[])
             if(numSteps > 1)
             {
                 srand((unsigned)time(NULL));
+                curState.curPos = setup->initialPos;
                 for(int i=0;i<curState.curPos.rows();i++)
                 {
                     curState.curPos(i,2) = (1e-6*rand())/RAND_MAX;

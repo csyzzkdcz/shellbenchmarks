@@ -14,8 +14,18 @@ bool SimulationSetupIpoptSolver::loadAbars()
     std::ifstream infile(abarPath);
     if(!infile)
         return false;
-    int num;
-    infile >> num;
+    infile >> penaltyCoef;
+    int vertNum, faceNum;
+    infile >> vertNum >> faceNum;
+
+    double d;
+    Eigen::VectorXd x(vertNum + faceNum);
+    x.setZero();
+    for(int i=0;i<vertNum; i++)
+    {
+        infile >> d;
+        x(i) = d;
+    }
     double d1, d2, d3;
     for(int i = 0; i < abars.size(); i++)
     {
@@ -24,7 +34,18 @@ bool SimulationSetupIpoptSolver::loadAbars()
         L << d1,0,
         d2,d3;
         abars[i] = L*L.transpose();
+
+        x(3*vertNum + 3*i) = d1;
+        x(3*vertNum + 3*i + 1) = d2;
+        x(3*vertNum + 3*i + 2) = d3;
     }
+
+    auto cost_term = std::make_shared<ifopt::optCost>(initialPos, targetPos, mesh, penaltyCoef);
+    double differenceValue = cost_term->getDifference(x);
+    double penaltyValue = cost_term->getPenalty(x);
+
+    std::cout<<"Penalty: "<<penaltyValue<<" Penalty Coefficient: "<<penaltyCoef<<std::endl;
+    std::cout<<"Difference: "<<differenceValue<<std::endl;
     return true;
 }
 
@@ -55,15 +76,22 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
     
     using namespace ifopt;
     Problem nlp;
-    auto variable_set = std::make_shared<optVariables>(3*(nfaces+nverts), mesh, targetPos, "var_set");
+    // auto variable_set = std::make_shared<optVariables>(3*(nfaces+nverts), mesh, targetPos, "var_set");
+    auto variable_set = std::make_shared<optVariables>(3*(nfaces+nverts), mesh, initialPos, "var_set");
     auto constraint_set = std::make_shared<optConstraint>(3*nverts, mesh, lameAlpha, lameBeta, thickness, "constraint");
     auto cost_term = std::make_shared<optCost>(initialPos, targetPos, mesh, penaltyCoef);
     
-//    Eigen::VectorXd x1 = variable_set->GetValues();
-//
+   Eigen::VectorXd x1 = variable_set->GetValues();
+
 //    constraint_set->testValueJacobian(x1);
 //    cost_term->testCostJacobian(x1);
 //    return;
+
+    double penaltyValue = cost_term->getPenalty(x1);
+    double differenceValue = cost_term->getDifference(x1);
+
+    std::cout<<"Initial Penalty: "<<penaltyValue<<" Penalty Coefficient: "<<penaltyCoef<<std::endl;
+    std::cout<<"Initial Difference: "<<differenceValue<<std::endl;
     
     nlp.AddVariableSet(variable_set);
     nlp.AddConstraintSet(constraint_set);
@@ -76,10 +104,21 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
     ipopt.SetOption("max_cpu_time", 1e6);
     ipopt.SetOption("tol", 1e-14);
     ipopt.SetOption("print_level", 5);
+    ipopt.SetOption("max_iter", int(1e6));
     
     ipopt.Solve(nlp);
     
     Eigen::VectorXd x = nlp.GetOptVariables()->GetValues();
+
+    penaltyValue = cost_term->getPenalty(x);
+    differenceValue = cost_term->getDifference(x);
+
+    std::cout.precision(9);
+    std::cout<<std::scientific;
+
+    std::cout<<"Final Penalty: "<<penaltyValue<<" Penalty Coefficient: "<<penaltyCoef<<std::endl;
+    std::cout<<"Final Difference: "<<differenceValue<<std::endl;
+
     
     abars.resize(nfaces);
     
@@ -101,17 +140,36 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
     
     double energy = elasticEnergy(mesh, curPos, initialEdgeDOFs, lameAlpha, lameBeta, thickness, abars, bbars, sff, &derivative, NULL);
     
-    std::cout<<std::setiosflags(std::ios::fixed)<<std::setprecision(16)<<energy<<" "<<derivative.norm()<<std::endl;
-    
+    std::cout<<energy<<" "<<derivative.norm()<<std::endl;
+
+    std::cout<<abarPath<<std::endl;
     std::ofstream outfile(abarPath, std::ios::trunc);
     std::cout<<abarPath<<std::endl;
+
+    outfile<<penaltyCoef<<"\n";
+    outfile<<3*nverts<<"\n";
     outfile<<3*nfaces<<"\n";
+
+    for(int i=0;i<3*nverts;i++)
+    {
+        outfile<<std::setprecision(16)<<x(i)<<"\n";
+    }
+
     for(int i=0;i<3*nfaces;i++)
     {
         outfile<<std::setprecision(16)<<x(3*nverts + i)<<"\n";
     }
     outfile<<std::setprecision(16)<<x(x.size()-1);
     outfile.close();
-    
+
+    int expCoef;
+    if(penaltyCoef == 0)
+        expCoef = 0;
+    else
+        expCoef = int(-std::log10(penaltyCoef));
+    int idx = abarPath.rfind("/");
+    std::string subPath =  abarPath.substr(0, idx) + "/" + "resampled_"+std::to_string(expCoef)+".obj";
+    std::cout<<subPath<<std::endl;
+    igl::writeOBJ(subPath, curPos, mesh.faces());
     
 }

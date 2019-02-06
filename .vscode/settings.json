@@ -59,6 +59,7 @@
         "typeinfo": "cpp",
         "utility": "cpp",
         "vector": "cpp",
-        "core": "cpp"
+        "core": "cpp",
+        "iomanip": "cpp"
     }
 }

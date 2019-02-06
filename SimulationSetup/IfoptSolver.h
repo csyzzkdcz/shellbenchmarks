@@ -98,7 +98,7 @@
              VecBound b(GetRows());
              for(int i=0;i<GetRows();i++)
              {
-                b.at(i) = Bounds(-1e-7,1e-7);
+                b.at(i) = Bounds(0.0,0.0);
              }
              return b;
          }
@@ -136,6 +136,10 @@
          
          double getCost(Eigen::VectorXd x) const;
          
+         double getPenalty(Eigen::VectorXd x) const;
+
+         double getDifference(Eigen::VectorXd x) const;
+
          void FillJacobianBlock(std::string var_set, Jacobian &jac) const override;
          
          void fillJacobianBlock(Eigen::VectorXd x, Jacobian &jac) const;
