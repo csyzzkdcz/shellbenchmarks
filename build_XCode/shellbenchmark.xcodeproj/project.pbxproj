@@ -1,0 +1,1897 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		8A0B4EBB8CD44351BE634E9E /* ALL_BUILD */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 42281C633345452F8CE46CA0 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
+			buildPhases = (
+				1C6332623C9D4EA1972A5B63 /* CMake Rules */,
+			);
+			dependencies = (
+				A25DB3E9E6C94F11BD48610B /* PBXTargetDependency */,
+				6A8FC1E8334C4865B1A6E1C2 /* PBXTargetDependency */,
+				098E11C5D585478AB32BE7A1 /* PBXTargetDependency */,
+				A285BBB7009F4232AC3FD42F /* PBXTargetDependency */,
+				BED3F5C07CD1424A92F8AF95 /* PBXTargetDependency */,
+				DFE34DAEDD8746F3868B33B3 /* PBXTargetDependency */,
+			);
+			name = ALL_BUILD;
+			productName = ALL_BUILD;
+		};
+		AF30682384B647CDA148A976 /* ZERO_CHECK */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 21EACC199CBE407A9888955E /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
+			buildPhases = (
+				F04EB7AD1BDF49C1A0AE6BEE /* CMake Rules */,
+			);
+			dependencies = (
+			);
+			name = ZERO_CHECK;
+			productName = ZERO_CHECK;
+		};
+		ECE72F5EC8084684801D2506 /* install */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 2BB28AA2F63E4146B3ED9950 /* Build configuration list for PBXAggregateTarget "install" */;
+			buildPhases = (
+				B60E70C605F14EC696386D6C /* CMake PostBuild Rules */,
+			);
+			dependencies = (
+				5936734F278342C593A20525 /* PBXTargetDependency */,
+			);
+			name = install;
+			productName = install;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		032E9159508A42C389023F63 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include/GLFW/glfw3.h */ = {isa = PBXBuildFile; fileRef = E0995C33A63B43D2886C6D86 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include/GLFW/glfw3.h */; };
+		051EA4D67E134E1AB676AA24 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/SecondFundamentalFormDiscretization.cpp */ = {isa = PBXBuildFile; fileRef = 2212DCAEFC9345B4BFF69A7A /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/SecondFundamentalFormDiscretization.cpp */; };
+		053D9418DEDC40048B822661 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/solvers.h */ = {isa = PBXBuildFile; fileRef = 55E0C7AEE1FD4A9E862FD399 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/solvers.h */; };
+		0DD79796CD5B4EF4B090038F /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/main.cpp */ = {isa = PBXBuildFile; fileRef = 2410704131B6442BAE40AA8E /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/main.cpp */; };
+		1A6BE527FBA94EA5AC3AA634 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/init.c */ = {isa = PBXBuildFile; fileRef = 6AC6FC9B4D8A400BAAC39AAE /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/init.c */; settings = {COMPILER_FLAGS = "-Wdeclaration-after-statement"; }; };
+		1AFD4A5E04C84C1D9483C843 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/specialfunctions.cpp */ = {isa = PBXBuildFile; fileRef = E714C783D302467295D3288B /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/specialfunctions.cpp */; };
+		1FA5EA42A0FF4945815A98A3 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/input.c */ = {isa = PBXBuildFile; fileRef = 35116901945B457988437D5C /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/input.c */; settings = {COMPILER_FLAGS = "-Wdeclaration-after-statement"; }; };
+		1FB0B2BE4AE14CECB297A019 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_init.m */ = {isa = PBXBuildFile; fileRef = 17EB4C553A934505956602E3 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_init.m */; };
+		23AA86AF1FD34C6F959A72AC /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/dataanalysis.h */ = {isa = PBXBuildFile; fileRef = 2D420A2EAC7C4188ADA0BD6E /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/dataanalysis.h */; };
+		2508797C13AF480BA67D66A2 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/linalg.h */ = {isa = PBXBuildFile; fileRef = 0D7642805AE844B3947AA833 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/linalg.h */; };
+		273CFCF73D784B38B1943728 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/BuildModels.h */ = {isa = PBXBuildFile; fileRef = CFBC7F2D87024978A5FAF990 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/BuildModels.h */; };
+		2FECE1E3D84649D58D7F1E3C /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = D0852BD3F7E449C2811FAE88 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/CMakeLists.txt */; };
+		30991DC55EF04B66B68B4F18 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupAlglibSolver.h */ = {isa = PBXBuildFile; fileRef = 9CA777FD9F6A4FD6A6EA8FFB /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupAlglibSolver.h */; };
+		36B3EE9A86D64E69BC13D445 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/IfoptSolver.h */ = {isa = PBXBuildFile; fileRef = 773E8CF3DDCC437DBEA4A0F3 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/IfoptSolver.h */; };
+		3C09B7DB0CED4CBF990B5C97 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_time.c */ = {isa = PBXBuildFile; fileRef = 65C266599D3242DBA1D241BE /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_time.c */; };
+		3C283AB9A1164F71A1FAB380 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/MidedgeAverageFormulation.cpp */ = {isa = PBXBuildFile; fileRef = D3C8801D3CE04924820E91FE /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/MidedgeAverageFormulation.cpp */; };
+		430CA302618E4CB29B96E15D /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/imgui.cpp */ = {isa = PBXBuildFile; fileRef = B96D260B2C97439693D25641 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/imgui.cpp */; };
+		47C104DCC7CC444F8D48E131 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetup.cpp */ = {isa = PBXBuildFile; fileRef = 24BCD59B3F0146099395CB51 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetup.cpp */; };
+		49D214ED9D9041B993CB1205 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationState.cpp */ = {isa = PBXBuildFile; fileRef = F0BEB7F423024ABD83F43E89 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationState.cpp */; };
+		4ADD680BAFBE42288BB987B7 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibmisc.cpp */ = {isa = PBXBuildFile; fileRef = 3E27C9A172E342A5BE45DD13 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibmisc.cpp */; };
+		4D901F9BE0344AE9B59E3CBC /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/stdafx.h */ = {isa = PBXBuildFile; fileRef = 490F92E7D11E482E9D695AA7 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/stdafx.h */; };
+		4D9E39036EE54803BA6AEE57 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/diffequations.h */ = {isa = PBXBuildFile; fileRef = EBA599221AE349C09E7E1241 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/diffequations.h */; };
+		5A65604B3770449DB61CE426 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include/GLFW/glfw3native.h */ = {isa = PBXBuildFile; fileRef = D3E0CFCC1E6F482EBB4AAF3B /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include/GLFW/glfw3native.h */; };
+		5D30808BCC5944558624717F /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 174EB531F4C947ADA57C37B1 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/CMakeLists.txt */; };
+		5E9F6CFF894A4E7D95C7E251 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/ElasticShell.cpp */ = {isa = PBXBuildFile; fileRef = 25C087F6263D42758932E355 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/ElasticShell.cpp */; };
+		61645921162C41E4AB04C4BC /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupAlglibSolver.cpp */ = {isa = PBXBuildFile; fileRef = 540610413C95406590301734 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupAlglibSolver.cpp */; };
+		6254A001F2B144CB8DA36F09 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src/glfw_config.h */ = {isa = PBXBuildFile; fileRef = EDFDC842AECC42C6AE789B2C /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src/glfw_config.h */; };
+		658739F09579483ABC4639CD /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibinternal.cpp */ = {isa = PBXBuildFile; fileRef = 7AD89139AE1F472094D6023B /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibinternal.cpp */; };
+		65CBA3F6F5B0474987067DBF /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/MeshConnectivity.cpp */ = {isa = PBXBuildFile; fileRef = 5BCC102534444C598308215B /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/MeshConnectivity.cpp */; };
+		67CF7752ACDC49FFA3A07EC7 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/src/glad.c */ = {isa = PBXBuildFile; fileRef = DD01AA22E92744389EDA8DD0 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/src/glad.c */; };
+		6964034350F349F887D4C41E /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/imgui_demo.cpp */ = {isa = PBXBuildFile; fileRef = 073DDF2FC94546AD97DB626A /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/imgui_demo.cpp */; };
+		6B2DE7BE1BB34E169FFA05D8 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/egl_context.c */ = {isa = PBXBuildFile; fileRef = 5AF5CD5ABFE744EE83FFB201 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/egl_context.c */; };
+		73A520ABD2064E0B8F96266E /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/monitor.c */ = {isa = PBXBuildFile; fileRef = A6EFE3108F834CD6908C86B1 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/monitor.c */; settings = {COMPILER_FLAGS = "-Wdeclaration-after-statement"; }; };
+		787D0289B89A4B94ADEDD5C6 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/imgui_draw.cpp */ = {isa = PBXBuildFile; fileRef = CE8585942626431BAE3E7C24 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/imgui_draw.cpp */; };
+		7CD2A1CF2FCA42B498D4B9B5 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/ap.cpp */ = {isa = PBXBuildFile; fileRef = DE078908EBEA43409C3D0BFC /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/ap.cpp */; };
+		7EB1170EBFB445B0BDDB8353 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupNormal.cpp */ = {isa = PBXBuildFile; fileRef = F524285EB89A437886DCCB86 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupNormal.cpp */; };
+		7EB574E7BC214D3A86F2F696 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/osmesa_context.c */ = {isa = PBXBuildFile; fileRef = 40DEB542614D4ADFBB5BB7D8 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/osmesa_context.c */; };
+		8082AEFA03F346BC9F3D735B /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_window.m */ = {isa = PBXBuildFile; fileRef = C5120B8F0A7943A0BF799A64 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_window.m */; };
+		8185CFCAD15B474CABD1E308 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_joystick.h */ = {isa = PBXBuildFile; fileRef = DBF2A33B353441D89E29478D /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_joystick.h */; };
+		837B119A7C9A43AE921B5CF4 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = FF5E21BC81DE472AA3E59A51 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/CMakeLists.txt */; };
+		842020E12E104DC9965396FA /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/dataanalysis.cpp */ = {isa = PBXBuildFile; fileRef = 443A23508FC94E3E9283F94D /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/dataanalysis.cpp */; };
+		86092410F69A434AB6EDE8C5 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/integration.cpp */ = {isa = PBXBuildFile; fileRef = 0AE8DE2306444339AD6378C2 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/integration.cpp */; };
+		8623AFEC7BF54F5EA2BC9ACF /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 3DAB1ECFBD2649E38DA89290 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/CMakeLists.txt */; };
+		87E25FDE6F674F73B9354470 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/linalg.cpp */ = {isa = PBXBuildFile; fileRef = 330AA9BCB9DE4569A70D2EAF /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/linalg.cpp */; };
+		8CCCB209705D4E46A498AF74 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/ap.h */ = {isa = PBXBuildFile; fileRef = AAF4C438AE974282B3C0E329 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/ap.h */; };
+		8D276C5A78244F37AB4BB24A /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/fasttransforms.h */ = {isa = PBXBuildFile; fileRef = 93E12AC8708F4777B4B4F949 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/fasttransforms.h */; };
+		8E321D5BEC8F48078DCF6446 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupNormal.h */ = {isa = PBXBuildFile; fileRef = 97BC899260E04C178D64A27F /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupNormal.h */; };
+		90211FA5222744B2B8395A9F /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/interpolation.cpp */ = {isa = PBXBuildFile; fileRef = A31DF5CBDD5B4470A6EA4B7A /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/interpolation.cpp */; };
+		91547658F3CD4007A35500D0 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/diffequations.cpp */ = {isa = PBXBuildFile; fileRef = A4CFA86AEEEF436785B33C26 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/diffequations.cpp */; };
+		94C02A4C73954654BB289531 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/nsgl_context.h */ = {isa = PBXBuildFile; fileRef = A284C3B9FD254A54AA434ECF /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/nsgl_context.h */; };
+		97302C70BDD64503A676B665 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_joystick.m */ = {isa = PBXBuildFile; fileRef = A0B4E0F1276944469A622A44 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_joystick.m */; };
+		9AAC91A8F2F94B7180DB0946 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/interpolation.h */ = {isa = PBXBuildFile; fileRef = D38B67F57B5E4979ACF1873C /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/interpolation.h */; };
+		9ADCB8C169704DEE988F771F /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/posix_thread.c */ = {isa = PBXBuildFile; fileRef = 205F64A30E7A437F8C969E7E /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/posix_thread.c */; };
+		9D853FB950904B618CEC847D /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/optimization.cpp */ = {isa = PBXBuildFile; fileRef = CB4B4AE995434E59B1826997 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/optimization.cpp */; };
+		A43D38C05F774FB5BA95D67A /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/IfoptSoler.cpp */ = {isa = PBXBuildFile; fileRef = 8621507B85AE4B95997D1B27 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/IfoptSoler.cpp */; };
+		A489E042E83447899C332C54 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/egl_context.h */ = {isa = PBXBuildFile; fileRef = D6CEE12023584FBCAB61BC06 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/egl_context.h */; };
+		A7C568FDC71047D2BE4FF29E /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/integration.h */ = {isa = PBXBuildFile; fileRef = 0741C6EE5A184FF298812831 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/integration.h */; };
+		A955ECED0C8A422DAC49FB23 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/mappings.h */ = {isa = PBXBuildFile; fileRef = 0FC22C5594FE4B03B6FF4AE8 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/mappings.h */; };
+		AC9A6FFEF6474E0EB4129DB0 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupIpoptSolver.h */ = {isa = PBXBuildFile; fileRef = 4A0378D6A0CD43DAAA23D596 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupIpoptSolver.h */; };
+		AD0B14DC2ACB416F8AA0AB15 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/imgui_impl_opengl3.cpp */ = {isa = PBXBuildFile; fileRef = C5C119DC7FF141038C8CDCDB /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/imgui_impl_opengl3.cpp */; };
+		AE64B51C084642C4BAC1B9A9 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/SecondFundamentalFormDiscretization.h */ = {isa = PBXBuildFile; fileRef = 175669C5C6DB49DDADE277C9 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/SecondFundamentalFormDiscretization.h */; };
+		AEC9965342C140A7AD1438DF /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/internal.h */ = {isa = PBXBuildFile; fileRef = 8E39A899F59142AC9B46E39D /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/internal.h */; };
+		AFEA81F044E3480594E0F97B /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/statistics.cpp */ = {isa = PBXBuildFile; fileRef = DFB2CD6330914CC09B19330D /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/statistics.cpp */; };
+		B54D0470D68142848DF5F2EF /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/context.c */ = {isa = PBXBuildFile; fileRef = 26A35EF43FB841128A8D6E96 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/context.c */; settings = {COMPILER_FLAGS = "-Wdeclaration-after-statement"; }; };
+		B5AFD57ED7D044D0A6881245 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/statistics.h */ = {isa = PBXBuildFile; fileRef = B8DB0C5B89C04FAF85FE1964 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/statistics.h */; };
+		B7D6D8E52A4C4424B4E3940C /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupIpoptSolver.cpp */ = {isa = PBXBuildFile; fileRef = BBF402249371478CB8DEB017 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupIpoptSolver.cpp */; };
+		BBC128A83B054792A00671A4 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_platform.h */ = {isa = PBXBuildFile; fileRef = 3027632FBFB64BB7AF5BE533 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_platform.h */; };
+		BD40847803A144B99041E290 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/osmesa_context.h */ = {isa = PBXBuildFile; fileRef = 09996884F3B84E41A648505F /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/osmesa_context.h */; };
+		BF0F15814475487FB4D6CA58 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/posix_thread.h */ = {isa = PBXBuildFile; fileRef = E77EF1E8A72241398FB80488 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/posix_thread.h */; };
+		C446285D11CA4303AFD29CF6 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/MidedgeAverageFormulation.h */ = {isa = PBXBuildFile; fileRef = B2624114FB7F4DB3BE451ADC /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/MidedgeAverageFormulation.h */; };
+		CAA14B37E0C944FAAB443445 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibmisc.h */ = {isa = PBXBuildFile; fileRef = 6D0DB59D39F44752A72E4D96 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibmisc.h */; };
+		D2E0C71CE85D46F6B260C47A /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/fasttransforms.cpp */ = {isa = PBXBuildFile; fileRef = A0AB0951B83A4002B6A8953E /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/fasttransforms.cpp */; };
+		D643B560FD404A5EA4BC8646 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/nsgl_context.m */ = {isa = PBXBuildFile; fileRef = 7CCD94975B6342378836972F /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/nsgl_context.m */; };
+		DB9A08C9A2FB4F6193E1A910 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/window.c */ = {isa = PBXBuildFile; fileRef = 3D3B19A2D9324C5BA0815361 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/window.c */; settings = {COMPILER_FLAGS = "-Wdeclaration-after-statement"; }; };
+		E2956161B58A45CDBAAB7EEE /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/examples/imgui_impl_glfw.cpp */ = {isa = PBXBuildFile; fileRef = A44271C43F3145D9A90C6BF6 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/examples/imgui_impl_glfw.cpp */; };
+		E377C0034ED5453AA9A3889E /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/specialfunctions.h */ = {isa = PBXBuildFile; fileRef = 47B8A2B1933D430892F7AC3F /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/specialfunctions.h */; };
+		E43AC6FB3695425F8B48B9CC /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/solvers.cpp */ = {isa = PBXBuildFile; fileRef = 5E7F647134C1451C84BC0FA9 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/solvers.cpp */; };
+		E57D721119704D0A8FD81995 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_monitor.m */ = {isa = PBXBuildFile; fileRef = 8CC27D54376748CA8CEF63C0 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_monitor.m */; };
+		E7FFD071EE74440AADCFCE40 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibinternal.h */ = {isa = PBXBuildFile; fileRef = 47C7FA3172CC4D60B2A0C190 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibinternal.h */; };
+		EB3DBA36BC3A45A9B3A8314A /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetup.h */ = {isa = PBXBuildFile; fileRef = EA3E7DC883164EB386E9E7F7 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetup.h */; };
+		F1CF3E736E7A4376A26BD048 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/StaticSolve.cpp */ = {isa = PBXBuildFile; fileRef = D3DF8247D2144F2B851B79FD /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/StaticSolve.cpp */; };
+		F502E16DA25744C6BB2E893E /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = BDF6981ECDD544E0BC2DDB37 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt */; };
+		F5437D1AA769418D9B870A39 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/ParseWimFiles.cpp */ = {isa = PBXBuildFile; fileRef = CB4B2757B0174B7DA76A7D9C /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/ParseWimFiles.cpp */; };
+		F9720EBCE307449C98BBC160 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/GeometryDerivatives.cpp */ = {isa = PBXBuildFile; fileRef = 6D5F44FD693540B39FE0EF80 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/GeometryDerivatives.cpp */; };
+		FC213614F15B4B02AA9C7041 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/vulkan.c */ = {isa = PBXBuildFile; fileRef = 201445B77A354FB39EE1AD36 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/vulkan.c */; settings = {COMPILER_FLAGS = "-Wdeclaration-after-statement"; }; };
+		FFD72CBA63D94E8C9F549762 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/optimization.h */ = {isa = PBXBuildFile; fileRef = C928508D02A94EC7A414FCF9 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/optimization.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildStyle section */
+		157C468AEC4D4E138A174EAD /* MinSizeRel */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = MinSizeRel;
+		};
+		58C3782BBBB04F3880252485 /* Release */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Release;
+		};
+		96E6ADC550DD425EBDA1E596 /* Debug */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Debug;
+		};
+		F1587868857645489FE14301 /* RelWithDebInfo */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = RelWithDebInfo;
+		};
+/* End PBXBuildStyle section */
+
+/* Begin PBXContainerItemProxy section */
+		2A2EDDFD1EF244DDABCDB63C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E7A5C7118EB14B26A6B320F2;
+			remoteInfo = glfw;
+		};
+		357273CEE6EC4FCCB06AB79D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF30682384B647CDA148A976;
+			remoteInfo = ZERO_CHECK;
+		};
+		66814627508343D7A2C35088 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF30682384B647CDA148A976;
+			remoteInfo = ZERO_CHECK;
+		};
+		7DC63C4C83374199ADF0F974 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CFE35E22D8024B5581267C8E;
+			remoteInfo = imgui;
+		};
+		8CC6D611CF914F31A5936268 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8A0B4EBB8CD44351BE634E9E;
+			remoteInfo = ALL_BUILD;
+		};
+		A3CDA1B81BA9434B9F18EC05 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E7A5C7118EB14B26A6B320F2;
+			remoteInfo = glfw;
+		};
+		A467A83D74CF451DBB3021D9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF30682384B647CDA148A976;
+			remoteInfo = ZERO_CHECK;
+		};
+		C07F757F78B94524AB51DD90 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF30682384B647CDA148A976;
+			remoteInfo = ZERO_CHECK;
+		};
+		C34F41BB72AA450B95B1BE5E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BF0EB04690B741A9943CFCCC;
+			remoteInfo = alglib;
+		};
+		CE97A342272F4687BF7AC956 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 90B7A3FA0A2343418B7B5A32;
+			remoteInfo = glad;
+		};
+		D24161195A0345398FB4FD17 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BF0EB04690B741A9943CFCCC;
+			remoteInfo = alglib;
+		};
+		D780089FBE2D477EA11E0344 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CFE35E22D8024B5581267C8E;
+			remoteInfo = imgui;
+		};
+		DA1E0EC93FEB4A969F0FC064 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E7A5C7118EB14B26A6B320F2;
+			remoteInfo = glfw;
+		};
+		DCE1733FB7BC46A783BCDA68 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2D09674B8D7B42269DBBF614;
+			remoteInfo = shellbenchmark_bin;
+		};
+		EEDC53EC3F074C8B87FA980A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 90B7A3FA0A2343418B7B5A32;
+			remoteInfo = glad;
+		};
+		EF7960A5282A47B1AC3224B1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF30682384B647CDA148A976;
+			remoteInfo = ZERO_CHECK;
+		};
+		F74D9EF6F48242BE9F056DA1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A464298F48754943BCC5D05C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 90B7A3FA0A2343418B7B5A32;
+			remoteInfo = glad;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		073DDF2FC94546AD97DB626A /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/imgui_demo.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = imgui_demo.cpp; path = ../Tools/libigl/external/imgui/imgui_demo.cpp; sourceTree = SOURCE_ROOT; };
+		0741C6EE5A184FF298812831 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/integration.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = integration.h; path = alglib/integration.h; sourceTree = SOURCE_ROOT; };
+		09996884F3B84E41A648505F /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/osmesa_context.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = osmesa_context.h; path = ../Tools/libigl/external/glfw/src/osmesa_context.h; sourceTree = SOURCE_ROOT; };
+		0AE8DE2306444339AD6378C2 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/integration.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = integration.cpp; path = alglib/integration.cpp; sourceTree = SOURCE_ROOT; };
+		0D7642805AE844B3947AA833 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/linalg.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = linalg.h; path = alglib/linalg.h; sourceTree = SOURCE_ROOT; };
+		0FC22C5594FE4B03B6FF4AE8 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/mappings.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mappings.h; path = ../Tools/libigl/external/glfw/src/mappings.h; sourceTree = SOURCE_ROOT; };
+		0FDB8CB41AF4476F8444C751 /* alglib */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libalglib.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		174EB531F4C947ADA57C37B1 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = ../Tools/libigl/external/glfw/src/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		175669C5C6DB49DDADE277C9 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/SecondFundamentalFormDiscretization.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SecondFundamentalFormDiscretization.h; path = SecondFundamentalForm/SecondFundamentalFormDiscretization.h; sourceTree = SOURCE_ROOT; };
+		17EB4C553A934505956602E3 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_init.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_init.m; path = ../Tools/libigl/external/glfw/src/cocoa_init.m; sourceTree = SOURCE_ROOT; };
+		201445B77A354FB39EE1AD36 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/vulkan.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = vulkan.c; path = ../Tools/libigl/external/glfw/src/vulkan.c; sourceTree = SOURCE_ROOT; };
+		205F64A30E7A437F8C969E7E /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/posix_thread.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = posix_thread.c; path = ../Tools/libigl/external/glfw/src/posix_thread.c; sourceTree = SOURCE_ROOT; };
+		2212DCAEFC9345B4BFF69A7A /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/SecondFundamentalFormDiscretization.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = SecondFundamentalFormDiscretization.cpp; path = SecondFundamentalForm/SecondFundamentalFormDiscretization.cpp; sourceTree = SOURCE_ROOT; };
+		2410704131B6442BAE40AA8E /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = main.cpp; path = main.cpp; sourceTree = SOURCE_ROOT; };
+		24BCD59B3F0146099395CB51 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetup.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = SimulationSetup.cpp; path = SimulationSetup/SimulationSetup.cpp; sourceTree = SOURCE_ROOT; };
+		25C087F6263D42758932E355 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/ElasticShell.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ElasticShell.cpp; path = ElasticShell.cpp; sourceTree = SOURCE_ROOT; };
+		26A35EF43FB841128A8D6E96 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/context.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = context.c; path = ../Tools/libigl/external/glfw/src/context.c; sourceTree = SOURCE_ROOT; };
+		2AC94BD6AE4A49E695CBCE96 /* shellbenchmark_bin */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; path = shellbenchmark_bin; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D420A2EAC7C4188ADA0BD6E /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/dataanalysis.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = dataanalysis.h; path = alglib/dataanalysis.h; sourceTree = SOURCE_ROOT; };
+		3027632FBFB64BB7AF5BE533 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_platform.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = cocoa_platform.h; path = ../Tools/libigl/external/glfw/src/cocoa_platform.h; sourceTree = SOURCE_ROOT; };
+		330AA9BCB9DE4569A70D2EAF /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/linalg.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = linalg.cpp; path = alglib/linalg.cpp; sourceTree = SOURCE_ROOT; };
+		35116901945B457988437D5C /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/input.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = input.c; path = ../Tools/libigl/external/glfw/src/input.c; sourceTree = SOURCE_ROOT; };
+		3D3B19A2D9324C5BA0815361 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/window.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = window.c; path = ../Tools/libigl/external/glfw/src/window.c; sourceTree = SOURCE_ROOT; };
+		3DAB1ECFBD2649E38DA89290 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = "../Tools/libigl/external/libigl-imgui/CMakeLists.txt"; sourceTree = SOURCE_ROOT; };
+		3E27C9A172E342A5BE45DD13 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibmisc.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = alglibmisc.cpp; path = alglib/alglibmisc.cpp; sourceTree = SOURCE_ROOT; };
+		40DEB542614D4ADFBB5BB7D8 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/osmesa_context.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = osmesa_context.c; path = ../Tools/libigl/external/glfw/src/osmesa_context.c; sourceTree = SOURCE_ROOT; };
+		443A23508FC94E3E9283F94D /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/dataanalysis.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dataanalysis.cpp; path = alglib/dataanalysis.cpp; sourceTree = SOURCE_ROOT; };
+		47B8A2B1933D430892F7AC3F /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/specialfunctions.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = specialfunctions.h; path = alglib/specialfunctions.h; sourceTree = SOURCE_ROOT; };
+		47C7FA3172CC4D60B2A0C190 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibinternal.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = alglibinternal.h; path = alglib/alglibinternal.h; sourceTree = SOURCE_ROOT; };
+		490F92E7D11E482E9D695AA7 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/stdafx.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = stdafx.h; path = alglib/stdafx.h; sourceTree = SOURCE_ROOT; };
+		4A0378D6A0CD43DAAA23D596 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupIpoptSolver.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SimulationSetupIpoptSolver.h; path = SimulationSetup/SimulationSetupIpoptSolver.h; sourceTree = SOURCE_ROOT; };
+		540610413C95406590301734 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupAlglibSolver.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = SimulationSetupAlglibSolver.cpp; path = SimulationSetup/SimulationSetupAlglibSolver.cpp; sourceTree = SOURCE_ROOT; };
+		55E0C7AEE1FD4A9E862FD399 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/solvers.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = solvers.h; path = alglib/solvers.h; sourceTree = SOURCE_ROOT; };
+		5AF5CD5ABFE744EE83FFB201 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/egl_context.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = egl_context.c; path = ../Tools/libigl/external/glfw/src/egl_context.c; sourceTree = SOURCE_ROOT; };
+		5BCC102534444C598308215B /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/MeshConnectivity.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = MeshConnectivity.cpp; path = MeshConnectivity.cpp; sourceTree = SOURCE_ROOT; };
+		5D6E151B4BAB49B8A6D175A2 /* glad */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libglad.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		5E7F647134C1451C84BC0FA9 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/solvers.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = solvers.cpp; path = alglib/solvers.cpp; sourceTree = SOURCE_ROOT; };
+		65C266599D3242DBA1D241BE /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_time.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = cocoa_time.c; path = ../Tools/libigl/external/glfw/src/cocoa_time.c; sourceTree = SOURCE_ROOT; };
+		67FC0006CE0D4A6FB4B882D4 /* glfw */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libglfw3.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		6AC6FC9B4D8A400BAAC39AAE /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/init.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = init.c; path = ../Tools/libigl/external/glfw/src/init.c; sourceTree = SOURCE_ROOT; };
+		6D0DB59D39F44752A72E4D96 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibmisc.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = alglibmisc.h; path = alglib/alglibmisc.h; sourceTree = SOURCE_ROOT; };
+		6D5F44FD693540B39FE0EF80 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/GeometryDerivatives.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = GeometryDerivatives.cpp; path = GeometryDerivatives.cpp; sourceTree = SOURCE_ROOT; };
+		773E8CF3DDCC437DBEA4A0F3 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/IfoptSolver.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = IfoptSolver.h; path = SimulationSetup/IfoptSolver.h; sourceTree = SOURCE_ROOT; };
+		7AD89139AE1F472094D6023B /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibinternal.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = alglibinternal.cpp; path = alglib/alglibinternal.cpp; sourceTree = SOURCE_ROOT; };
+		7CCD94975B6342378836972F /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/nsgl_context.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = nsgl_context.m; path = ../Tools/libigl/external/glfw/src/nsgl_context.m; sourceTree = SOURCE_ROOT; };
+		8621507B85AE4B95997D1B27 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/IfoptSoler.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = IfoptSoler.cpp; path = SimulationSetup/IfoptSoler.cpp; sourceTree = SOURCE_ROOT; };
+		8CC27D54376748CA8CEF63C0 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_monitor.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_monitor.m; path = ../Tools/libigl/external/glfw/src/cocoa_monitor.m; sourceTree = SOURCE_ROOT; };
+		8E39A899F59142AC9B46E39D /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/internal.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = internal.h; path = ../Tools/libigl/external/glfw/src/internal.h; sourceTree = SOURCE_ROOT; };
+		93E12AC8708F4777B4B4F949 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/fasttransforms.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = fasttransforms.h; path = alglib/fasttransforms.h; sourceTree = SOURCE_ROOT; };
+		97BC899260E04C178D64A27F /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupNormal.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SimulationSetupNormal.h; path = SimulationSetup/SimulationSetupNormal.h; sourceTree = SOURCE_ROOT; };
+		9CA777FD9F6A4FD6A6EA8FFB /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupAlglibSolver.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SimulationSetupAlglibSolver.h; path = SimulationSetup/SimulationSetupAlglibSolver.h; sourceTree = SOURCE_ROOT; };
+		A0AB0951B83A4002B6A8953E /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/fasttransforms.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = fasttransforms.cpp; path = alglib/fasttransforms.cpp; sourceTree = SOURCE_ROOT; };
+		A0B4E0F1276944469A622A44 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_joystick.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_joystick.m; path = ../Tools/libigl/external/glfw/src/cocoa_joystick.m; sourceTree = SOURCE_ROOT; };
+		A284C3B9FD254A54AA434ECF /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/nsgl_context.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = nsgl_context.h; path = ../Tools/libigl/external/glfw/src/nsgl_context.h; sourceTree = SOURCE_ROOT; };
+		A31DF5CBDD5B4470A6EA4B7A /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/interpolation.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = interpolation.cpp; path = alglib/interpolation.cpp; sourceTree = SOURCE_ROOT; };
+		A44271C43F3145D9A90C6BF6 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/examples/imgui_impl_glfw.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = imgui_impl_glfw.cpp; path = ../Tools/libigl/external/imgui/examples/imgui_impl_glfw.cpp; sourceTree = SOURCE_ROOT; };
+		A4CFA86AEEEF436785B33C26 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/diffequations.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = diffequations.cpp; path = alglib/diffequations.cpp; sourceTree = SOURCE_ROOT; };
+		A6EFE3108F834CD6908C86B1 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/monitor.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = monitor.c; path = ../Tools/libigl/external/glfw/src/monitor.c; sourceTree = SOURCE_ROOT; };
+		AAF4C438AE974282B3C0E329 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/ap.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ap.h; path = alglib/ap.h; sourceTree = SOURCE_ROOT; };
+		B2624114FB7F4DB3BE451ADC /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/MidedgeAverageFormulation.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = MidedgeAverageFormulation.h; path = SecondFundamentalForm/MidedgeAverageFormulation.h; sourceTree = SOURCE_ROOT; };
+		B8DB0C5B89C04FAF85FE1964 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/statistics.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = statistics.h; path = alglib/statistics.h; sourceTree = SOURCE_ROOT; };
+		B96D260B2C97439693D25641 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/imgui.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = imgui.cpp; path = ../Tools/libigl/external/imgui/imgui.cpp; sourceTree = SOURCE_ROOT; };
+		BB8422E088264652930184B5 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		BBF402249371478CB8DEB017 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupIpoptSolver.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = SimulationSetupIpoptSolver.cpp; path = SimulationSetup/SimulationSetupIpoptSolver.cpp; sourceTree = SOURCE_ROOT; };
+		BDF6981ECDD544E0BC2DDB37 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = ../Tools/libigl/external/glad/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		C5120B8F0A7943A0BF799A64 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_window.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_window.m; path = ../Tools/libigl/external/glfw/src/cocoa_window.m; sourceTree = SOURCE_ROOT; };
+		C5C119DC7FF141038C8CDCDB /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/imgui_impl_opengl3.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = imgui_impl_opengl3.cpp; path = "../Tools/libigl/external/libigl-imgui/imgui_impl_opengl3.cpp"; sourceTree = SOURCE_ROOT; };
+		C928508D02A94EC7A414FCF9 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/optimization.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = optimization.h; path = alglib/optimization.h; sourceTree = SOURCE_ROOT; };
+		CB4B2757B0174B7DA76A7D9C /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/ParseWimFiles.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ParseWimFiles.cpp; path = ParseWimFiles.cpp; sourceTree = SOURCE_ROOT; };
+		CB4B4AE995434E59B1826997 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/optimization.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = optimization.cpp; path = alglib/optimization.cpp; sourceTree = SOURCE_ROOT; };
+		CE8585942626431BAE3E7C24 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/imgui_draw.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = imgui_draw.cpp; path = ../Tools/libigl/external/imgui/imgui_draw.cpp; sourceTree = SOURCE_ROOT; };
+		CFBC7F2D87024978A5FAF990 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/BuildModels.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = BuildModels.h; path = BuildModels.h; sourceTree = SOURCE_ROOT; };
+		D0852BD3F7E449C2811FAE88 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = alglib/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		D38B67F57B5E4979ACF1873C /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/interpolation.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = interpolation.h; path = alglib/interpolation.h; sourceTree = SOURCE_ROOT; };
+		D3C8801D3CE04924820E91FE /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/MidedgeAverageFormulation.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = MidedgeAverageFormulation.cpp; path = SecondFundamentalForm/MidedgeAverageFormulation.cpp; sourceTree = SOURCE_ROOT; };
+		D3DF8247D2144F2B851B79FD /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/StaticSolve.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = StaticSolve.cpp; path = StaticSolve.cpp; sourceTree = SOURCE_ROOT; };
+		D3E0CFCC1E6F482EBB4AAF3B /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include/GLFW/glfw3native.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = glfw3native.h; path = ../Tools/libigl/external/glfw/include/GLFW/glfw3native.h; sourceTree = SOURCE_ROOT; };
+		D6CEE12023584FBCAB61BC06 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/egl_context.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = egl_context.h; path = ../Tools/libigl/external/glfw/src/egl_context.h; sourceTree = SOURCE_ROOT; };
+		DBF2A33B353441D89E29478D /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_joystick.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = cocoa_joystick.h; path = ../Tools/libigl/external/glfw/src/cocoa_joystick.h; sourceTree = SOURCE_ROOT; };
+		DD01AA22E92744389EDA8DD0 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/src/glad.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = glad.c; path = ../Tools/libigl/external/glad/src/glad.c; sourceTree = SOURCE_ROOT; };
+		DE078908EBEA43409C3D0BFC /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/ap.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ap.cpp; path = alglib/ap.cpp; sourceTree = SOURCE_ROOT; };
+		DFB2CD6330914CC09B19330D /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/statistics.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = statistics.cpp; path = alglib/statistics.cpp; sourceTree = SOURCE_ROOT; };
+		E0995C33A63B43D2886C6D86 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include/GLFW/glfw3.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = glfw3.h; path = ../Tools/libigl/external/glfw/include/GLFW/glfw3.h; sourceTree = SOURCE_ROOT; };
+		E714C783D302467295D3288B /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/specialfunctions.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = specialfunctions.cpp; path = alglib/specialfunctions.cpp; sourceTree = SOURCE_ROOT; };
+		E77EF1E8A72241398FB80488 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/posix_thread.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = posix_thread.h; path = ../Tools/libigl/external/glfw/src/posix_thread.h; sourceTree = SOURCE_ROOT; };
+		E8F6BB808D774BD4AA529798 /* imgui */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libimgui.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		EA3E7DC883164EB386E9E7F7 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetup.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = SimulationSetup.h; path = SimulationSetup/SimulationSetup.h; sourceTree = SOURCE_ROOT; };
+		EBA599221AE349C09E7E1241 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/diffequations.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = diffequations.h; path = alglib/diffequations.h; sourceTree = SOURCE_ROOT; };
+		EDFDC842AECC42C6AE789B2C /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src/glfw_config.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = glfw_config.h; path = build_XCode/glfw/src/glfw_config.h; sourceTree = SOURCE_ROOT; };
+		F0BEB7F423024ABD83F43E89 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationState.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = SimulationState.cpp; path = SimulationState.cpp; sourceTree = SOURCE_ROOT; };
+		F524285EB89A437886DCCB86 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupNormal.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = SimulationSetupNormal.cpp; path = SimulationSetup/SimulationSetupNormal.cpp; sourceTree = SOURCE_ROOT; };
+		FF5E21BC81DE472AA3E59A51 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		07541C49705346DBA7E76146 /* glad */ = {
+			isa = PBXGroup;
+			children = (
+				712841A9234944FCA87A8C31 /* Source Files */,
+				BDF6981ECDD544E0BC2DDB37 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt */,
+			);
+			name = glad;
+			sourceTree = "<group>";
+		};
+		1B4BBB38B118456981EE86E5 /* glfw */ = {
+			isa = PBXGroup;
+			children = (
+				DD98034FA963488B9902C0B0 /* Source Files */,
+				567F13A52769492FB8929280 /* Header Files */,
+				174EB531F4C947ADA57C37B1 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/CMakeLists.txt */,
+			);
+			name = glfw;
+			sourceTree = "<group>";
+		};
+		1E93F02CF4F9462BB9B86738 /* GLFW3 */ = {
+			isa = PBXGroup;
+			children = (
+				1B4BBB38B118456981EE86E5 /* glfw */,
+			);
+			name = GLFW3;
+			sourceTree = "<group>";
+		};
+		2325C4CEDA0A4BB2BD787403 /* alglib */ = {
+			isa = PBXGroup;
+			children = (
+				967176ADFA1743EEB69B9081 /* Source Files */,
+				2E418779850F45DB942DE285 /* Header Files */,
+				D0852BD3F7E449C2811FAE88 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/CMakeLists.txt */,
+			);
+			name = alglib;
+			sourceTree = "<group>";
+		};
+		2AC8060951B942CE9F77829D = {
+			isa = PBXGroup;
+			children = (
+				D3AE3A4693834A86A328AADE /* shellbenchmark_bin */,
+				88BC26D3D65B47BE81CF3EFA /* ALL_BUILD */,
+				07541C49705346DBA7E76146 /* glad */,
+				1E93F02CF4F9462BB9B86738 /* GLFW3 */,
+				31B63C33F2AD461EB3165C34 /* imgui */,
+				2325C4CEDA0A4BB2BD787403 /* alglib */,
+				4DB5EB5284664E6C8C7DCCC4 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2CC44DB301DA4E209AD0F64D /* Header Files */ = {
+			isa = PBXGroup;
+			children = (
+				CFBC7F2D87024978A5FAF990 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/BuildModels.h */,
+				B2624114FB7F4DB3BE451ADC /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/MidedgeAverageFormulation.h */,
+				175669C5C6DB49DDADE277C9 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/SecondFundamentalFormDiscretization.h */,
+				773E8CF3DDCC437DBEA4A0F3 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/IfoptSolver.h */,
+				EA3E7DC883164EB386E9E7F7 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetup.h */,
+				9CA777FD9F6A4FD6A6EA8FFB /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupAlglibSolver.h */,
+				4A0378D6A0CD43DAAA23D596 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupIpoptSolver.h */,
+				97BC899260E04C178D64A27F /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupNormal.h */,
+			);
+			name = "Header Files";
+			sourceTree = "<group>";
+		};
+		2E418779850F45DB942DE285 /* Header Files */ = {
+			isa = PBXGroup;
+			children = (
+				47C7FA3172CC4D60B2A0C190 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibinternal.h */,
+				6D0DB59D39F44752A72E4D96 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibmisc.h */,
+				AAF4C438AE974282B3C0E329 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/ap.h */,
+				2D420A2EAC7C4188ADA0BD6E /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/dataanalysis.h */,
+				EBA599221AE349C09E7E1241 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/diffequations.h */,
+				93E12AC8708F4777B4B4F949 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/fasttransforms.h */,
+				0741C6EE5A184FF298812831 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/integration.h */,
+				D38B67F57B5E4979ACF1873C /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/interpolation.h */,
+				0D7642805AE844B3947AA833 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/linalg.h */,
+				C928508D02A94EC7A414FCF9 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/optimization.h */,
+				55E0C7AEE1FD4A9E862FD399 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/solvers.h */,
+				47B8A2B1933D430892F7AC3F /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/specialfunctions.h */,
+				B8DB0C5B89C04FAF85FE1964 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/statistics.h */,
+				490F92E7D11E482E9D695AA7 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/stdafx.h */,
+			);
+			name = "Header Files";
+			sourceTree = "<group>";
+		};
+		31B63C33F2AD461EB3165C34 /* imgui */ = {
+			isa = PBXGroup;
+			children = (
+				7BE8C43CDC7C4CAC822B6A88 /* Source Files */,
+				3DAB1ECFBD2649E38DA89290 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/CMakeLists.txt */,
+			);
+			name = imgui;
+			sourceTree = "<group>";
+		};
+		4DB5EB5284664E6C8C7DCCC4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2AC94BD6AE4A49E695CBCE96 /* shellbenchmark_bin */,
+				5D6E151B4BAB49B8A6D175A2 /* glad */,
+				67FC0006CE0D4A6FB4B882D4 /* glfw */,
+				E8F6BB808D774BD4AA529798 /* imgui */,
+				0FDB8CB41AF4476F8444C751 /* alglib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		567F13A52769492FB8929280 /* Header Files */ = {
+			isa = PBXGroup;
+			children = (
+				E0995C33A63B43D2886C6D86 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include/GLFW/glfw3.h */,
+				D3E0CFCC1E6F482EBB4AAF3B /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include/GLFW/glfw3native.h */,
+				DBF2A33B353441D89E29478D /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_joystick.h */,
+				3027632FBFB64BB7AF5BE533 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_platform.h */,
+				D6CEE12023584FBCAB61BC06 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/egl_context.h */,
+				8E39A899F59142AC9B46E39D /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/internal.h */,
+				0FC22C5594FE4B03B6FF4AE8 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/mappings.h */,
+				A284C3B9FD254A54AA434ECF /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/nsgl_context.h */,
+				09996884F3B84E41A648505F /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/osmesa_context.h */,
+				E77EF1E8A72241398FB80488 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/posix_thread.h */,
+				EDFDC842AECC42C6AE789B2C /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src/glfw_config.h */,
+			);
+			name = "Header Files";
+			sourceTree = "<group>";
+		};
+		712841A9234944FCA87A8C31 /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				DD01AA22E92744389EDA8DD0 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/src/glad.c */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		7BE8C43CDC7C4CAC822B6A88 /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				A44271C43F3145D9A90C6BF6 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/examples/imgui_impl_glfw.cpp */,
+				B96D260B2C97439693D25641 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/imgui.cpp */,
+				073DDF2FC94546AD97DB626A /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/imgui_demo.cpp */,
+				CE8585942626431BAE3E7C24 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/imgui_draw.cpp */,
+				C5C119DC7FF141038C8CDCDB /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/imgui_impl_opengl3.cpp */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		88BC26D3D65B47BE81CF3EFA /* ALL_BUILD */ = {
+			isa = PBXGroup;
+			children = (
+				89899330372E4998A4B0D284 /* CMake Rules */,
+				BB8422E088264652930184B5 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/CMakeLists.txt */,
+			);
+			name = ALL_BUILD;
+			sourceTree = "<group>";
+		};
+		89899330372E4998A4B0D284 /* CMake Rules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		967176ADFA1743EEB69B9081 /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				7AD89139AE1F472094D6023B /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibinternal.cpp */,
+				3E27C9A172E342A5BE45DD13 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibmisc.cpp */,
+				DE078908EBEA43409C3D0BFC /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/ap.cpp */,
+				443A23508FC94E3E9283F94D /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/dataanalysis.cpp */,
+				A4CFA86AEEEF436785B33C26 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/diffequations.cpp */,
+				A0AB0951B83A4002B6A8953E /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/fasttransforms.cpp */,
+				0AE8DE2306444339AD6378C2 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/integration.cpp */,
+				A31DF5CBDD5B4470A6EA4B7A /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/interpolation.cpp */,
+				330AA9BCB9DE4569A70D2EAF /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/linalg.cpp */,
+				CB4B4AE995434E59B1826997 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/optimization.cpp */,
+				5E7F647134C1451C84BC0FA9 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/solvers.cpp */,
+				E714C783D302467295D3288B /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/specialfunctions.cpp */,
+				DFB2CD6330914CC09B19330D /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/statistics.cpp */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		D3AE3A4693834A86A328AADE /* shellbenchmark_bin */ = {
+			isa = PBXGroup;
+			children = (
+				2CC44DB301DA4E209AD0F64D /* Header Files */,
+				F0C8343429614C7DB0AD9CFD /* Source Files */,
+				FF5E21BC81DE472AA3E59A51 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/CMakeLists.txt */,
+			);
+			name = shellbenchmark_bin;
+			sourceTree = "<group>";
+		};
+		DD98034FA963488B9902C0B0 /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				17EB4C553A934505956602E3 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_init.m */,
+				A0B4E0F1276944469A622A44 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_joystick.m */,
+				8CC27D54376748CA8CEF63C0 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_monitor.m */,
+				65C266599D3242DBA1D241BE /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_time.c */,
+				C5120B8F0A7943A0BF799A64 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_window.m */,
+				26A35EF43FB841128A8D6E96 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/context.c */,
+				5AF5CD5ABFE744EE83FFB201 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/egl_context.c */,
+				6AC6FC9B4D8A400BAAC39AAE /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/init.c */,
+				35116901945B457988437D5C /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/input.c */,
+				A6EFE3108F834CD6908C86B1 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/monitor.c */,
+				7CCD94975B6342378836972F /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/nsgl_context.m */,
+				40DEB542614D4ADFBB5BB7D8 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/osmesa_context.c */,
+				205F64A30E7A437F8C969E7E /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/posix_thread.c */,
+				201445B77A354FB39EE1AD36 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/vulkan.c */,
+				3D3B19A2D9324C5BA0815361 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/window.c */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		F0C8343429614C7DB0AD9CFD /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				25C087F6263D42758932E355 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/ElasticShell.cpp */,
+				6D5F44FD693540B39FE0EF80 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/GeometryDerivatives.cpp */,
+				5BCC102534444C598308215B /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/MeshConnectivity.cpp */,
+				CB4B2757B0174B7DA76A7D9C /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/ParseWimFiles.cpp */,
+				D3C8801D3CE04924820E91FE /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/MidedgeAverageFormulation.cpp */,
+				2212DCAEFC9345B4BFF69A7A /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/SecondFundamentalFormDiscretization.cpp */,
+				8621507B85AE4B95997D1B27 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/IfoptSoler.cpp */,
+				24BCD59B3F0146099395CB51 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetup.cpp */,
+				540610413C95406590301734 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupAlglibSolver.cpp */,
+				BBF402249371478CB8DEB017 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupIpoptSolver.cpp */,
+				F524285EB89A437886DCCB86 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupNormal.cpp */,
+				F0BEB7F423024ABD83F43E89 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationState.cpp */,
+				D3DF8247D2144F2B851B79FD /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/StaticSolve.cpp */,
+				2410704131B6442BAE40AA8E /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/main.cpp */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2D09674B8D7B42269DBBF614 /* shellbenchmark_bin */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 37588935314844FD9730382D /* Build configuration list for PBXNativeTarget "shellbenchmark_bin" */;
+			buildPhases = (
+				91A610C12E694A63A3A7ED02 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				58C31D86605C45F585B12E7D /* PBXTargetDependency */,
+				6D62462CB35947738A0BC167 /* PBXTargetDependency */,
+				BE4D15B8B7024004B26532DD /* PBXTargetDependency */,
+				D47CBDFF3C6E47C8B80D0B3A /* PBXTargetDependency */,
+				3C302CE69B5348FFA4AEADFC /* PBXTargetDependency */,
+			);
+			name = shellbenchmark_bin;
+			productName = shellbenchmark_bin;
+			productReference = 2AC94BD6AE4A49E695CBCE96 /* shellbenchmark_bin */;
+			productType = "com.apple.product-type.tool";
+		};
+		90B7A3FA0A2343418B7B5A32 /* glad */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 070C1C65C1A646ECAE4B0B57 /* Build configuration list for PBXNativeTarget "glad" */;
+			buildPhases = (
+				45210D761242479298099856 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = glad;
+			productName = glad;
+			productReference = 5D6E151B4BAB49B8A6D175A2 /* glad */;
+			productType = "com.apple.product-type.library.static";
+		};
+		BF0EB04690B741A9943CFCCC /* alglib */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3918BE7AE20A4A32ABC58D49 /* Build configuration list for PBXNativeTarget "alglib" */;
+			buildPhases = (
+				0FE3930DCB72465E99D043CC /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				08889B48B6C64EEC9B9BF011 /* PBXTargetDependency */,
+			);
+			name = alglib;
+			productName = alglib;
+			productReference = 0FDB8CB41AF4476F8444C751 /* alglib */;
+			productType = "com.apple.product-type.library.static";
+		};
+		CFE35E22D8024B5581267C8E /* imgui */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E9BAD272E8F04B42AB276DCE /* Build configuration list for PBXNativeTarget "imgui" */;
+			buildPhases = (
+				F17776C283EE4021808990B2 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BA8E00A94E304B8CB80A4756 /* PBXTargetDependency */,
+				B6BE32FF5B7449EC8B669134 /* PBXTargetDependency */,
+				FAFBD6D8A9914DEB8ECD0497 /* PBXTargetDependency */,
+			);
+			name = imgui;
+			productName = imgui;
+			productReference = E8F6BB808D774BD4AA529798 /* imgui */;
+			productType = "com.apple.product-type.library.static";
+		};
+		E7A5C7118EB14B26A6B320F2 /* glfw */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 49F08CFD59024DB3B68972B0 /* Build configuration list for PBXNativeTarget "glfw" */;
+			buildPhases = (
+				AB1589C2C3134808998E25EC /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				03CF15F5BDB443CB8C24299D /* PBXTargetDependency */,
+			);
+			name = glfw;
+			productName = glfw;
+			productReference = 67FC0006CE0D4A6FB4B882D4 /* glfw */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A464298F48754943BCC5D05C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1010;
+			};
+			buildConfigurationList = 58415364634E4F18BB1AA325 /* Build configuration list for PBXProject "shellbenchmark" */;
+			buildSettings = {
+			};
+			buildStyles = (
+				96E6ADC550DD425EBDA1E596 /* Debug */,
+				58C3782BBBB04F3880252485 /* Release */,
+				157C468AEC4D4E138A174EAD /* MinSizeRel */,
+				F1587868857645489FE14301 /* RelWithDebInfo */,
+			);
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 0;
+			mainGroup = 2AC8060951B942CE9F77829D;
+			projectDirPath = ../;
+			projectRoot = "";
+			targets = (
+				8A0B4EBB8CD44351BE634E9E /* ALL_BUILD */,
+				AF30682384B647CDA148A976 /* ZERO_CHECK */,
+				ECE72F5EC8084684801D2506 /* install */,
+				2D09674B8D7B42269DBBF614 /* shellbenchmark_bin */,
+				90B7A3FA0A2343418B7B5A32 /* glad */,
+				E7A5C7118EB14B26A6B320F2 /* glfw */,
+				CFE35E22D8024B5581267C8E /* imgui */,
+				BF0EB04690B741A9943CFCCC /* alglib */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		1C6332623C9D4EA1972A5B63 /* CMake Rules */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "CMake Rules";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "make -C /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeScripts/ALL_BUILD_cmakeRulesBuildPhase.make$CONFIGURATION all";
+			showEnvVarsInLog = 0;
+		};
+		558BCD7D5DD946C99DA43629 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		844B20BE0B8F4C6BBF5704BE = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		B60E70C605F14EC696386D6C /* CMake PostBuild Rules */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "CMake PostBuild Rules";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "make -C /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeScripts/install_postBuildPhase.make$CONFIGURATION all";
+			showEnvVarsInLog = 0;
+		};
+		D336396FF3CC421D9B416B40 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		F04EB7AD1BDF49C1A0AE6BEE /* CMake Rules */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "CMake Rules";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "make -C /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeScripts/ZERO_CHECK_cmakeRulesBuildPhase.make$CONFIGURATION all";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0FE3930DCB72465E99D043CC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				658739F09579483ABC4639CD /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibinternal.cpp */,
+				4ADD680BAFBE42288BB987B7 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/alglibmisc.cpp */,
+				7CD2A1CF2FCA42B498D4B9B5 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/ap.cpp */,
+				842020E12E104DC9965396FA /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/dataanalysis.cpp */,
+				91547658F3CD4007A35500D0 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/diffequations.cpp */,
+				D2E0C71CE85D46F6B260C47A /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/fasttransforms.cpp */,
+				86092410F69A434AB6EDE8C5 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/integration.cpp */,
+				90211FA5222744B2B8395A9F /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/interpolation.cpp */,
+				87E25FDE6F674F73B9354470 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/linalg.cpp */,
+				9D853FB950904B618CEC847D /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/optimization.cpp */,
+				E43AC6FB3695425F8B48B9CC /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/solvers.cpp */,
+				1AFD4A5E04C84C1D9483C843 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/specialfunctions.cpp */,
+				AFEA81F044E3480594E0F97B /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/statistics.cpp */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		45210D761242479298099856 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				67CF7752ACDC49FFA3A07EC7 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/src/glad.c */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		91A610C12E694A63A3A7ED02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5E9F6CFF894A4E7D95C7E251 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/ElasticShell.cpp */,
+				F9720EBCE307449C98BBC160 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/GeometryDerivatives.cpp */,
+				65CBA3F6F5B0474987067DBF /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/MeshConnectivity.cpp */,
+				F5437D1AA769418D9B870A39 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/ParseWimFiles.cpp */,
+				3C283AB9A1164F71A1FAB380 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/MidedgeAverageFormulation.cpp */,
+				051EA4D67E134E1AB676AA24 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/SecondFundamentalFormDiscretization.cpp */,
+				A43D38C05F774FB5BA95D67A /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/IfoptSoler.cpp */,
+				47C104DCC7CC444F8D48E131 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetup.cpp */,
+				61645921162C41E4AB04C4BC /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupAlglibSolver.cpp */,
+				B7D6D8E52A4C4424B4E3940C /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupIpoptSolver.cpp */,
+				7EB1170EBFB445B0BDDB8353 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupNormal.cpp */,
+				49D214ED9D9041B993CB1205 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationState.cpp */,
+				F1CF3E736E7A4376A26BD048 /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/StaticSolve.cpp */,
+				0DD79796CD5B4EF4B090038F /* /Users/chenzhen/UT/Research/Projects/shellbenchmarks/main.cpp */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB1589C2C3134808998E25EC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1FB0B2BE4AE14CECB297A019 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_init.m */,
+				97302C70BDD64503A676B665 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_joystick.m */,
+				E57D721119704D0A8FD81995 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_monitor.m */,
+				3C09B7DB0CED4CBF990B5C97 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_time.c */,
+				8082AEFA03F346BC9F3D735B /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/cocoa_window.m */,
+				B54D0470D68142848DF5F2EF /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/context.c */,
+				6B2DE7BE1BB34E169FFA05D8 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/egl_context.c */,
+				1A6BE527FBA94EA5AC3AA634 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/init.c */,
+				1FA5EA42A0FF4945815A98A3 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/input.c */,
+				73A520ABD2064E0B8F96266E /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/monitor.c */,
+				D643B560FD404A5EA4BC8646 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/nsgl_context.m */,
+				7EB574E7BC214D3A86F2F696 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/osmesa_context.c */,
+				9ADCB8C169704DEE988F771F /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/posix_thread.c */,
+				FC213614F15B4B02AA9C7041 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/vulkan.c */,
+				DB9A08C9A2FB4F6193E1A910 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/window.c */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F17776C283EE4021808990B2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2956161B58A45CDBAAB7EEE /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/examples/imgui_impl_glfw.cpp */,
+				430CA302618E4CB29B96E15D /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/imgui.cpp */,
+				6964034350F349F887D4C41E /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/imgui_demo.cpp */,
+				787D0289B89A4B94ADEDD5C6 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/imgui/imgui_draw.cpp */,
+				AD0B14DC2ACB416F8AA0AB15 /* /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/imgui_impl_opengl3.cpp */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		03CF15F5BDB443CB8C24299D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AF30682384B647CDA148A976 /* ZERO_CHECK */;
+			targetProxy = 357273CEE6EC4FCCB06AB79D /* PBXContainerItemProxy */;
+		};
+		08889B48B6C64EEC9B9BF011 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AF30682384B647CDA148A976 /* ZERO_CHECK */;
+			targetProxy = A467A83D74CF451DBB3021D9 /* PBXContainerItemProxy */;
+		};
+		098E11C5D585478AB32BE7A1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CFE35E22D8024B5581267C8E /* imgui */;
+			targetProxy = 7DC63C4C83374199ADF0F974 /* PBXContainerItemProxy */;
+		};
+		3C302CE69B5348FFA4AEADFC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 90B7A3FA0A2343418B7B5A32 /* glad */;
+			targetProxy = EEDC53EC3F074C8B87FA980A /* PBXContainerItemProxy */;
+		};
+		58C31D86605C45F585B12E7D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E7A5C7118EB14B26A6B320F2 /* glfw */;
+			targetProxy = A3CDA1B81BA9434B9F18EC05 /* PBXContainerItemProxy */;
+		};
+		5936734F278342C593A20525 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8A0B4EBB8CD44351BE634E9E /* ALL_BUILD */;
+			targetProxy = 8CC6D611CF914F31A5936268 /* PBXContainerItemProxy */;
+		};
+		6A8FC1E8334C4865B1A6E1C2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E7A5C7118EB14B26A6B320F2 /* glfw */;
+			targetProxy = 2A2EDDFD1EF244DDABCDB63C /* PBXContainerItemProxy */;
+		};
+		6D62462CB35947738A0BC167 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CFE35E22D8024B5581267C8E /* imgui */;
+			targetProxy = D780089FBE2D477EA11E0344 /* PBXContainerItemProxy */;
+		};
+		A25DB3E9E6C94F11BD48610B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2D09674B8D7B42269DBBF614 /* shellbenchmark_bin */;
+			targetProxy = DCE1733FB7BC46A783BCDA68 /* PBXContainerItemProxy */;
+		};
+		A285BBB7009F4232AC3FD42F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BF0EB04690B741A9943CFCCC /* alglib */;
+			targetProxy = D24161195A0345398FB4FD17 /* PBXContainerItemProxy */;
+		};
+		B6BE32FF5B7449EC8B669134 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AF30682384B647CDA148A976 /* ZERO_CHECK */;
+			targetProxy = C07F757F78B94524AB51DD90 /* PBXContainerItemProxy */;
+		};
+		BA8E00A94E304B8CB80A4756 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E7A5C7118EB14B26A6B320F2 /* glfw */;
+			targetProxy = DA1E0EC93FEB4A969F0FC064 /* PBXContainerItemProxy */;
+		};
+		BE4D15B8B7024004B26532DD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BF0EB04690B741A9943CFCCC /* alglib */;
+			targetProxy = C34F41BB72AA450B95B1BE5E /* PBXContainerItemProxy */;
+		};
+		BED3F5C07CD1424A92F8AF95 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AF30682384B647CDA148A976 /* ZERO_CHECK */;
+			targetProxy = EF7960A5282A47B1AC3224B1 /* PBXContainerItemProxy */;
+		};
+		D47CBDFF3C6E47C8B80D0B3A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AF30682384B647CDA148A976 /* ZERO_CHECK */;
+			targetProxy = 66814627508343D7A2C35088 /* PBXContainerItemProxy */;
+		};
+		DFE34DAEDD8746F3868B33B3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 90B7A3FA0A2343418B7B5A32 /* glad */;
+			targetProxy = CE97A342272F4687BF7AC956 /* PBXContainerItemProxy */;
+		};
+		FAFBD6D8A9914DEB8ECD0497 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 90B7A3FA0A2343418B7B5A32 /* glad */;
+			targetProxy = F74D9EF6F48242BE9F056DA1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		02AE6432DAD745E88CB0FD71 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/System/Library/Frameworks);
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/include,/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include,"/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/.","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/..","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/../imgui/examples");
+				INSTALL_PATH = "";
+				LD_RUNPATH_SEARCH_PATHS = /Users/chenzhen/.local/lib;
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CPLUSPLUSFLAGS = " -fPIC     -DNDEBUG '-std=gnu++14'  ";
+				OTHER_LDFLAGS = " -Wl,-search_paths_first -Wl,-headerpad_max_install_names     /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib/Release/libalglib.a /Users/chenzhen/.local/lib/libifopt_ipopt.dylib     -framework OpenGL /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/imgui/Release/libimgui.a /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src/Release/libglfw3.a -framework Cocoa -framework IOKit -framework CoreFoundation -framework CoreVideo /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/Release/libglad.a /Users/chenzhen/.local/lib/libifopt_core.dylib";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = shellbenchmark_bin;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode;
+				SYSTEM_HEADER_SEARCH_PATHS = (/Users/chenzhen/.local/include,/usr/local/include/eigen3,/Users/chenzhen/UT/Research/Projects/Tools/libigl/cmake/../include,/Users/chenzhen/UT/Research/Projects/Tools/libigl/cmake/../external/eigen);
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		05B57B3A50FD4E79B65CB70E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		0C70C47F748845598B92B3EB /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/System/Library/Frameworks);
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/include,/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include,"/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/.","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/..","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/../imgui/examples");
+				INSTALL_PATH = "";
+				LD_RUNPATH_SEARCH_PATHS = /Users/chenzhen/.local/lib;
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CPLUSPLUSFLAGS = " -fPIC        -DNDEBUG '-std=gnu++14'  ";
+				OTHER_LDFLAGS = " -Wl,-search_paths_first -Wl,-headerpad_max_install_names     /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib/RelWithDebInfo/libalglib.a /Users/chenzhen/.local/lib/libifopt_ipopt.dylib     -framework OpenGL /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/imgui/RelWithDebInfo/libimgui.a /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src/RelWithDebInfo/libglfw3.a -framework Cocoa -framework IOKit -framework CoreFoundation -framework CoreVideo /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/RelWithDebInfo/libglad.a /Users/chenzhen/.local/lib/libifopt_core.dylib";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = shellbenchmark_bin;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode;
+				SYSTEM_HEADER_SEARCH_PATHS = (/Users/chenzhen/.local/include,/usr/local/include/eigen3,/Users/chenzhen/UT/Research/Projects/Tools/libigl/cmake/../include,/Users/chenzhen/UT/Research/Projects/Tools/libigl/cmake/../external/eigen);
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		102EAFB7DE8F46BEA4E18911 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		1345BC79DCD94D6C892EC742 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/include);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CFLAGS = " -fPIC     -DNDEBUG  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glad;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		15D417A204CC4051B05711FD /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/include);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CFLAGS = " -fPIC        -DNDEBUG  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glad;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		1C2A24350761484EB39A2E88 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/System/Library/Frameworks);
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/include,/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include,"/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/.","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/..","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/../imgui/examples");
+				INSTALL_PATH = "";
+				LD_RUNPATH_SEARCH_PATHS = /Users/chenzhen/.local/lib;
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CPLUSPLUSFLAGS = " -fPIC    '-std=gnu++14'  ";
+				OTHER_LDFLAGS = " -Wl,-search_paths_first -Wl,-headerpad_max_install_names     /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib/Debug/libalglib.a /Users/chenzhen/.local/lib/libifopt_ipopt.dylib     -framework OpenGL /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/imgui/Debug/libimgui.a /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src/Debug/libglfw3.a -framework Cocoa -framework IOKit -framework CoreFoundation -framework CoreVideo /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/Debug/libglad.a /Users/chenzhen/.local/lib/libifopt_core.dylib";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = shellbenchmark_bin;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode;
+				SYSTEM_HEADER_SEARCH_PATHS = (/Users/chenzhen/.local/include,/usr/local/include/eigen3,/Users/chenzhen/UT/Research/Projects/Tools/libigl/cmake/../include,/Users/chenzhen/UT/Research/Projects/Tools/libigl/cmake/../external/eigen);
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		217A28AD5E1C417EA33D1E83 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		3A71B62CC35845608D0842F4 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				FRAMEWORK_SEARCH_PATHS = (/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/System/Library/Frameworks);
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/include,/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include,"/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/.","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/..","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/../imgui/examples");
+				INSTALL_PATH = "";
+				LD_RUNPATH_SEARCH_PATHS = /Users/chenzhen/.local/lib;
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CPLUSPLUSFLAGS = " -fPIC     -DNDEBUG '-std=gnu++14'  ";
+				OTHER_LDFLAGS = " -Wl,-search_paths_first -Wl,-headerpad_max_install_names     /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib/MinSizeRel/libalglib.a /Users/chenzhen/.local/lib/libifopt_ipopt.dylib     -framework OpenGL /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/imgui/MinSizeRel/libimgui.a /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src/MinSizeRel/libglfw3.a -framework Cocoa -framework IOKit -framework CoreFoundation -framework CoreVideo /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/MinSizeRel/libglad.a /Users/chenzhen/.local/lib/libifopt_core.dylib";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = shellbenchmark_bin;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode;
+				SYSTEM_HEADER_SEARCH_PATHS = (/Users/chenzhen/.local/include,/usr/local/include/eigen3,/Users/chenzhen/UT/Research/Projects/Tools/libigl/cmake/../include,/Users/chenzhen/UT/Research/Projects/Tools/libigl/cmake/../external/eigen);
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		3C76AD9033CB4D3585325E57 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/include);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CFLAGS = " -fPIC     ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glad;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		40305440170443478F079F6A /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/.local/include,/usr/local/include/eigen3);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -fPIC        -DNDEBUG -fPIC '-std=gnu++14'  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = alglib;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		44F11B16841A463AAFBFC796 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",_GLFW_USE_CONFIG_H);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include,/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src,/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CFLAGS = " -fPIC    -fPIC -Wall  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glfw3;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		4CE497DC0783466CB13C1FA1 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		55B64EFAEAC848A6BD6D2E5E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		5C9991C222F94E07A4E02FD4 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/../imgui","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/.","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/..","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/../imgui/examples",/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/include,/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -fPIC     -DNDEBUG '-std=gnu++14'  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = imgui;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/imgui;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		64D4F5158AAE40ECA30FC744 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/.local/include,/usr/local/include/eigen3);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -fPIC     -DNDEBUG -fPIC '-std=gnu++14'  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = alglib;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		6CA720371AAD423E9F0B0346 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/../imgui","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/.","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/..","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/../imgui/examples",/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/include,/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -fPIC        -DNDEBUG '-std=gnu++14'  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = imgui;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/imgui;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		6CC2E15330E943B9809846AA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/include);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CFLAGS = " -fPIC     -DNDEBUG  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glad;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		73B74B743DF5484F96714EB6 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		76634ED2E510432B87431CE5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk;
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/build;
+			};
+			name = Release;
+		};
+		8242B0E3F81B4A2B98FA467E /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/.local/include,/usr/local/include/eigen3);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -fPIC     -DNDEBUG -fPIC '-std=gnu++14'  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = alglib;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		84FFC6C6D11B461FB1F37A99 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		85FF4CB08A1F405495446E54 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/../imgui","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/.","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/..","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/../imgui/examples",/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/include,/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -fPIC    '-std=gnu++14'  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = imgui;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/imgui;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		8B7CAD0523404250A595C11B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk;
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/build;
+			};
+			name = Debug;
+		};
+		9B076A5E77DF4171BADE23AE /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		B181D1F8FEDC4CECA4E313F8 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk;
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/build;
+			};
+			name = MinSizeRel;
+		};
+		C6D251E88E2E4C1EB49EA54D /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",_GLFW_USE_CONFIG_H);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include,/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src,/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CFLAGS = " -fPIC        -DNDEBUG -fPIC -Wall  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glfw3;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		D1342C96DFDB40ACBF324844 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",_GLFW_USE_CONFIG_H);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include,/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src,/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CFLAGS = " -fPIC     -DNDEBUG -fPIC -Wall  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glfw3;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		D1AA4C31F15B406CA37D79F8 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		E1F7663ED84041EC85FAC5DD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/.local/include,/usr/local/include/eigen3);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -fPIC    -fPIC '-std=gnu++14'  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = alglib;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		ED6C482D19BB4CBC8E64C838 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		F17C4D6D09AA44069A67C156 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		F4F98082AB7643C0AFB7989A /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk;
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/build;
+			};
+			name = RelWithDebInfo;
+		};
+		F627015B466B40A09AD44251 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/../imgui","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/.","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/..","/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/../imgui/examples",/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/include,/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CPLUSPLUSFLAGS = " -fPIC     -DNDEBUG '-std=gnu++14'  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = imgui;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/imgui;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		F7C90881F2E04F03B6779346 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		FF402E7B4164465E803FD520 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",_GLFW_USE_CONFIG_H);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/include,/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src,/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src);
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				OTHER_CFLAGS = " -fPIC     -DNDEBUG -fPIC -Wall  ";
+				OTHER_LIBTOOLFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glfw3;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		070C1C65C1A646ECAE4B0B57 /* Build configuration list for PBXNativeTarget "glad" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C76AD9033CB4D3585325E57 /* Debug */,
+				6CC2E15330E943B9809846AA /* Release */,
+				1345BC79DCD94D6C892EC742 /* MinSizeRel */,
+				15D417A204CC4051B05711FD /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		21EACC199CBE407A9888955E /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				217A28AD5E1C417EA33D1E83 /* Debug */,
+				F17C4D6D09AA44069A67C156 /* Release */,
+				4CE497DC0783466CB13C1FA1 /* MinSizeRel */,
+				84FFC6C6D11B461FB1F37A99 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		2BB28AA2F63E4146B3ED9950 /* Build configuration list for PBXAggregateTarget "install" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F7C90881F2E04F03B6779346 /* Debug */,
+				ED6C482D19BB4CBC8E64C838 /* Release */,
+				D1AA4C31F15B406CA37D79F8 /* MinSizeRel */,
+				73B74B743DF5484F96714EB6 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		37588935314844FD9730382D /* Build configuration list for PBXNativeTarget "shellbenchmark_bin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1C2A24350761484EB39A2E88 /* Debug */,
+				02AE6432DAD745E88CB0FD71 /* Release */,
+				3A71B62CC35845608D0842F4 /* MinSizeRel */,
+				0C70C47F748845598B92B3EB /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3918BE7AE20A4A32ABC58D49 /* Build configuration list for PBXNativeTarget "alglib" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1F7663ED84041EC85FAC5DD /* Debug */,
+				64D4F5158AAE40ECA30FC744 /* Release */,
+				8242B0E3F81B4A2B98FA467E /* MinSizeRel */,
+				40305440170443478F079F6A /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		42281C633345452F8CE46CA0 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				05B57B3A50FD4E79B65CB70E /* Debug */,
+				55B64EFAEAC848A6BD6D2E5E /* Release */,
+				9B076A5E77DF4171BADE23AE /* MinSizeRel */,
+				102EAFB7DE8F46BEA4E18911 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		49F08CFD59024DB3B68972B0 /* Build configuration list for PBXNativeTarget "glfw" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				44F11B16841A463AAFBFC796 /* Debug */,
+				D1342C96DFDB40ACBF324844 /* Release */,
+				FF402E7B4164465E803FD520 /* MinSizeRel */,
+				C6D251E88E2E4C1EB49EA54D /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		58415364634E4F18BB1AA325 /* Build configuration list for PBXProject "shellbenchmark" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B7CAD0523404250A595C11B /* Debug */,
+				76634ED2E510432B87431CE5 /* Release */,
+				B181D1F8FEDC4CECA4E313F8 /* MinSizeRel */,
+				F4F98082AB7643C0AFB7989A /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E9BAD272E8F04B42AB276DCE /* Build configuration list for PBXNativeTarget "imgui" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				85FF4CB08A1F405495446E54 /* Debug */,
+				F627015B466B40A09AD44251 /* Release */,
+				5C9991C222F94E07A4E02FD4 /* MinSizeRel */,
+				6CA720371AAD423E9F0B0346 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A464298F48754943BCC5D05C /* Project object */;
+}

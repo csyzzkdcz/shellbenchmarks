@@ -33,16 +33,24 @@ double tolerance;
 bool isShowVerField = false;
 bool isShowFaceColor = false;
 bool isShowAbar =  false;
+bool isStartFromMiddleShape = false;
 
 enum Methods {Normal=0, alglibSolver, ipoptSolver};
 static Methods methodType =  ipoptSolver;
 
+enum abarATypes {optimal2target, optimal2plate};
+static abarATypes abarAType =  optimal2target;
+
+std::string selectedMethod = "";
+
 std::string resShape = "";
 std::string tarShape = "";
 std::string curPath = "";
+std::string selectedType = "sphere";
 
-double thickness;
-double penaltyCoef;
+double thickness = 1e-4;
+double penaltyCoef = 0;
+double smoothnessCoef = 0;
 int expCoef;
 
 
@@ -86,6 +94,15 @@ void setTarget()
     numSteps = 1;
 }
 
+void setMiddle()
+{
+    std::cout << std::endl << "Set Middle" << std::endl << std::endl;
+    curState.curPos = setup->targetPosAfterFirstStep;
+    curState.curEdgeDOFs = setup->initialEdgeDOFs;
+    numSteps = 1;
+    
+}
+
 void repaint(igl::opengl::glfw::Viewer &viewer)
 {
     viewer.data().clear();
@@ -102,14 +119,70 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
     viewer.data().set_colors(colors);
     viewer.data().line_width = 2;
     
+    if(isShowFaceColor != 0)
+    {
+        viewer.data().set_mesh(setup->initialPos, setup->mesh.faces());
+        
+        int nfaces = setup->mesh.faces().rows();
+        igl::ColorMapType vizColor = igl::COLOR_MAP_TYPE_PARULA;
+        Eigen::VectorXd Z(nfaces);
+        Eigen::MatrixXd faceColors(nfaces, 3);
+        
+        double max = 0;
+        double min = 1e10;
+        
+        for(int i=0;i<nfaces;i++)
+        {
+            Eigen::Matrix2d a, abar, A;
+            
+            if(abarAType == 0)      // from target to the optimal in first stage
+            {
+                a = setup->abars[i];
+                abar = firstFundamentalForm(setup->mesh, setup->targetPos, i, NULL, NULL);
+            }
+            else if(abarAType == 1) // from plate to the optimal in first stage
+            {
+                a = setup->abars[i];
+                abar = firstFundamentalForm(setup->mesh, setup->initialPos, i, NULL, NULL);
+            }
+            A = abar.inverse()*a;
+            Eigen::EigenSolver<Eigen::MatrixXd> es(A);
+            double eigValue1 = es.eigenvalues()[0].real();
+            
+            double eigValue2 = es.eigenvalues()[1].real();
+            Z(i) = eigValue1 + eigValue2 - 2;
+            if (Z(i) > max)
+                max = Z(i);
+            if(Z(i) < min)
+                min = Z(i);
+            //            double eigValue1 = es.eigenvalues()[0].real();
+            //            double eigValue2 = es.eigenvalues()[1].real();
+            //
+            //            int flag = 0;
+            //
+            //            if(eigValue1 < eigValue2)
+            //            {
+            //                flag = 1;
+            //            }
+            //
+            //            Z(i) = es.eigenvalues()[flag].real();
+            //            if (Z(i) > max)
+            //                max = Z(i);
+            //            if(Z(i) < min)
+            //                min = Z(i);
+            
+        }
+        Z = 1.0 / max * Z;
+        std::cout<<max<<" "<<min<<" "<<max - min <<std::endl;
+        igl::colormap(vizColor, Z, false, faceColors); // true here means libigl will automatically normalize Z, which may or may not be what you want.
+        viewer.data().set_colors(faceColors);
+        
+    }
+    
     if(isShowVerField)
     {
         Eigen::MatrixXd BC, Vec1, Vec2;
-        
-        if(isShowAbar)
-        {
-            viewer.data().set_mesh(setup->initialPos, setup->mesh.faces());
-        }
+        viewer.data().set_mesh(setup->initialPos, setup->mesh.faces());
         igl::barycenter(viewer.data().V, setup->mesh.faces(), BC);
         
         int nfaces = setup->mesh.faces().rows();
@@ -119,101 +192,57 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
         {
             Eigen::Matrix2d a, abar, A;
             
-            if(isShowAbar)
+            if(abarAType == 0)  // from target to the optimal in first stage
+            {
+                a = setup->abars[i];
+                abar = firstFundamentalForm(setup->mesh, setup->targetPos, i, NULL, NULL);
+            }
+            else if(abarAType == 1) // from plate to the optimal in first stage
             {
                 a = setup->abars[i];
                 abar = firstFundamentalForm(setup->mesh, setup->initialPos, i, NULL, NULL);
-        
-                
+            }
                 A = abar.inverse()*a;
                 //A = IU.inverse()*IM;
                 Eigen::EigenSolver<Eigen::MatrixXd> es(A);
                 double eigValue1 = es.eigenvalues()[0].real();
-                Eigen::VectorXd eigVec1 = es.eigenvectors().col(0).real();
-                
                 double eigValue2 = es.eigenvalues()[1].real();
-                Eigen::VectorXd eigVec2 = es.eigenvectors().col(1).real();
+                
+                int flag = 0;
+                
+                if(eigValue1 < eigValue2)
+                {
+                    flag = 1;
+                }
+                
+                eigValue1 = es.eigenvalues()[flag].real();
+                eigValue2 = es.eigenvalues()[1-flag].real();
+                
+                Eigen::VectorXd eigVec1 = es.eigenvectors().col(flag).real();
+                
+                Eigen::VectorXd eigVec2 = es.eigenvectors().col(1-flag).real();
                 
                 Vec1.row(i) = eigValue1*(eigVec1(0)*(setup->initialPos.row(setup->mesh.faces()(i,1))-setup->initialPos.row(setup->mesh.faces()(i,0))) + eigVec1(1)*(setup->initialPos.row(setup->mesh.faces()(i,2))-setup->initialPos.row(setup->mesh.faces()(i,0))));
                 Vec2.row(i) = eigValue2*(eigVec2(0)*(setup->initialPos.row(setup->mesh.faces()(i,1))-setup->initialPos.row(setup->mesh.faces()(i,0))) + eigVec2(1)*(setup->initialPos.row(setup->mesh.faces()(i,2))-setup->initialPos.row(setup->mesh.faces()(i,0))));
-                
-            }
-            else
-            {
-                a = firstFundamentalForm(setup->mesh, curState.curPos, i, NULL, NULL);
-                abar = firstFundamentalForm(setup->mesh, setup->initialPos, i, NULL, NULL);
-                
-                A = abar.inverse()*a;
-                //A = IU.inverse()*IM;
-                Eigen::EigenSolver<Eigen::MatrixXd> es(A);
-                double eigValue1 = es.eigenvalues()[0].real();
-                Eigen::VectorXd eigVec1 = es.eigenvectors().col(0).real();
-                
-                double eigValue2 = es.eigenvalues()[1].real();
-                Eigen::VectorXd eigVec2 = es.eigenvectors().col(1).real();
-                
-                Vec1.row(i) = eigValue1*(eigVec1(0)*(curState.curPos.row(setup->mesh.faces()(i,1))-curState.curPos.row(setup->mesh.faces()(i,0)))+ eigVec1(1)*(curState.curPos.row(setup->mesh.faces()(i,2))-curState.curPos.row(setup->mesh.faces()(i,0))));
-                Vec2.row(i) = eigValue2*(eigVec2(0)*(curState.curPos.row(setup->mesh.faces()(i,1))-curState.curPos.row(setup->mesh.faces()(i,0))) + eigVec2(1)*(curState.curPos.row(setup->mesh.faces()(i,2))-curState.curPos.row(setup->mesh.faces()(i,0))));
-                
-            }
-            
-           
-            
+                if(eigValue1 < eigValue2)
+                    std::cout<<eigValue1<<" "<<eigValue2<<std::endl;
         }
-        const Eigen::RowVector3d red(1,0,0), black(0,0,0);
-        viewer.data().add_edges(BC,BC+Vec1, red);
-        viewer.data().add_edges(BC,BC+Vec2, black);
         
+        const Eigen::RowVector3d red(1,0,0), black(0,0,0);
+        viewer.data().add_edges(BC,BC+Vec1/2, red);
+        viewer.data().add_edges(BC,BC-Vec1/2, red);
+        viewer.data().add_edges(BC,BC+Vec2/2, black);
+        viewer.data().add_edges(BC,BC-Vec2/2, black);
     }
     
-    if(isShowFaceColor)
-    {
-        //        load_L_list("../../benchmarks/TestModels/L_list_cylinder.dat");
-        int nfaces = setup->mesh.faces().rows();
-        igl::ColorMapType vizColor = igl::COLOR_MAP_TYPE_PARULA;
-        Eigen::VectorXd Z(nfaces);
-        Eigen::MatrixXd faceColors(nfaces, 3);
-        
-        if(isShowAbar)
-        {
-            viewer.data().set_mesh(setup->initialPos, setup->mesh.faces());
-        }
-        
-        for(int i=0;i<nfaces;i++)
-        {
-            Eigen::Matrix2d a, abar, A;
-            
-            if(isShowAbar)
-            {
-                a = setup->abars[i];
-                abar = firstFundamentalForm(setup->mesh, setup->initialPos, i, NULL, NULL);
-            }
-            else
-            {
-                a = firstFundamentalForm(setup->mesh, curState.curPos, i, NULL, NULL);
-                abar = firstFundamentalForm(setup->mesh, setup->initialPos, i, NULL, NULL);
-            }
-            A = abar.inverse()*a;
-            //A = IU.inverse()*IM;
-            Eigen::EigenSolver<Eigen::MatrixXd> es(A);
-            double eigValue1 = es.eigenvalues()[0].real();
-            
-            double eigValue2 = es.eigenvalues()[1].real();
-            Z(i) = eigValue1 + eigValue2;
-            
-        }
-        
-        igl::colormap(vizColor, Z, true, faceColors); // true here means libigl will automatically normalize Z, which may or may not be what you want.
-        viewer.data().set_colors(faceColors);
-    }
 }
 
 int main(int argc, char *argv[])
 {
+    //    compute_circle("../../benchmarks/TestModels/coarse/expandedRect/draped_rect_geometry.obj");
+    //    return;
     numSteps = 30;
     tolerance = 1e-6;
-    
-    std::string selectedType = "sphere";
     
     MidedgeAverageFormulation sff;
     
@@ -255,7 +284,7 @@ int main(int argc, char *argv[])
                 viewer.data().clear();
                 curPath = igl::file_dialog_open();
                 Eigen::MatrixXi F;
-
+                
                 if (curPath.length() == 0)
                 {
                     std::cout<<"Loading mesh failed"<<std::endl;
@@ -269,8 +298,8 @@ int main(int argc, char *argv[])
                     tarShape = curPath + "/" + selectedType ;
                     resShape = curPath + "/" + "draped_rect";
                     igl::readOBJ(tarShape + "_geometry.obj", curState.curPos, F);
+                    setup->mesh = MeshConnectivity(F); // Just for repainting
                     std::cout<<curPath<<std::endl;
-                    setup->mesh = MeshConnectivity(F);
                 }
                 repaint(viewer);
             }
@@ -334,10 +363,6 @@ int main(int argc, char *argv[])
             {
                 repaint(viewer);
             }
-            if(ImGui::Checkbox("Abars", &isShowAbar))
-            {
-                repaint(viewer);
-            }
             ImGui::Checkbox("Show texture", &(viewer.data().show_texture));
             if (ImGui::Checkbox("Invert normals", &(viewer.data().invert_normals)))
             {
@@ -362,6 +387,12 @@ int main(int argc, char *argv[])
             ImGui::Checkbox("Show vertex labels", &(viewer.data().show_vertid));
             ImGui::Checkbox("Show faces labels", &(viewer.data().show_faceid));
         }
+        
+        // Face color type
+        if (ImGui::Combo("Face Color", (int *)(&abarAType), "optimal2target\0optimal2plate\0\0"))
+        {
+            repaint(viewer);
+        }
     };
     
     menu.callback_draw_custom_window = [&]()
@@ -385,44 +416,96 @@ int main(int argc, char *argv[])
             {
                 setup = std::make_unique<SimulationSetupAlglibSolver>();
                 setup->penaltyCoef = penaltyCoef;
-                if(penaltyCoef == 0)
-                    expCoef = 0;
-                else
-                    expCoef = int(-std::log10(penaltyCoef));
-                // if(std::log10(penaltyCoef) > 0)
-                //     setup->abarPath = curPath + "/alglibSolver" + "/" + selectedType + "_L_list_p_" + std::to_string(int(penaltyCoef)) + ".dat";
-                // else
-                    setup->abarPath = curPath + "/alglibSolver" + "/" + selectedType + "_L_list_" +std::to_string(expCoef) + ".dat";
-                std::cout<<setup->abarPath<<std::endl;
+                setup->smoothCoef = smoothnessCoef;
+                setup->thickness = thickness;
+                selectedMethod = "alglibSolver";
             }
             else if (methodType == 2)
             {
                 setup = std::make_unique<SimulationSetupIpoptSolver>();
                 setup->penaltyCoef = penaltyCoef;
-                if(penaltyCoef == 0)
-                    expCoef = 0;
-                else
-                    expCoef = int(-std::log10(penaltyCoef));
-                // if(penaltyCoef > 0)
-                //     setup->abarPath = curPath + "/ifOptSolver" + "/" + selectedType + "_L_list_p_" + std::to_string(int(penaltyCoef)) + ".dat";
-                // else
-                    setup->abarPath = curPath + "/ifOptSolver" + "/" + selectedType + "_L_list_" +std::to_string(expCoef)+ ".dat";
-                std::cout<<setup->abarPath<<std::endl;
+                setup->smoothCoef = smoothnessCoef;
+                setup->thickness = thickness;
+                selectedMethod = "ifOptSolver";
             }
+            setup->abarPath = curPath + "/" + selectedMethod + "/" + selectedType + "_L_list_T_0_P_0_S_0.dat";
+            
+            int startIdx, endIdx;
+            std::string subString = "";
+            
+            // thickness
+            if(thickness == 0)
+                expCoef = 0;
+            else
+                expCoef = int(std::log10(thickness));
+            startIdx = setup->abarPath.rfind("T");
+            endIdx = setup->abarPath.rfind("P");
+            subString = "";
+            if(thickness > 0)
+                subString = "T_1e" + std::to_string(expCoef);
+            else
+                subString = "T_0";
+            setup->abarPath = setup->abarPath.replace(setup->abarPath.begin() + startIdx, setup->abarPath.begin()+endIdx-1, subString);
+            
+            // penalty
+            if(penaltyCoef == 0)
+                expCoef = 0;
+            else
+                expCoef = int(std::log10(penaltyCoef));
+            
+            startIdx = setup->abarPath.rfind("P");
+            endIdx = setup->abarPath.rfind("S");
+            subString = "";
+            if(penaltyCoef > 0)
+                subString = "P_1e" + std::to_string(expCoef);
+            else
+                subString = "P_0";
+            setup->abarPath = setup->abarPath.replace(setup->abarPath.begin() + startIdx, setup->abarPath.begin()+endIdx-1, subString);
+            
+            // smoothness
+            if(smoothnessCoef == 0)
+                expCoef = 0;
+            else
+                expCoef = int(std::log10(smoothnessCoef));
+            
+            startIdx = setup->abarPath.rfind("S");
+            endIdx = setup->abarPath.rfind(".");
+            subString = "";
+            if(smoothnessCoef > 0)
+                subString = "S_1e" + std::to_string(expCoef);
+            else
+                subString = "S_0";
+            setup->abarPath = setup->abarPath.replace(setup->abarPath.begin() + startIdx, setup->abarPath.begin()+endIdx, subString);
+            std::cout<<"Current abar loading path is: "<<setup->abarPath<<std::endl;
+            
         }
         
         if (ImGui::CollapsingHeader("Parameters", ImGuiTreeNodeFlags_DefaultOpen))
         {
             thickness = setup->thickness;
             penaltyCoef = setup->penaltyCoef;
-            if(penaltyCoef == 0)
-                expCoef = 0;
-            else
-                expCoef = int(-std::log10(penaltyCoef));
+            smoothnessCoef = setup->smoothCoef;
             
             if (ImGui::InputDouble("Thickness", &thickness))
             {
                 setup->thickness = thickness;
+                if(thickness == 0)
+                    expCoef = 0;
+                else
+                    expCoef = int(std::log10(thickness));
+                if(setup->abarPath != "")
+                {
+                    int startIdx = setup->abarPath.rfind("T");
+                    int endIdx = setup->abarPath.rfind("P");
+                    std::string subString = "";
+                    if(thickness > 0)
+                        subString = "T_1e" + std::to_string(expCoef);
+                    else
+                        subString = "T_0";
+                    setup->abarPath = setup->abarPath.replace(setup->abarPath.begin() + startIdx, setup->abarPath.begin()+endIdx-1, subString);
+                    std::cout<<setup->abarPath<<std::endl;
+                }
+                
             }
             if (ImGui::InputDouble("Penalty Coefficient", &penaltyCoef))
             {
@@ -430,17 +513,42 @@ int main(int argc, char *argv[])
                 if(penaltyCoef == 0)
                     expCoef = 0;
                 else
-                    expCoef = int(-std::log10(penaltyCoef));
+                    expCoef = int(std::log10(penaltyCoef));
                 if(setup->abarPath != "")
                 {
-                    int idx = setup->abarPath.rfind("_");
-                    // if(std::log10(penaltyCoef) > 0)
-                    //     setup->abarPath = setup->abarPath.substr(0, idx) + "_" + std::to_string(int(penaltyCoef)) + ".dat";
-                    // else
-                        setup->abarPath = setup->abarPath.substr(0, idx) + "_" + std::to_string(expCoef) + ".dat";
+                    int startIdx = setup->abarPath.rfind("P");
+                    int endIdx = setup->abarPath.rfind("S");
+                    std::string subString = "";
+                    if(penaltyCoef > 0)
+                        subString = "P_1e" + std::to_string(expCoef);
+                    else
+                        subString = "P_0";
+                    setup->abarPath = setup->abarPath.replace(setup->abarPath.begin() + startIdx, setup->abarPath.begin()+endIdx-1, subString);
                     std::cout<<setup->abarPath<<std::endl;
                 }
-
+                
+            }
+            
+            if (ImGui::InputDouble("Smoothness Coefficient", &smoothnessCoef))
+            {
+                setup->smoothCoef = smoothnessCoef;
+                if(smoothnessCoef == 0)
+                    expCoef = 0;
+                else
+                    expCoef = int(std::log10(smoothnessCoef));
+                if(setup->abarPath != "")
+                {
+                    int startIdx = setup->abarPath.rfind("S");
+                    int endIdx = setup->abarPath.rfind(".");
+                    std::string subString = "";
+                    if(smoothnessCoef > 0)
+                        subString = "S_1e" + std::to_string(expCoef);
+                    else
+                        subString = "S_0";
+                    setup->abarPath = setup->abarPath.replace(setup->abarPath.begin() + startIdx, setup->abarPath.begin()+endIdx, subString);
+                    std::cout<<setup->abarPath<<std::endl;
+                }
+                
             }
         }
         
@@ -454,6 +562,13 @@ int main(int argc, char *argv[])
             setTarget();
             repaint(viewer);
         }
+        
+        if(ImGui::Button("Set Middle", ImVec2(-1,0)))
+        {
+            setMiddle();
+            //            repaint(viewer, faceColorType);
+        }
+        
         if (ImGui::Button("load and Compute", ImVec2(-1, 0)))
         {
             bool ok = parseWimFiles(resShape, tarShape, *setup, sff);
@@ -464,8 +579,12 @@ int main(int argc, char *argv[])
                 std::cerr << "Target Shape: "<< tarShape << std::endl;
                 return -1;
             }
-            setup->buildRestFundamentalForms(sff);
+            std::cout<<thickness<<std::endl;
+            setup->thickness = thickness;
             setup->penaltyCoef = penaltyCoef;
+            setup->smoothCoef = smoothnessCoef;
+            setup->buildRestFundamentalForms(sff);
+            
         }
         if (ImGui::InputInt("Interpolation Steps", &numSteps))
         {
@@ -491,6 +610,9 @@ int main(int argc, char *argv[])
                     curState.curPos(i,2) = (1e-6*rand())/RAND_MAX;
                 }
             }
+            setup->thickness = thickness;
+            setup->penaltyCoef = penaltyCoef;
+            setup->smoothCoef = smoothnessCoef;
             for (int j = 1; j <= numSteps; j++)
             {
                 double interp = double(j) / double(numSteps);

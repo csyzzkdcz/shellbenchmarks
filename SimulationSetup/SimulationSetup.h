@@ -25,6 +25,7 @@ class SimulationSetup
     MeshConnectivity mesh; // mesh combinatorics
     Eigen::MatrixXd initialPos; // mesh vertices of the rest state
     Eigen::MatrixXd targetPos; //   mesh vertices of the target state
+    Eigen::MatrixXd targetPosAfterFirstStep; 
     Eigen::VectorXd initialEdgeDOFs;
     std::map<int, double> clampedDOFs;
     Eigen::MatrixXd externalForces; // same size as initialPos
@@ -34,6 +35,7 @@ class SimulationSetup
     double YoungsModulus;
     double PoissonsRatio;
     double penaltyCoef;     // default value is 0
+    double smoothCoef;      // default value is 0
     
     std::string abarPath;
     std::vector<PostprocessTest> tests;

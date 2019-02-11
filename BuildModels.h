@@ -123,4 +123,135 @@ void meshResample(std::string filepath, int targetResolution)
     
 }
 
+void compute_expanded_rect(std::string rectPath)
+{
+    Eigen::MatrixXd Vo;
+    Eigen::MatrixXi Fo;
+    igl::readOBJ(rectPath, Vo, Fo);
+    for(int i=0;i<Vo.rows();i++)
+    {
+        Vo.row(i) = 2 * Vo.row(i);
+    }
+    int ind = rectPath.rfind("/");
+    igl::writeOBJ(rectPath.substr(0, ind) + "/expandedRect_geometry.obj", Vo, Fo);
+}
+
+void compute_extended_rect(std::string rectPath)
+{
+    Eigen::MatrixXd Vo;
+    Eigen::MatrixXi Fo;
+    igl::readOBJ(rectPath, Vo, Fo);
+    for(int i=0;i<Vo.rows();i++)
+    {
+        Vo(i, 0) = 2*Vo(i, 0);
+    }
+    int ind = rectPath.rfind("/");
+    igl::writeOBJ(rectPath.substr(0, ind) + "/extendedRect_geometry.obj", Vo, Fo);
+}
+
+Eigen::Matrix3d compute_mapping(Eigen::Matrix<double, 4, 2> rectCorners, Eigen::Matrix<double, 4, 2> trapeCorners)
+{
+    Eigen::Matrix<double, 8, 8> A;
+    A.setZero();
+    
+    A.block(0,0,4, 2) = rectCorners;
+    A.block(4, 3, 4, 2) = rectCorners;
+    
+    Eigen::Matrix<double, 4, 1> ones;
+    ones.setConstant(1);
+    
+    A.block(0, 2, 4, 1) = ones;
+    A.block(4, 5, 4, 1) = ones;
+    
+    for(int i = 0; i<4; i++)
+    {
+        A(i, 6) = -rectCorners(i, 0) * trapeCorners(i, 0);
+        A(i, 7) = -rectCorners(i, 1) * trapeCorners(i, 0);
+        A(4+i, 6) = -rectCorners(i, 0) * trapeCorners(i, 1);
+        A(4+i, 7) = -rectCorners(i, 1) * trapeCorners(i, 1);
+    }
+    
+//    std::cout<<A<<std::endl;
+    
+    Eigen::Matrix<double, 8, 1> b;
+    for(int i=0; i<4; i++)
+    {
+        b(i, 0) = trapeCorners(i, 0);
+        b(4+i, 0) = trapeCorners(i , 1);
+    }
+    
+//    std::cout<<b<<std::endl;
+//    std::cout<<A.inverse()<<std::endl;
+    
+    Eigen::Matrix<double, 8, 1> sol = A.inverse() * b;
+    
+//    std::cout<<sol<<std::endl;
+    
+    Eigen::Matrix3d transM;
+    transM << sol(0, 0), sol(1, 0), sol(2, 0),
+    sol(3, 0), sol(4, 0), sol(5, 0),
+    sol(6, 0), sol(7, 0), 1;
+    
+//    std::cout<<transM<<std::endl;
+    return transM;
+}
+
+
+void compute_trapezoid(std::string rectPath)
+{
+    Eigen::MatrixXd Vo;
+    Eigen::MatrixXi Fo;
+    igl::readOBJ(rectPath, Vo, Fo);
+
+    Eigen::Matrix<double, 4, 2> rectCorners;
+    Eigen::Matrix<double, 4, 2> trapeCorners;
+    
+    rectCorners << -0.5, -0.5,
+                    -0.5, 0.5,
+                    0.5, 0.5,
+                    0.5, -0.5;
+    
+    trapeCorners << -1, -1,
+                    -0.5, 0.5,
+                    0.5, 0.5,
+                    1, -1;
+
+    Eigen::Matrix3d M = compute_mapping(rectCorners, trapeCorners);
+
+    for(int i=0;i<Vo.rows();i++)
+    {
+        Eigen::Vector3d x;
+        x << Vo(i, 0), Vo(i, 1), 1;
+        x = M * x;
+        Vo(i, 0) = x(0)/x(2);
+        Vo(i, 1) = x(1)/x(2);
+    }
+    int ind = rectPath.rfind("/");
+    igl::writeOBJ(rectPath.substr(0, ind) + "/trapeZoid_geometry.obj", Vo, Fo);
+}
+
+
+void compute_circle(std::string rectPath)
+{
+    Eigen::MatrixXd Vo;
+    Eigen::MatrixXi Fo;
+    igl::readOBJ(rectPath, Vo, Fo);
+    
+    double R = 0.5;
+    
+    for(int i=0;i<Vo.rows();i++)
+    {
+        double x = Vo(i, 0);
+        double y = Vo(i, 1);
+        
+        Vo(i, 0) = x * sqrt(1 - y*y / (2 * R * R));
+        Vo(i, 1) = y * sqrt(1 - x*x / (2 * R * R));
+    }
+    int ind = rectPath.rfind("/");
+    igl::writeOBJ(rectPath.substr(0, ind) + "/circle_geometry.obj", Vo, Fo);
+}
+
+
+
+
 #endif

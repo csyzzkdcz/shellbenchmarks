@@ -2,6 +2,7 @@
  #include <ifopt/ipopt_solver.h>
  #include <ifopt/test_vars_constr_cost.h>
 #include <igl/writeOBJ.h>
+#include <igl/edge_lengths.h>
 #include <iomanip>
 
 
@@ -14,7 +15,9 @@ bool SimulationSetupIpoptSolver::loadAbars()
     std::ifstream infile(abarPath);
     if(!infile)
         return false;
+    infile >> thickness;
     infile >> penaltyCoef;
+    infile >> smoothCoef;
     int vertNum, faceNum;
     infile >> vertNum >> faceNum;
 
@@ -35,17 +38,61 @@ bool SimulationSetupIpoptSolver::loadAbars()
         d2,d3;
         abars[i] = L*L.transpose();
 
-        x(3*vertNum + 3*i) = d1;
-        x(3*vertNum + 3*i + 1) = d2;
-        x(3*vertNum + 3*i + 2) = d3;
+        x(vertNum + 3*i) = d1;
+        x(vertNum + 3*i + 1) = d2;
+        x(vertNum + 3*i + 2) = d3;
     }
 
     auto cost_term = std::make_shared<ifopt::optCost>(initialPos, targetPos, mesh, penaltyCoef);
     double differenceValue = cost_term->getDifference(x);
     double penaltyValue = cost_term->getPenalty(x);
+    double smoothnessValue = cost_term->getSmoothness(x);
 
     std::cout<<"Penalty: "<<penaltyValue<<" Penalty Coefficient: "<<penaltyCoef<<std::endl;
-    std::cout<<"Difference: "<<differenceValue<<std::endl;
+    std::cout<<"Smoothness: "<<smoothnessValue<<" Smootheness Coefficient: "<<smoothCoef<<std::endl;
+    std::cout<<"Shape Changed Value: "<<differenceValue<<" Thickness: "<<thickness<<std::endl;
+
+    int nverts = vertNum / 3;
+    Eigen::MatrixXd curPos(nverts,3);
+    Eigen::VectorXd derivative;
+    
+    for(int i=0; i<nverts; i++)
+    {
+        curPos.row(i) = x.segment<3>(3*i);
+    }
+    
+    Eigen::MatrixXd L(mesh.nFaces(), 3);
+    igl::edge_lengths(curPos, mesh.faces(), L);
+    
+    
+    MidedgeAverageFormulation sff;
+    
+    std::vector<Eigen::Triplet<double> > hessianTriplet;
+    
+    double energy = elasticEnergy(mesh, curPos, initialEdgeDOFs, lameAlpha, lameBeta, thickness, abars, bbars, sff, &derivative, &hessianTriplet);
+    
+    Eigen::SparseMatrix<double> H(3*nverts, 3*nverts);
+    H.setFromTriplets(hessianTriplet.begin(), hessianTriplet.end());
+    
+    Eigen::SparseMatrix<double> resH(3*nverts, 3*nverts);
+    resH.setIdentity();
+    resH = 1e-8 * resH + H;
+    Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > solver(resH);
+    
+    if(solver.info() == Eigen::ComputationInfo::Success )
+    {
+        std::cout<<"Rearch the local minimun at current state"<<std::endl;
+    }
+    else
+    {
+        std::cout<<"Saddle point"<<std::endl;
+    }
+    
+    std::cout<<"Energy with current positions: "<<energy<<" Derivative with current positions: "<<derivative.norm()<<std::endl;
+
+    energy = elasticEnergy(mesh, targetPos, initialEdgeDOFs, lameAlpha, lameBeta, thickness, abars, bbars, sff, &derivative, NULL);
+    std::cout<<"Energy with target positions: "<<energy<<" Derivative with target positions: "<<derivative.norm()<<std::endl;
+    targetPosAfterFirstStep = curPos;
     return true;
 }
 
@@ -80,18 +127,36 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
     auto variable_set = std::make_shared<optVariables>(3*(nfaces+nverts), mesh, initialPos, "var_set");
     auto constraint_set = std::make_shared<optConstraint>(3*nverts, mesh, lameAlpha, lameBeta, thickness, "constraint");
     auto cost_term = std::make_shared<optCost>(initialPos, targetPos, mesh, penaltyCoef);
-    
-   Eigen::VectorXd x1 = variable_set->GetValues();
+    cost_term->_mu = smoothCoef;
+    Eigen::VectorXd x1 = variable_set->GetValues();
+    Eigen::MatrixXd curPos(nverts,3);
+    Eigen::VectorXd derivative;
 
 //    constraint_set->testValueJacobian(x1);
 //    cost_term->testCostJacobian(x1);
 //    return;
-
+    
+    
+    abars.resize(nfaces);
+    
+    for(int i=0; i< nfaces; i++)
+    {
+        abars[i] << x1(3*i + 3*nverts), 0,
+        x1(3*i + 3*nverts + 1), x1(3*i + 3*nverts + 2);
+        abars[i] = abars[i]*abars[i].transpose();
+    }
+    
+    double energy = elasticEnergy(mesh, targetPos, initialEdgeDOFs, lameAlpha, lameBeta, thickness, abars, bbars, sff, &derivative, NULL);
+    
+    std::cout<<"The derivative before initialization is: "<<derivative.lpNorm<Eigen::Infinity>()<<std::endl;
+    
     double penaltyValue = cost_term->getPenalty(x1);
     double differenceValue = cost_term->getDifference(x1);
+    double smoothnessValue = cost_term->getSmoothness(x1);
 
     std::cout<<"Initial Penalty: "<<penaltyValue<<" Penalty Coefficient: "<<penaltyCoef<<std::endl;
-    std::cout<<"Initial Difference: "<<differenceValue<<std::endl;
+    std::cout<<"Initial Smoothness: "<<smoothnessValue<<" Smoothness coefficient: "<<smoothCoef<<std::endl;
+    std::cout<<"Initial Difference: "<<differenceValue<<" Thickness: "<<thickness<<std::endl;
     
     nlp.AddVariableSet(variable_set);
     nlp.AddConstraintSet(constraint_set);
@@ -100,11 +165,12 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
     
     IpoptSolver ipopt;
     ipopt.SetOption("linear_solver", "mumps");
+    // ipopt.SetOption("linear_solver", "ma97");
     ipopt.SetOption("jacobian_approximation", "exact");
     ipopt.SetOption("max_cpu_time", 1e6);
-    ipopt.SetOption("tol", 1e-14);
+    ipopt.SetOption("tol", std::min(1e-14, 1e-2*derivative.lpNorm<Eigen::Infinity>()));
     ipopt.SetOption("print_level", 5);
-    ipopt.SetOption("max_iter", int(1e6));
+    ipopt.SetOption("max_iter", int(5e4));
     
     ipopt.Solve(nlp);
     
@@ -112,12 +178,15 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
 
     penaltyValue = cost_term->getPenalty(x);
     differenceValue = cost_term->getDifference(x);
+    smoothnessValue = cost_term->getSmoothness(x);
+    
 
     std::cout.precision(9);
     std::cout<<std::scientific;
 
     std::cout<<"Final Penalty: "<<penaltyValue<<" Penalty Coefficient: "<<penaltyCoef<<std::endl;
-    std::cout<<"Final Difference: "<<differenceValue<<std::endl;
+    std::cout<<"Final Smoothness: "<<smoothnessValue<<" Smoothness Coefficient: "<<smoothCoef<<std::endl;
+    std::cout<<"Final Difference: "<<differenceValue<<" Thickness: "<<thickness<<std::endl;
 
     
     abars.resize(nfaces);
@@ -129,24 +198,45 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
         abars[i] = abars[i]*abars[i].transpose();
     }
     
-    Eigen::MatrixXd curPos(nverts,3);
-    Eigen::VectorXd derivative;
-    
     
     for(int i=0; i<nverts; i++)
     {
         curPos.row(i) = x.segment<3>(3*i);
     }
     
-    double energy = elasticEnergy(mesh, curPos, initialEdgeDOFs, lameAlpha, lameBeta, thickness, abars, bbars, sff, &derivative, NULL);
+    std::vector<Eigen::Triplet<double> > hessianTriplet;
     
-    std::cout<<energy<<" "<<derivative.norm()<<std::endl;
+    energy = elasticEnergy(mesh, curPos, initialEdgeDOFs, lameAlpha, lameBeta, thickness, abars, bbars, sff, &derivative, &hessianTriplet);
+    
+    Eigen::SparseMatrix<double> H(3*nverts, 3*nverts);
+    H.setFromTriplets(hessianTriplet.begin(), hessianTriplet.end());
+    
+    Eigen::SparseMatrix<double> resH(3*nverts, 3*nverts);
+    resH.setIdentity();
+    resH = 1e-8 * resH + H;
+    
+    Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > solver(resH);
+    
+    if(solver.info() == Eigen::ComputationInfo::Success )
+    {
+        std::cout<<"Rearch the local minimun at current state"<<std::endl;
+    }
+    else
+    {
+        std::cout<<"Saddle point"<<std::endl;
+    }
+    
+    std::cout<<"Energy with current position: "<<energy<<" Derivative with current positions: "<<derivative.norm()<<std::endl;
+    
+    energy = elasticEnergy(mesh, targetPos, initialEdgeDOFs, lameAlpha, lameBeta, thickness, abars, bbars, sff, &derivative, NULL);
+    std::cout<<"Energy with target positions: "<<energy<<" Derivative with target positions: "<<derivative.norm()<<std::endl;
 
-    std::cout<<abarPath<<std::endl;
+    std::cout<<"Saving Abar path: "<<abarPath<<std::endl;
     std::ofstream outfile(abarPath, std::ios::trunc);
-    std::cout<<abarPath<<std::endl;
-
+    
+    outfile<<thickness<<"\n";
     outfile<<penaltyCoef<<"\n";
+    outfile<<smoothCoef<<"\n";
     outfile<<3*nverts<<"\n";
     outfile<<3*nfaces<<"\n";
 
@@ -162,14 +252,62 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
     outfile<<std::setprecision(16)<<x(x.size()-1);
     outfile.close();
 
-    int expCoef;
+    int startIdx, endIdx, expCoef;
+    std::string subString = "";
+    std::string resampledPath = abarPath;
+    
+    startIdx = resampledPath.rfind("/");
+    endIdx = resampledPath.find("_");
+    resampledPath = resampledPath.replace(resampledPath.begin() + startIdx + 1,resampledPath.begin() + endIdx, "resampled");
+    
+    // thickness
+    if(thickness == 0)
+        expCoef = 0;
+    else
+        expCoef = int(std::log10(thickness));
+    startIdx = resampledPath.rfind("T");
+    endIdx = resampledPath.rfind("P");
+    subString = "";
+    if(thickness > 0)
+        subString = "T_1e" + std::to_string(expCoef);
+    else
+        subString = "T_0";
+    resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.begin() + endIdx - 1, subString);
+    
+    // penalty
     if(penaltyCoef == 0)
         expCoef = 0;
     else
-        expCoef = int(-std::log10(penaltyCoef));
-    int idx = abarPath.rfind("/");
-    std::string subPath =  abarPath.substr(0, idx) + "/" + "resampled_"+std::to_string(expCoef)+".obj";
-    std::cout<<subPath<<std::endl;
-    igl::writeOBJ(subPath, curPos, mesh.faces());
+        expCoef = int(std::log10(penaltyCoef));
     
+    startIdx = resampledPath.rfind("P");
+    endIdx = resampledPath.rfind("S");
+    subString = "";
+    if(penaltyCoef > 0)
+        subString = "P_1e" + std::to_string(expCoef);
+    else
+        subString = "P_0";
+    resampledPath= resampledPath .replace(resampledPath.begin() + startIdx,resampledPath.begin() + endIdx - 1, subString);
+    
+    // smoothness
+    if(smoothCoef == 0)
+        expCoef = 0;
+    else
+        expCoef = int(std::log10(smoothCoef));
+    
+    startIdx = resampledPath.rfind("S");
+    endIdx = resampledPath.rfind(".");
+    subString = "";
+    if(smoothCoef > 0)
+        subString = "S_1e" + std::to_string(expCoef);
+    else
+        subString = "S_0";
+    resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.begin() + endIdx, subString);
+    
+    startIdx = resampledPath.rfind(".");
+    resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.end(), ".obj");
+    std::cout<<"Current abar loading path is: "<<resampledPath<<std::endl;
+    igl::writeOBJ("resampled.obj", curPos, mesh.faces());
+    igl::writeOBJ(resampledPath, curPos, mesh.faces());
+    targetPosAfterFirstStep = curPos;
 }

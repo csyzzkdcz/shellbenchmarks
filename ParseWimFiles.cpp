@@ -122,8 +122,10 @@ bool parseWimFiles(const std::string &prefixRes, const std::string &prefixTar, S
     std::ifstream mfs(matName);
     if (!mfs)
         return false;
-    mfs >> parsedSetup.thickness;
-    mfs >> parsedSetup.YoungsModulus;    
+    double t;
+//    mfs >> parsedSetup.thickness;
+    mfs >> t;
+    mfs >> parsedSetup.YoungsModulus;
     mfs >> parsedSetup.PoissonsRatio;
     if (!mfs)
         return false;

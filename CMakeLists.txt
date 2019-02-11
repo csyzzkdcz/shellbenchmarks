@@ -32,7 +32,7 @@ find_package(LIBIGL REQUIRED QUIET)
 find_package(ifopt REQUIRED)
 
 # Add your project files
-file(GLOB SRCFILES *.cpp SecondFundamentalForm/*.cpp SimulationSetup/*.cpp SecondFundamentalForm/*.h SimulationSetup/*.h)
+file(GLOB SRCFILES *.cpp SecondFundamentalForm/*.cpp SimulationSetup/*.cpp SecondFundamentalForm/*.h SimulationSetup/*.h BuildModels.h)
 
 # find_package(ifopt REQUIRED)
 message("Found IFOPT at ${ifopt_INCLUDE_DIRS} from $ENV(ifopt}")

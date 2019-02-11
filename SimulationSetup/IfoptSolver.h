@@ -4,6 +4,8 @@
 #include <ifopt/constraint_set.h>
 #include <ifopt/cost_term.h>
 #include <iostream>
+#include <igl/cotmatrix.h>
+
 
 #include "../MeshConnectivity.h"
 #include "../GeometryDerivatives.h"
@@ -129,6 +131,26 @@
              _initialPos = initialPos;
              _mesh = mesh;
              _lambda = lambda;
+//             _mu = lambda_2;
+             igl::cotmatrix(initialPos,mesh.faces(),L);
+             selectedX = computeSelectMatrix(tarPos.rows(), mesh.nFaces(), 0);
+             selectedY = computeSelectMatrix(tarPos.rows(), mesh.nFaces(), 1);
+             selectedZ = computeSelectMatrix(tarPos.rows(), mesh.nFaces(), 2);
+             
+             int nverts = tarPos.rows();
+             int nfaces = mesh.nFaces();
+             
+             _tarPosVec.resize(3*(nverts + nfaces));
+             _tarPosVec.setZero();
+             
+             for (int i=0; i<nverts; i++)
+             {
+                 _tarPosVec(3*i) = tarPos(i, 0);
+                 _tarPosVec(3*i+1) = tarPos(i,1);
+                 _tarPosVec(3*i+2) = tarPos(i,2);
+             }
+                 
+                 
          }
          optCost(const std::string& name) : CostTerm(name){}
 
@@ -137,6 +159,8 @@
          double getCost(Eigen::VectorXd x) const;
          
          double getPenalty(Eigen::VectorXd x) const;
+         
+         double getSmoothness(Eigen::VectorXd x) const;
 
          double getDifference(Eigen::VectorXd x) const;
 
@@ -145,12 +169,23 @@
          void fillJacobianBlock(Eigen::VectorXd x, Jacobian &jac) const;
          
          void testCostJacobian(Eigen::VectorXd x);
+         
+     private:
+         Eigen::SparseMatrix<double> computeSelectMatrix(int nVerts, int nFaces, int index);
 
      private:
          Eigen::MatrixXd _tarPos;
          Eigen::MatrixXd _initialPos;
          MeshConnectivity _mesh;
+         Eigen::VectorXd _tarPosVec;
+         Eigen::SparseMatrix<double> L;
+         Eigen::SparseMatrix<double> selectedX;
+         Eigen::SparseMatrix<double> selectedY;
+         Eigen::SparseMatrix<double> selectedZ;
+         
          double _lambda;
+     public:
+         double  _mu;
 
 
      };

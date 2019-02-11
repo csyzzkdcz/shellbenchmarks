@@ -131,6 +131,21 @@ void optConstraint::fillJacobianBlock(Eigen::VectorXd x, Jacobian &jac_block) co
 
         a = firstFundamentalForm(_mesh, curPos, i, &aderiv, NULL);
 
+        std::cout.precision(9);
+        std::cout<<std::scientific;
+        
+        if(abs(a(0,1) - a(1,0)) > 1e-8)
+        {
+            std::cerr<<"Error with asymmetric a"<<std::endl;
+            std::cout<<a<<std::endl;
+        }
+
+        if(abs(abars[i](0,1) - abars[i](1,0)) > 1e-8)
+        {
+            std::cerr<<"Error with asymmetric a"<<std::endl;
+            std::cout<<abars[i]<<std::endl;
+        }
+
         double coeff = _thickness / 4.0;
         Eigen::Matrix2d M = abarinv * (a - abars[i]);
         Eigen::Matrix<double, 1, 9> traceMderiv;
@@ -370,6 +385,8 @@ double optCost::getCost(Eigen::VectorXd x) const
     E = getDifference(x);
 
     E += _lambda * getPenalty(x);
+    
+    E += _mu * getSmoothness(x);
 
     return E; 
     
@@ -482,7 +499,7 @@ void optCost::fillJacobianBlock(Eigen::VectorXd x, Jacobian &jac) const
             
         }
     }
-    Eigen::VectorXi boundary =  _mesh.getBoundaryLoop();
+    // Eigen::VectorXi boundary =  _mesh.getBoundaryLoop();
     
     // for(int i=0; i<boundary.size(); i++)
     // {
@@ -504,6 +521,16 @@ void optCost::fillJacobianBlock(Eigen::VectorXd x, Jacobian &jac) const
     
     jac.resize(1, 3*(nverts + nfaces));
     jac.setFromTriplets(J.begin(), J.end());
+    
+    Jacobian smoothJ = -(selectedX.transpose()*L*selectedX*(x-_tarPosVec)).transpose().sparseView();
+    jac += _mu * smoothJ;
+
+    smoothJ = -(selectedY.transpose()*L*selectedY*(x-_tarPosVec)).transpose().sparseView();
+    jac += _mu * smoothJ;
+
+    smoothJ = -(selectedZ.transpose()*L*selectedZ*(x-_tarPosVec)).transpose().sparseView();
+    jac += _mu * smoothJ;
+    
 }
 
 
@@ -615,6 +642,32 @@ double optCost::getDifference(Eigen::VectorXd x) const
     }
 
     return E;
+}
+
+double optCost::getSmoothness(Eigen::VectorXd x) const
+{
+    double E = 0;
+    
+    x = x - _tarPosVec;
+    E += - 0.5 * (selectedX * x).transpose() * L * (selectedX * x);
+    E += - 0.5 * (selectedY * x).transpose() * L * (selectedY * x);
+    E += - 0.5 * (selectedZ * x).transpose() * L * (selectedZ * x);
+    
+    return E;
+    
+}
+
+Eigen::SparseMatrix<double> optCost::computeSelectMatrix(int nVerts, int nFaces, int index)
+{
+    Eigen::SparseMatrix<double> M(nVerts, 3*(nVerts + nFaces));
+    std::vector<Eigen::Triplet<double> > triplet;
+    triplet.clear();
+    for(int i=0;i<nVerts;i++)
+    {
+        triplet.push_back(Eigen::Triplet<double>(i, 3*i+index, 1));
+    }
+    M.setFromTriplets(triplet.begin(), triplet.end());
+    return M;
 }
 
 void optCost::testCostJacobian(Eigen::VectorXd x)

@@ -1,0 +1,17 @@
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/install.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/shellbenchmark_bin.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/ALL_BUILD.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/ZERO_CHECK.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/CMakeFiles/install.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/CMakeFiles/glad.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/CMakeFiles/ALL_BUILD.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/CMakeFiles/ZERO_CHECK.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/CMakeFiles/install.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/CMakeFiles/ALL_BUILD.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/CMakeFiles/ZERO_CHECK.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src/CMakeFiles/install.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/src/CMakeFiles/glfw.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/imgui/CMakeFiles/install.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/imgui/CMakeFiles/imgui.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib/CMakeFiles/install.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib/CMakeFiles/alglib.dir
