@@ -5,6 +5,7 @@
 #include <igl/opengl/glfw/imgui/ImGuiHelpers.h>
 #include <igl/decimate.h>
 #include <igl/upsample.h>
+#include <igl/doublearea.h>
 #include <imgui/imgui.h>
 #include <memory>
 //#include <igl/triangle/triangulate.h>
@@ -13,7 +14,8 @@
 #include "SecondFundamentalForm/MidedgeAverageFormulation.h"
 #include "MeshConnectivity.h"
 #include "GeometryDerivatives.h"
-#include "BuildModels.h"
+//#include "BuildModels.h"
+#include "TestModels.h"
 #include "ElasticShell.h"
 #include "SimulationSetup/SimulationSetup.h"
 #include "SimulationSetup/SimulationSetupNormal.h"
@@ -25,7 +27,9 @@
 
 
 
+
 std::unique_ptr<SimulationSetup> setup;
+std::vector<Eigen::Matrix2d> oldAbars;
 SimulationState curState;
 Eigen::VectorXd evec;
 int numSteps;
@@ -150,7 +154,7 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
             double eigValue1 = es.eigenvalues()[0].real();
             
             double eigValue2 = es.eigenvalues()[1].real();
-            Z(i) = eigValue1 + eigValue2 - 2;
+            Z(i) = eigValue1 + eigValue2;
             if (Z(i) > max)
                 max = Z(i);
             if(Z(i) < min)
@@ -174,7 +178,7 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
         }
         Z = 1.0 / max * Z;
         std::cout<<max<<" "<<min<<" "<<max - min <<std::endl;
-        igl::colormap(vizColor, Z, false, faceColors); // true here means libigl will automatically normalize Z, which may or may not be what you want.
+        igl::colormap(vizColor, Z, true, faceColors); // true here means libigl will automatically normalize Z, which may or may not be what you want.
         viewer.data().set_colors(faceColors);
         
     }
@@ -239,9 +243,16 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
 
 int main(int argc, char *argv[])
 {
-    //    compute_circle("../../benchmarks/TestModels/coarse/expandedRect/draped_rect_geometry.obj");
-    //    return;
-    numSteps = 30;
+//    Eigen::MatrixXd testV;
+//    Eigen::MatrixXi testF;
+//
+//    igl::readOBJ("../../benchmarks/TestModels/coarse/trapeZoid/draped_rect_geometry.obj", testV, testF);
+//    testSphere(testV, testF);
+//    igl::readOBJ("../../benchmarks/TestModels/fine/trapeZoid/draped_rect_geometry.obj", testV, testF);
+//    testSphere(testV, testF);
+//    return 0;
+//
+//    numSteps = 30;
     tolerance = 1e-6;
     
     MidedgeAverageFormulation sff;
@@ -585,6 +596,97 @@ int main(int argc, char *argv[])
             setup->smoothCoef = smoothnessCoef;
             setup->buildRestFundamentalForms(sff);
             
+            /*
+            if(selectedType == "sphere")
+            {
+                Eigen::MatrixXd V;
+                Eigen::MatrixXi F;
+                igl::readOBJ("../../benchmarks/TestModels/coarse/trapeZoid/draped_rect_geometry.obj", V, F);
+                
+                int nfaces = F.rows();
+                int nverts = V.rows();
+                
+                std::vector<Eigen::Matrix2d> oldAbars;
+                std::vector<Eigen::Matrix2d> abars;
+                std::vector<Eigen::Matrix2d> bbars;
+                Eigen::VectorXd areaList;
+                igl::doublearea(V, F, areaList);
+                
+                areaList = areaList / 2;
+                
+                double regionArea = areaList.sum();
+                
+                Eigen::MatrixXd BC;
+                igl::barycenter(V, F, BC);
+                
+                MeshConnectivity mesh(F);
+                
+                
+                
+                //                std::cout<<M<<std::endl;
+                
+                abars.resize(nfaces);
+                bbars.resize(nfaces);
+                for(int i = 0; i < nfaces; i++)
+                {
+                    double R = 0.5;
+                    //        double z = R - R*R/sqrt(R*R+u*u+v*v);
+                    //        double x = (R-z)/R*u;
+                    //        double y = (R-z)/R*v;
+                    
+                    Eigen::Vector3d bcPos = BC.row(i);
+                    bcPos(2) = 1;
+                    double u = bcPos(0);
+                    double v = bcPos(1);
+                    
+                    Eigen::Vector3d ru, rv;
+                    ru <<  1/(2*sqrt(u*u + v*v + 1.0/4.0)) - u*u/(2*pow( (u*u + v*v + 1.0/4.0), 3.0/2.0)),
+                    -(u*v)/(2*pow( (u*u + v*v + 1.0/4.0), 3.0/2.0)),
+                    u/(4*pow( (u*u + v*v + 1.0/4.0), 3.0/2.0));
+                    
+                    rv << -(u*v)/(2*pow( (u*u + v*v + 1.0/4.0), 3.0/2.0)),
+                    1/(2*sqrt(u*u + v*v + 1.0/4.0)) - v*v/(2*pow( (u*u + v*v + 1.0/4.0), 3.0/2.0)),
+                    v/(4*pow( (u*u + v*v + 1.0/4.0), 3.0/2.0));
+                    
+                    ru = ru / 2.0;
+                    rv = rv / 2.0;
+                    
+                    Eigen::Matrix2d abar;
+                    
+                    abar << ru.dot(ru), ru.dot(rv),
+                    rv.dot(ru), rv.dot(rv);
+                    
+                    Eigen::Matrix2d newAbar, T;
+                    T.col(0) = V.row(mesh.faceVertex(i, 1)).segment(0, 2) - V.row(mesh.faceVertex(i, 0)).segment(0, 2);
+                    T.col(1) = V.row(mesh.faceVertex(i, 2)).segment(0, 2) - V.row(mesh.faceVertex(i, 0)).segment(0, 2);
+                    newAbar = T.transpose() * abar * T;
+                    abars[i] = newAbar;
+                    bbars[i].setZero();
+                    oldAbars.push_back(abar);
+                    
+                    //       std::cout<<"double(subs(A, [u,v], ["<<bcPos(0)<<","<<bcPos(1)<<"]"<<"))"<<std::endl<<std::endl;
+                    //       std::cout<<abar<<std::endl<<std::endl;
+                }
+                // compute the penalty term
+                double E = 0;
+                for(int i=0; i< nfaces; i++)
+                {
+                    for(int j = 0; j < 3; j++)
+                    {
+                        int oppFace = mesh.faceOppositeVertex(i, j);
+                        if (oppFace != -1)
+                        {
+                            double area = ( areaList(i) + areaList(oppFace) ) / 3;
+                            Eigen::Matrix2d finiteDifference =  ( oldAbars[i] - oldAbars[oppFace] ) / (BC.row(i) - BC.row(oppFace)).norm();
+                            E += ( finiteDifference * finiteDifference.transpose() ).trace() * area / regionArea;
+                        }
+                    }
+                }
+                std::cout<<E<<std::endl;
+                setup->abars = abars;
+            }
+            */
+            
         }
         if (ImGui::InputInt("Interpolation Steps", &numSteps))
         {
@@ -627,6 +729,100 @@ int main(int argc, char *argv[])
                 }
             }
             std::cout << "Finished with " << funcEvals << " evaluations" << std::endl;
+            /*
+            if(selectedType == "trapeZoid")
+            {
+                std::cout<<"Saving Abar path: "<<setup->abarPath<<std::endl;
+                std::ofstream outfile(setup->abarPath, std::ios::trunc);
+                
+                outfile<<thickness<<"\n";
+                outfile<<penaltyCoef<<"\n";
+                outfile<<smoothnessCoef<<"\n";
+                
+                int nverts = curState.curPos.rows();
+                int nfaces = setup->mesh.nFaces();
+                outfile<<3*nverts<<"\n";
+                outfile<<3*nfaces<<"\n";
+                
+                for(int i=0;i<nverts;i++)
+                {
+                    outfile<<std::setprecision(16)<<curState.curPos(i, 0)<<"\n";
+                    outfile<<std::setprecision(16)<<curState.curPos(i, 1)<<"\n";
+                    outfile<<std::setprecision(16)<<curState.curPos(i, 2)<<"\n";
+                }
+                
+                for(int i=0;i<nfaces;i++)
+                {
+                    double x = sqrt(setup->abars[i](0,0));
+                    double y = setup->abars[i](0,1)/x;
+                    double z = sqrt(setup->abars[i].determinant())/x;
+                    outfile<<std::setprecision(16)<<x<<"\n";
+                    outfile<<std::setprecision(16)<<y<<"\n";
+                    if(i != nfaces - 1)
+                        outfile<<std::setprecision(16)<<z<<"\n";
+                    else
+                        outfile<<std::setprecision(16)<<z;
+                }
+                outfile.close();
+                
+                int startIdx, endIdx, expCoef;
+                std::string subString = "";
+                std::string resampledPath = setup->abarPath;
+                
+                startIdx = resampledPath.rfind("/");
+                endIdx = resampledPath.find("_");
+                resampledPath = resampledPath.replace(resampledPath.begin() + startIdx + 1,resampledPath.begin() + endIdx, "resampled");
+                
+                // thickness
+                if(thickness == 0)
+                    expCoef = 0;
+                else
+                    expCoef = int(std::log10(thickness));
+                startIdx = resampledPath.rfind("T");
+                endIdx = resampledPath.rfind("P");
+                subString = "";
+                if(thickness > 0)
+                    subString = "T_1e" + std::to_string(expCoef);
+                else
+                    subString = "T_0";
+                resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.begin() + endIdx - 1, subString);
+                
+                // penalty
+                if(penaltyCoef == 0)
+                    expCoef = 0;
+                else
+                    expCoef = int(std::log10(penaltyCoef));
+                
+                startIdx = resampledPath.rfind("P");
+                endIdx = resampledPath.rfind("S");
+                subString = "";
+                if(penaltyCoef > 0)
+                    subString = "P_1e" + std::to_string(expCoef);
+                else
+                    subString = "P_0";
+                resampledPath= resampledPath .replace(resampledPath.begin() + startIdx,resampledPath.begin() + endIdx - 1, subString);
+                
+                // smoothness
+                if(smoothnessCoef == 0)
+                    expCoef = 0;
+                else
+                    expCoef = int(std::log10(smoothnessCoef));
+                
+                startIdx = resampledPath.rfind("S");
+                endIdx = resampledPath.rfind(".");
+                subString = "";
+                if(smoothnessCoef > 0)
+                    subString = "S_1e" + std::to_string(expCoef);
+                else
+                    subString = "S_0";
+                resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.begin() + endIdx, subString);
+                
+                startIdx = resampledPath.rfind(".");
+                resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.end(), ".obj");
+                std::cout<<"Current abar loading path is: "<<resampledPath<<std::endl;
+                igl::writeOBJ(resampledPath, curState.curPos, setup->mesh.faces());
+            }
+*/
         }
         if (ImGui::Button("Run Postprocessing", ImVec2(-1, 0)))
         {
@@ -648,3 +844,5 @@ int main(int argc, char *argv[])
     repaint(viewer);
     viewer.launch();
 }
+
+

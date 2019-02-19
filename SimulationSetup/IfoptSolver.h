@@ -5,6 +5,8 @@
 #include <ifopt/cost_term.h>
 #include <iostream>
 #include <igl/cotmatrix.h>
+#include <igl/doublearea.h>
+#include <igl/barycenter.h>
 
 
 #include "../MeshConnectivity.h"
@@ -149,7 +151,12 @@
                  _tarPosVec(3*i+1) = tarPos(i,1);
                  _tarPosVec(3*i+2) = tarPos(i,2);
              }
-                 
+             igl::doublearea(initialPos, mesh.faces(), _areaList);
+             igl::barycenter(initialPos, mesh.faces(), _bcPos);
+             
+             _areaList = _areaList / 2;
+             
+             _regionArea = _areaList.sum();
                  
          }
          optCost(const std::string& name) : CostTerm(name){}
@@ -176,6 +183,8 @@
      private:
          Eigen::MatrixXd _tarPos;
          Eigen::MatrixXd _initialPos;
+         Eigen::MatrixXd _bcPos;
+         Eigen::VectorXd _areaList;
          MeshConnectivity _mesh;
          Eigen::VectorXd _tarPosVec;
          Eigen::SparseMatrix<double> L;
@@ -183,6 +192,7 @@
          Eigen::SparseMatrix<double> selectedY;
          Eigen::SparseMatrix<double> selectedZ;
          
+         double _regionArea;
          double _lambda;
      public:
          double  _mu;

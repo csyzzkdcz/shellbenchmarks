@@ -3,7 +3,11 @@
 
 #include <igl/readOBJ.h>
 #include <igl/writeOBJ.h>
+#include <igl/decimate.h>
+#include <igl/upsample.h>
 #include <Eigen/Dense>
+
+
 
 void compute_sphere(std::string rectPath)
 {
@@ -23,9 +27,9 @@ void compute_sphere(std::string rectPath)
         double z = R - R*R/sqrt(R*R+u*u+v*v);
         double x = (R-z)/R*u;
         double y = (R-z)/R*v;
-        Vo(i,0) = x;
-        Vo(i,1) = y;
-        Vo(i,2) = z;
+        Vo(i,0) = 0.5*x;
+        Vo(i,1) = 0.5*y;
+        Vo(i,2) = 0.5*z;
     }
     int ind = rectPath.rfind("/");
     igl::writeOBJ(rectPath.substr(0, ind-1) + "/sphere_geometry.obj", Vo, Fo);
@@ -130,7 +134,7 @@ void compute_expanded_rect(std::string rectPath)
     igl::readOBJ(rectPath, Vo, Fo);
     for(int i=0;i<Vo.rows();i++)
     {
-        Vo.row(i) = 2 * Vo.row(i);
+        Vo.row(i) = 20 * Vo.row(i);
     }
     int ind = rectPath.rfind("/");
     igl::writeOBJ(rectPath.substr(0, ind) + "/expandedRect_geometry.obj", Vo, Fo);
@@ -211,10 +215,10 @@ void compute_trapezoid(std::string rectPath)
                     0.5, 0.5,
                     0.5, -0.5;
     
-    trapeCorners << -1, -1,
+    trapeCorners << -1, -0.5,
                     -0.5, 0.5,
                     0.5, 0.5,
-                    1, -1;
+                    1, -0.5;
 
     Eigen::Matrix3d M = compute_mapping(rectCorners, trapeCorners);
 

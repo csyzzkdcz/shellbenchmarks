@@ -5,7 +5,7 @@ dependencies: \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/SecondFundamentalFormDiscretization.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/MeshConnectivity.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/GeometryDerivatives.h \
-  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/BuildModels.h \
+  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/TestModels.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/ElasticShell.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetup.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/../MeshConnectivity.h \

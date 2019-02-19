@@ -10,29 +10,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SimulationSetup/SimulationSetupIpoptSolver.cpp"
-            timestampString = "571618261.811587"
+            timestampString = "571998099.827383"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "259"
-            endingLineNumber = "259"
+            startingLineNumber = "294"
+            endingLineNumber = "294"
             landmarkName = "SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundamentalFormDiscretization &amp;sff)"
             landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "main.cpp"
-            timestampString = "571618261.8119349"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "567"
-            endingLineNumber = "567"
-            landmarkName = "main(int argc, char *argv[])"
-            landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -42,13 +26,77 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SimulationSetup/SimulationSetupIpoptSolver.cpp"
-            timestampString = "571618261.811988"
+            timestampString = "571998099.8276531"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "237"
-            endingLineNumber = "237"
+            startingLineNumber = "269"
+            endingLineNumber = "269"
             landmarkName = "SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundamentalFormDiscretization &amp;sff)"
             landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "StaticSolve.cpp"
+            timestampString = "571637423.070296"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "51"
+            endingLineNumber = "51"
+            landmarkName = "takeOneStep(const SimulationSetup &amp;setup, SimulationState &amp;state, const SecondFundamentalFormDiscretization &amp;sff, double &amp;reg, double interp, int &amp;funcEvals, double &amp;forceResidual, double &amp;updateMag )"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "StaticSolve.cpp"
+            timestampString = "571637423.070341"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "71"
+            endingLineNumber = "71"
+            landmarkName = "takeOneStep(const SimulationSetup &amp;setup, SimulationState &amp;state, const SecondFundamentalFormDiscretization &amp;sff, double &amp;reg, double interp, int &amp;funcEvals, double &amp;forceResidual, double &amp;updateMag )"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ElasticShell.cpp"
+            timestampString = "571781359.283242"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "202"
+            endingLineNumber = "202"
+            landmarkName = "elasticEnergy( const MeshConnectivity &amp;mesh, const Eigen::MatrixXd &amp;curPos, const Eigen::VectorXd &amp;extraDOFs, double lameAlpha, double lameBeta, double thickness, const std::vector&lt;Eigen::Matrix2d&gt; &amp;abars, const std::vector&lt;Eigen::Matrix2d&gt; &amp;bbars, const SecondFundamentalFormDiscretization &amp;sff, Eigen::VectorXd *derivative, // positions, then thetas std::vector&lt;Eigen::Triplet&lt;double&gt; &gt; *hessian)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "TestModels.cpp"
+            timestampString = "571998099.827875"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "77"
+            endingLineNumber = "77"
+            landmarkName = "testTrapezoid(Eigen::MatrixXd V, Eigen::MatrixXi F)"
+            landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

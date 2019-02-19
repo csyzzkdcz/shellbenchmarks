@@ -60,10 +60,10 @@ TARGETS += $(subst $(space),$(spaceplus),$(wildcard /Users/chenzhen/UT/Research/
 TARGETS += $(subst $(space),$(spaceplus),$(wildcard /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/libigl-imgui/CMakeLists.txt))
 TARGETS += $(subst $(space),$(spaceplus),$(wildcard /Users/chenzhen/UT/Research/Projects/shellbenchmarks/CMakeLists.txt))
 TARGETS += $(subst $(space),$(spaceplus),$(wildcard /Users/chenzhen/UT/Research/Projects/shellbenchmarks/alglib/CMakeLists.txt))
-TARGETS += $(subst $(space),$(spaceplus),$(wildcard /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/3.12.1/CMakeCCompiler.cmake))
-TARGETS += $(subst $(space),$(spaceplus),$(wildcard /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/3.12.1/CMakeCXXCompiler.cmake))
-TARGETS += $(subst $(space),$(spaceplus),$(wildcard /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/3.12.1/CMakeSystem.cmake))
+TARGETS += $(subst $(space),$(spaceplus),$(wildcard /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/3.12.1/CMakeCCompiler.cmake))
+TARGETS += $(subst $(space),$(spaceplus),$(wildcard /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/3.12.1/CMakeCXXCompiler.cmake))
+TARGETS += $(subst $(space),$(spaceplus),$(wildcard /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/3.12.1/CMakeSystem.cmake))
 TARGETS += $(subst $(space),$(spaceplus),$(wildcard /Users/chenzhen/UT/Research/Projects/shellbenchmarks/cmake/FindLIBIGL.cmake))
 
-/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/cmake.check_cache: $(TARGETS)
-	/Applications/CMake.app/Contents/bin/cmake -H/Users/chenzhen/UT/Research/Projects/shellbenchmarks -B/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/cmake.check_cache: $(TARGETS)
+	/Applications/CMake.app/Contents/bin/cmake -H/Users/chenzhen/UT/Research/Projects/shellbenchmarks -B/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode

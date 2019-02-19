@@ -7,5 +7,5 @@ spaceplus:= $(empty)\ $(empty)
 
 TARGETS += $(subst $(space),$(spaceplus),$(wildcard /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glad/CMakeLists.txt))
 
-/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/cmake.check_cache: $(TARGETS)
-	/Applications/CMake.app/Contents/bin/cmake -H/Users/chenzhen/UT/Research/Projects/shellbenchmarks -B/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/cmake.check_cache: $(TARGETS)
+	/Applications/CMake.app/Contents/bin/cmake -H/Users/chenzhen/UT/Research/Projects/shellbenchmarks -B/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode

@@ -71,10 +71,10 @@ bool SimulationSetupIpoptSolver::loadAbars()
     
     double energy = elasticEnergy(mesh, curPos, initialEdgeDOFs, lameAlpha, lameBeta, thickness, abars, bbars, sff, &derivative, &hessianTriplet);
     
+    Eigen::SparseMatrix<double> resH(3*nverts, 3*nverts);
     Eigen::SparseMatrix<double> H(3*nverts, 3*nverts);
     H.setFromTriplets(hessianTriplet.begin(), hessianTriplet.end());
     
-    Eigen::SparseMatrix<double> resH(3*nverts, 3*nverts);
     resH.setIdentity();
     resH = 1e-8 * resH + H;
     Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > solver(resH);
@@ -118,13 +118,14 @@ void SimulationSetupIpoptSolver::buildRestFundamentalForms(const SecondFundament
 
 void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundamentalFormDiscretization &sff)
 {
+
     int nfaces = mesh.nFaces();
     int nverts = initialPos.rows();
     
     using namespace ifopt;
     Problem nlp;
-    // auto variable_set = std::make_shared<optVariables>(3*(nfaces+nverts), mesh, targetPos, "var_set");
-    auto variable_set = std::make_shared<optVariables>(3*(nfaces+nverts), mesh, initialPos, "var_set");
+    auto variable_set = std::make_shared<optVariables>(3*(nfaces+nverts), mesh, targetPos, "var_set");
+//    auto variable_set = std::make_shared<optVariables>(3*(nfaces+nverts), mesh, initialPos, "var_set");
     auto constraint_set = std::make_shared<optConstraint>(3*nverts, mesh, lameAlpha, lameBeta, thickness, "constraint");
     auto cost_term = std::make_shared<optCost>(initialPos, targetPos, mesh, penaltyCoef);
     cost_term->_mu = smoothCoef;
@@ -148,6 +149,26 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
     
     double energy = elasticEnergy(mesh, targetPos, initialEdgeDOFs, lameAlpha, lameBeta, thickness, abars, bbars, sff, &derivative, NULL);
     
+    double bendingTerm = 0;
+    Eigen::VectorXd bendingDerivative(3*nverts);
+    bendingDerivative.setZero();
+    
+    for (int i = 0; i < nfaces; i++)
+    {
+        Eigen::VectorXd extraDOFs(0);
+        
+        Eigen::MatrixXd deriv(1, 18);
+        bendingTerm += bendingEnergy(mesh, targetPos, extraDOFs, lameAlpha, lameBeta, thickness, abars[i], bbars[i], i, sff,  &deriv, NULL);
+        for (int j = 0; j < 3; j++)
+        {
+            bendingDerivative.segment<3>(3 * mesh.faceVertex(i, j)).transpose() += deriv.block<1,3>(0, 3 * j);
+            int oppidx = mesh.vertexOppositeFaceEdge(i, j);
+            if(oppidx != -1)
+                bendingDerivative.segment<3>(3 * oppidx).transpose() += deriv.block<1,3>(0, 9 + 3 * j);
+        }
+    }
+    
+    std::cout<<"The initial bending energy is: "<<bendingTerm<<" bending derivative is: "<<bendingDerivative.norm()<<std::endl;
     std::cout<<"The derivative before initialization is: "<<derivative.lpNorm<Eigen::Infinity>()<<std::endl;
     
     double penaltyValue = cost_term->getPenalty(x1);
@@ -168,21 +189,29 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
     // ipopt.SetOption("linear_solver", "ma97");
     ipopt.SetOption("jacobian_approximation", "exact");
     ipopt.SetOption("max_cpu_time", 1e6);
-    ipopt.SetOption("tol", std::min(1e-14, 1e-2*derivative.lpNorm<Eigen::Infinity>()));
+    ipopt.SetOption("tol", std::min(1e-10, 1e-2*std::min(derivative.lpNorm<Eigen::Infinity>(), bendingDerivative.lpNorm<Eigen::Infinity>())));
     ipopt.SetOption("print_level", 5);
-    ipopt.SetOption("max_iter", int(5e4));
+    ipopt.SetOption("max_iter", int(2e4));
     
-    ipopt.Solve(nlp);
+    
+    std::cout.precision(9);
+    std::cout<<std::scientific;
+    
+//    if(derivative.lpNorm<Eigen::Infinity>() < 1e-14)
+//    {
+//        std::cout<<"Derivative is almost 0: "<<derivative.lpNorm<Eigen::Infinity>()<<std::endl;
+//    }
+//    else
+    {
+        ipopt.Solve(nlp);
+    }
     
     Eigen::VectorXd x = nlp.GetOptVariables()->GetValues();
 
     penaltyValue = cost_term->getPenalty(x);
     differenceValue = cost_term->getDifference(x);
     smoothnessValue = cost_term->getSmoothness(x);
-    
 
-    std::cout.precision(9);
-    std::cout<<std::scientific;
 
     std::cout<<"Final Penalty: "<<penaltyValue<<" Penalty Coefficient: "<<penaltyCoef<<std::endl;
     std::cout<<"Final Smoothness: "<<smoothnessValue<<" Smoothness Coefficient: "<<smoothCoef<<std::endl;
@@ -239,6 +268,9 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
     outfile<<smoothCoef<<"\n";
     outfile<<3*nverts<<"\n";
     outfile<<3*nfaces<<"\n";
+    
+    std::cout<<3*nverts + 3*nfaces<<std::endl;
+    std::cout<<x.size()<<std::endl;
 
     for(int i=0;i<3*nverts;i++)
     {

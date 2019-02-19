@@ -1,11 +1,16 @@
- #include "IfoptSolver.h"
+#include "IfoptSolver.h"
 #include "../ElasticShell.h"
+#include <iomanip>
+#include <iostream>
+#include <fstream>
 
  #ifndef MAX_VALUE
  #define MAX_VALUE 1.0e20
  #endif
 
  using namespace ifopt;
+
+int iter = 0;
 
 void computeInvMatDeriv(Eigen::Matrix2d A, Eigen::Matrix<double, 4, 3> &dA)
 {
@@ -106,7 +111,7 @@ void optConstraint::fillJacobianBlock(Eigen::VectorXd x, Jacobian &jac_block) co
     std::vector<Eigen::Triplet<double> > hessian;
     Eigen::VectorXd edgeDOFS(0);
     MidedgeAverageFormulation sff;
-    elasticEnergy(_mesh, curPos, edgeDOFS, _lameAlpha, _lameBeta, _thickness, abars, bbars, sff, NULL, &hessian);
+//    elasticEnergy(_mesh, curPos, edgeDOFS, _lameAlpha, _lameBeta, _thickness, abars, bbars, sff, NULL, &hessian);
     
     int nfaces =  _mesh.nFaces();
     int nverts = x.size() / 3 - nfaces;
@@ -380,13 +385,38 @@ double optCost::GetCost() const
 
 double optCost::getCost(Eigen::VectorXd x) const
 {
+    iter ++;
+    if(iter % 1000 == 0)    // Saving x every 1000 evaluation
+    {
+        int nfaces = _mesh.nFaces();
+        int nverts = x.size()/3 - nfaces;
+        std::ofstream outfile("L_list.dat", std::ios::trunc);
+        
+        outfile<<1e-4<<"\n";
+        outfile<<_lambda<<"\n";
+        outfile<<_mu<<"\n";
+        outfile<<3*nverts<<"\n";
+        outfile<<3*nfaces<<"\n";
+        
+        for(int i=0;i<3*nverts;i++)
+        {
+            outfile<<std::setprecision(16)<<x(i)<<"\n";
+        }
+        
+        for(int i=0;i<3*nfaces;i++)
+        {
+            outfile<<std::setprecision(16)<<x(3*nverts + i)<<"\n";
+        }
+        outfile<<std::setprecision(16)<<x(x.size()-1);
+        outfile.close();
+    }
     double E = 0;
 
-    E = getDifference(x);
+//    E = getDifference(x);
 
     E += _lambda * getPenalty(x);
     
-    E += _mu * getSmoothness(x);
+//    E += _mu * getSmoothness(x);
 
     return E; 
     
@@ -438,62 +468,40 @@ void optCost::fillJacobianBlock(Eigen::VectorXd x, Jacobian &jac) const
                 Lj << x(3*oppFace + 3*nverts), 0,
                 x(3*oppFace+1 + 3*nverts), x(3*oppFace+2 + 3*nverts);
                 
-                // Compute the tranfermation matrix M
+                Eigen::Matrix2d R, oppR, abar, abarj;
                 
-                Eigen::Vector3d oppNormal, curNormal, oppEdge;
+                R.col(0) = ( _initialPos.row(_mesh.faceVertex(i, 1)) - _initialPos.row(_mesh.faceVertex(i, 0)) ).segment(0, 2);
                 
-                oppNormal = faceNormal(_mesh, _initialPos, oppFace, oppVerIdx, NULL, NULL);
-                curNormal = faceNormal(_mesh, _initialPos, i, j, NULL, NULL);
+                R.col(1) = ( _initialPos.row(_mesh.faceVertex(i, 2)) - _initialPos.row(_mesh.faceVertex(i, 0)) ).segment(0, 2);
                 
-                oppNormal = oppNormal/oppNormal.norm();
-                curNormal = curNormal/curNormal.norm();
+                oppR.col(0) = ( _initialPos.row(_mesh.faceVertex(oppFace, 1)) - _initialPos.row(_mesh.faceVertex(oppFace, 0)) ).segment(0, 2);
+                oppR.col(1) = ( _initialPos.row(_mesh.faceVertex(oppFace, 2)) - _initialPos.row(_mesh.faceVertex(oppFace, 0)) ).segment(0, 2);
                 
-                oppEdge = _initialPos.row(_mesh.faceVertex(i, (j + 1)%3)) - _initialPos.row(_mesh.faceVertex(i, (j + 2)%3));
-                oppEdge = oppEdge/oppEdge.norm();
+                abar = (R.inverse()).transpose() * L * L.transpose() * R.inverse();
                 
-                Eigen::Matrix3d A, A1, T;
-                A.col(0) = oppEdge;
-                A.col(1) = curNormal;
-                A.col(2) = oppEdge.cross(curNormal);
-                
-                A1.col(0) = oppEdge;
-                A1.col(1) = oppNormal;
-                A1.col(2) = oppEdge.cross(oppNormal);
-                
-                T = A1*A.inverse();
-                
-                Eigen::Matrix<double, 3, 2> R;
-                Eigen::Matrix<double, 3, 2> oppR;
-                
-                R.col(0) = _initialPos.row(_mesh.faceVertex(i, 1)) - _initialPos.row(_mesh.faceVertex(i, 0));
-                R.col(1) = _initialPos.row(_mesh.faceVertex(i, 2)) - _initialPos.row(_mesh.faceVertex(i, 0));
-                
-                oppR.col(0) = _initialPos.row(_mesh.faceVertex(oppFace, 1)) - _initialPos.row(_mesh.faceVertex(oppFace, 0));
-                oppR.col(1) = _initialPos.row(_mesh.faceVertex(oppFace, 2)) - _initialPos.row(_mesh.faceVertex(oppFace, 0));
-                
-                Eigen::Matrix2d M = (oppR.transpose() * oppR).inverse() * oppR.transpose() * T * R;
-                
+                abarj = (oppR.inverse()).transpose() * Lj * Lj.transpose() * oppR.inverse();
                 
                 Eigen::Matrix2d initialAbar = firstFundamentalForm(_mesh, _initialPos, i, NULL, NULL);
+                
                 
                 
                 for(int k = 0; k < 3; k++)
                 {
                     Eigen::Matrix2d abarderiv, abarderivj;
-                    abarderiv = Lderivs[k] * L.transpose() + L * Lderivs[k].transpose();
-                    abarderivj = Lderivs[k] * Lj.transpose() + Lj * Lderivs[k].transpose();
+                    abarderiv = (R.inverse()).transpose() *( Lderivs[k] * L.transpose() + L * Lderivs[k].transpose() ) * R.inverse();
+                    abarderivj = (oppR.inverse()).transpose() * (Lderivs[k] * Lj.transpose() + Lj * Lderivs[k].transpose() ) * oppR.inverse();
                     
                     double result;
+                    double area = ( _areaList(i) + _areaList(oppFace) ) / 3.0;
                     
-                    result = _lambda * ( abarderiv * (L * L.transpose() - M.transpose() * Lj * Lj.transpose() * M).transpose() ).trace() / sqrt(initialAbar.determinant());
+                    result = 2.0 / _regionArea * _lambda * ( abarderiv * (abar - abarj).transpose() ).trace() * area / ( _bcPos.row(i) - _bcPos.row(oppFace) ).squaredNorm();
                     
                     J.push_back(Eigen::Triplet<double>(0, 3 * i + k + 3*nverts, result));
                     
-                    result = - _lambda * ( M.transpose() * abarderivj * M * (L * L.transpose() - M.transpose() * Lj * Lj.transpose() * M).transpose() ).trace() / sqrt(initialAbar.determinant());
+                    result = - 2.0 / _regionArea * _lambda * ( abarderivj * (abar - abarj).transpose() ).trace() * area / ( _bcPos.row(i) - _bcPos.row(oppFace) ).squaredNorm();
                     
                     J.push_back(Eigen::Triplet<double>(0, 3 * oppFace + k + 3*nverts, result));
                 }
-                
                 
             }
             
@@ -510,27 +518,29 @@ void optCost::fillJacobianBlock(Eigen::VectorXd x, Jacobian &jac) const
     //     }
     // }
 
-    for(int i=0; i<_tarPos.rows(); i++)
-    {
-        for(int k=0; k<3; k++)
-        {
-            double result = x(3*i + k) - _tarPos(i, k);
-            J.push_back(Eigen::Triplet<double>(0, 3 * i + k, result));
-        }
-    }
-    
-    jac.resize(1, 3*(nverts + nfaces));
-    jac.setFromTriplets(J.begin(), J.end());
-    
-    Jacobian smoothJ = -(selectedX.transpose()*L*selectedX*(x-_tarPosVec)).transpose().sparseView();
-    jac += _mu * smoothJ;
-
-    smoothJ = -(selectedY.transpose()*L*selectedY*(x-_tarPosVec)).transpose().sparseView();
-    jac += _mu * smoothJ;
-
-    smoothJ = -(selectedZ.transpose()*L*selectedZ*(x-_tarPosVec)).transpose().sparseView();
-    jac += _mu * smoothJ;
-    
+//    
+//    for(int i=0; i<_tarPos.rows(); i++)
+//    {
+//        for(int k=0; k<3; k++)
+//        {
+//            double result = x(3*i + k) - _tarPos(i, k);
+//            J.push_back(Eigen::Triplet<double>(0, 3 * i + k, result));
+//        }
+//    }
+ 
+//    jac.resize(1, 3*(nverts + nfaces));
+//    jac.setFromTriplets(J.begin(), J.end());
+//
+//
+//    Jacobian smoothJ = -(selectedX.transpose()*L*selectedX*(x-_tarPosVec)).transpose().sparseView();
+//    jac += _mu * smoothJ;
+//
+//    smoothJ = -(selectedY.transpose()*L*selectedY*(x-_tarPosVec)).transpose().sparseView();
+//    jac += _mu * smoothJ;
+//
+//    smoothJ = -(selectedZ.transpose()*L*selectedZ*(x-_tarPosVec)).transpose().sparseView();
+//    jac += _mu * smoothJ;
+  
 }
 
 
@@ -596,26 +606,24 @@ double optCost::getPenalty(Eigen::VectorXd x) const
                 
                 T = A1*A.inverse();
                 
-                Eigen::Matrix<double, 3, 2> R;
-                Eigen::Matrix<double, 3, 2> oppR;
+                Eigen::Matrix2d R, oppR, abar, abarj;
                 
-                R.col(0) = _initialPos.row(_mesh.faceVertex(i, 1)) - _initialPos.row(_mesh.faceVertex(i, 0));
-                R.col(1) = _initialPos.row(_mesh.faceVertex(i, 2)) - _initialPos.row(_mesh.faceVertex(i, 0));
+                R.col(0) = ( _initialPos.row(_mesh.faceVertex(i, 1)) - _initialPos.row(_mesh.faceVertex(i, 0)) ).segment(0, 2);
                 
-                oppR.col(0) = _initialPos.row(_mesh.faceVertex(oppFace, 1)) - _initialPos.row(_mesh.faceVertex(oppFace, 0));
-                oppR.col(1) = _initialPos.row(_mesh.faceVertex(oppFace, 2)) - _initialPos.row(_mesh.faceVertex(oppFace, 0));
+                R.col(1) = ( _initialPos.row(_mesh.faceVertex(i, 2)) - _initialPos.row(_mesh.faceVertex(i, 0)) ).segment(0, 2);
                 
-                Eigen::Matrix2d M = (oppR.transpose() * oppR).inverse() * oppR.transpose() * T * R;
+                oppR.col(0) = ( _initialPos.row(_mesh.faceVertex(oppFace, 1)) - _initialPos.row(_mesh.faceVertex(oppFace, 0)) ).segment(0, 2);
+                oppR.col(1) = ( _initialPos.row(_mesh.faceVertex(oppFace, 2)) - _initialPos.row(_mesh.faceVertex(oppFace, 0)) ).segment(0, 2);
                 
+                abar = (R.transpose()).inverse() * L * L.transpose() * R.inverse();
+                
+                abarj = (oppR.transpose()).inverse() * Lj * Lj.transpose() * oppR.inverse();
                 
                 Eigen::Matrix2d initialAbar = firstFundamentalForm(_mesh, _initialPos, i, NULL, NULL);
                 
+                double area = ( _areaList(i) + _areaList(oppFace) ) / 3.0;
                 
-                E += 1.0/2.0 * ( (L * L.transpose() - M.transpose() * Lj * Lj.transpose() * M) * (L * L.transpose() - M.transpose() * Lj * Lj.transpose() * M).transpose() ).trace() / sqrt(initialAbar.determinant()); // devided by det(A0) to make it scalar irrelavent
-                
-                //               double value =  1.0/2.0 * (w.col(j).transpose() * L * L.transpose() * w.col(j) - w.col(oppVerIdx).transpose() * Lj * Lj.transpose() * w.col(oppVerIdx)) * (w.col(j).transpose() * L * L.transpose() * w.col(j) - w.col(oppVerIdx).transpose() * Lj * Lj.transpose() * w.col(oppVerIdx));
-                //
-                //               E += value / sqrt(initialAbars[i].determinant());
+                E +=  1.0 / _regionArea * ( (abar - abarj) * (abar - abarj).transpose() ).trace() * area / ( _bcPos.row(i) - _bcPos.row(oppFace) ).squaredNorm();
                 
                 
             }
