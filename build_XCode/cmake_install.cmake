@@ -33,14 +33,14 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/libigl/cmake" TYPE FILE FILES "/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/libigl-config.cmake")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/libigl/cmake" TYPE FILE FILES "/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/libigl-config.cmake")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/share/libigl/cmake/libigl-export.cmake")
     file(DIFFERENT EXPORT_FILE_CHANGED FILES
          "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/share/libigl/cmake/libigl-export.cmake"
-         "/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/Export/share/libigl/cmake/libigl-export.cmake")
+         "/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/Export/share/libigl/cmake/libigl-export.cmake")
     if(EXPORT_FILE_CHANGED)
       file(GLOB OLD_CONFIG_FILES "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/share/libigl/cmake/libigl-export-*.cmake")
       if(OLD_CONFIG_FILES)
@@ -49,15 +49,15 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
       endif()
     endif()
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/libigl/cmake" TYPE FILE FILES "/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/Export/share/libigl/cmake/libigl-export.cmake")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/libigl/cmake" TYPE FILE FILES "/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/Export/share/libigl/cmake/libigl-export.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/glad/cmake_install.cmake")
-  include("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/glfw/cmake_install.cmake")
-  include("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/imgui/cmake_install.cmake")
-  include("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/alglib/cmake_install.cmake")
+  include("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/cmake_install.cmake")
+  include("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/cmake_install.cmake")
+  include("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/imgui/cmake_install.cmake")
+  include("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/alglib/cmake_install.cmake")
 
 endif()
 
@@ -69,5 +69,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

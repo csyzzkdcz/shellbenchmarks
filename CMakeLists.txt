@@ -30,17 +30,24 @@ option(LIBIGL_WITH_XML               "Use XML"            OFF)
 
 find_package(LIBIGL REQUIRED QUIET)
 find_package(ifopt REQUIRED)
+find_package(MOSEK REQUIRED)
 
 # Add your project files
 file(GLOB SRCFILES *.cpp  *.h SecondFundamentalForm/*.cpp SimulationSetup/*.cpp SecondFundamentalForm/*.h SimulationSetup/*.h)
 
 # find_package(ifopt REQUIRED)
 message("Found IFOPT at ${ifopt_INCLUDE_DIRS} from $ENV(ifopt}")
-
 include_directories( ${ifopt_INCLUDE_DIRS} )
+
+message("Found MOSEK at ${MOSEK_INCLUDE_DIR}")
+include_directories(${MOSEK_INCLUDE_DIR})
+
+message(" MOSEK Libs are ${MOSEK_LIBRARIES} ${MOSEK_FUSION_LIBRARIES}")
+
 
 # External libs
 add_subdirectory(alglib)
 
 add_executable(${PROJECT_NAME}_bin ${SRCFILES})
 target_link_libraries(${PROJECT_NAME}_bin igl::core igl::opengl_glfw igl::opengl_glfw_imgui alglib ifopt::ifopt_ipopt)
+target_link_libraries(${PROJECT_NAME}_bin ${MOSEK_LIBRARIES} ${MOSEK_FUSION_LIBRARIES})

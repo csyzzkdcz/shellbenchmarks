@@ -21,5 +21,5 @@ TARGETS += $(subst $(space),$(spaceplus),$(wildcard /Users/chenzhen/UT/Research/
 TARGETS += $(subst $(space),$(spaceplus),$(wildcard /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/glfw3Config.cmake.in))
 TARGETS += $(subst $(space),$(spaceplus),$(wildcard /Users/chenzhen/UT/Research/Projects/Tools/libigl/external/glfw/src/glfw_config.h.in))
 
-/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/cmake.check_cache: $(TARGETS)
-	/Applications/CMake.app/Contents/bin/cmake -H/Users/chenzhen/UT/Research/Projects/shellbenchmarks -B/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/cmake.check_cache: $(TARGETS)
+	/Applications/CMake.app/Contents/bin/cmake -H/Users/chenzhen/UT/Research/Projects/shellbenchmarks -B/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode

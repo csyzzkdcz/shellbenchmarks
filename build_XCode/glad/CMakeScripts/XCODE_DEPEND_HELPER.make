@@ -8,23 +8,23 @@ default:
 # link.  This forces Xcode to relink the targets from scratch.  It
 # does not seem to check these dependencies itself.
 PostBuild.glad.Debug:
-/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/glad/Debug/libglad.a:
-	/bin/rm -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/glad/Debug/libglad.a
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/Debug/libglad.a:
+	/bin/rm -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/Debug/libglad.a
 
 
 PostBuild.glad.Release:
-/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/glad/Release/libglad.a:
-	/bin/rm -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/glad/Release/libglad.a
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/Release/libglad.a:
+	/bin/rm -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/Release/libglad.a
 
 
 PostBuild.glad.MinSizeRel:
-/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/glad/MinSizeRel/libglad.a:
-	/bin/rm -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/glad/MinSizeRel/libglad.a
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/MinSizeRel/libglad.a:
+	/bin/rm -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/MinSizeRel/libglad.a
 
 
 PostBuild.glad.RelWithDebInfo:
-/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/glad/RelWithDebInfo/libglad.a:
-	/bin/rm -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/glad/RelWithDebInfo/libglad.a
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/RelWithDebInfo/libglad.a:
+	/bin/rm -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glad/RelWithDebInfo/libglad.a
 
 
 
