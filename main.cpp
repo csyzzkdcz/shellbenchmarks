@@ -1,3 +1,51 @@
+//#include "SimulationSetup/convertedopt.h"
+//#include <igl/readOBJ.h>
+//
+//using namespace cppoptlib;
+//
+//int main(int argc, char const *argv[])
+//{
+//    convertedProblem f;
+//    Eigen::MatrixXd initialPos, tarPos;
+//    Eigen::MatrixXi F;
+//    igl::readOBJ("../../benchmarks/TestModels/coarse/sphere/draped_rect_geometry.obj", initialPos, F);
+//    igl::readOBJ("../../benchmarks/TestModels/coarse/sphere/sphere_geometry.obj", tarPos, F);
+//    MeshConnectivity mesh(F);
+//    double thickness = pow(10, -4);
+//    double lameAlpha = 1000;
+//    double lameBeta = 512;
+//    f.initialization(initialPos, tarPos, mesh, lameAlpha, lameBeta, thickness);
+//
+//    Eigen::VectorXd initialL(3*mesh.nFaces()), tarL(3*mesh.nFaces());
+//    for(int i =0; i<mesh.nFaces();i++)
+//    {
+//        Eigen::Matrix2d abar = firstFundamentalForm(mesh, initialPos, i, NULL, NULL);
+//        initialL(3*i) = sqrt(abar(0,0));
+//        initialL(3*i+1) = abar(0,1) / initialL(3*i);
+//        initialL(3*i+2) = sqrt(abar.determinant()) / initialL(3*i);
+//
+//        Eigen::Matrix2d a = firstFundamentalForm(mesh, tarPos, i, NULL, NULL);
+//        tarL(3*i) = sqrt(a(0,0));
+//        tarL(3*i+1) = a(0,1) / tarL(3*i);
+//        tarL(3*i+2) = sqrt(a.determinant()) / tarL(3*i);
+//
+//    }
+//    std::cout<<"Differece term validation"<<std::endl;
+//    f.testDifferenceGrad(initialPos);
+//    std::cout<<std::endl<<"Position Smoothness Term validation"<<std::endl;
+//    f.testPositionSmoothnessGrad(initialPos);
+//
+//    std::cout<<std::endl<<"Abar Smoothness Term validation"<<std::endl;
+//    f.testAbarSmoothnessGrad(tarL);
+//    std::cout<<std::endl<<"Abar Derivative validation"<<std::endl;
+//    f.testAbarDerivative(initialL);
+//
+//    return 0;
+//}
+
+
+
+
 #include <igl/opengl/glfw/Viewer.h>
 
 #include <random>
@@ -15,15 +63,17 @@
 #include "MeshConnectivity.h"
 #include "GeometryDerivatives.h"
 //#include "BuildModels.h"
-#include "TestModels.h"
+//#include "TestModels.h"
 #include "ElasticShell.h"
 #include "SimulationSetup/SimulationSetup.h"
 #include "SimulationSetup/SimulationSetupNormal.h"
 #include "SimulationSetup/SimulationSetupAlglibSolver.h"
 #include "SimulationSetup/SimulationSetupIpoptSolver.h"
+#include "SimulationSetup/SimulationSetupDynamicSolver.h"
 #include "ParseWimFiles.h"
 #include "StaticSolve.h"
 #include "SimulationState.h"
+#include "GeometryTools.h"
 
 
 
@@ -39,7 +89,7 @@ bool isShowFaceColor = false;
 bool isShowAbar =  false;
 bool isStartFromMiddleShape = false;
 
-enum Methods {Normal=0, alglibSolver, ipoptSolver};
+enum Methods {Normal=0, alglibSolver, ipoptSolver, dynamicSolver};
 static Methods methodType =  ipoptSolver;
 
 enum abarATypes {optimal2target, optimal2plate};
@@ -56,6 +106,34 @@ double thickness = 1e-4;
 double penaltyCoef = 0;
 double smoothnessCoef = 0;
 int expCoef;
+
+
+void computeSphere(std::string rectPath)
+{
+    Eigen::MatrixXd Vo;
+    Eigen::MatrixXi Fo;
+    igl::readOBJ(rectPath, Vo, Fo);
+    for(int i=0;i<Vo.rows();i++)
+    {
+        /*
+         x = R*sin(u / R)
+         y = v
+         z = R*cos(u / R) - R
+         */
+        double R = 0.5;
+        double u = Vo(i,0);
+        double v = Vo(i,1);
+        double z = R - R*R/sqrt(R*R+u*u+v*v);
+        double x = (R-z)/R*u;
+        double y = (R-z)/R*v;
+        Vo(i,0) = 0.5*x;
+        Vo(i,1) = 0.5*y;
+        Vo(i,2) = 0.5*z;
+    }
+    int ind = rectPath.rfind("/");
+    igl::writeOBJ(rectPath.substr(0, ind) + "/sphere_geometry.obj", Vo, Fo);
+    
+}
 
 
 void postProcess()
@@ -253,7 +331,10 @@ int main(int argc, char *argv[])
 //    return 0;
 //
 //    numSteps = 30;
-    tolerance = 1e-6;
+    
+//    computeSphere("../../benchmarks/TestModels/veryCoarse/sphere/draped_rect_geometry.obj");
+//    return 0;
+    tolerance = 1e-8;
 
     MidedgeAverageFormulation sff;
 
@@ -417,7 +498,7 @@ int main(int argc, char *argv[])
                      );
 
 
-        if (ImGui::Combo("Methods", (int *)(&methodType), "Normal\0alglibSolver\0ifOptSolver\0\0"))
+        if (ImGui::Combo("Methods", (int *)(&methodType), "Normal\0alglibSolver\0ifOptSolver\0dynamicSolver\0\0"))
         {
             if (methodType == 0)
             {
@@ -438,6 +519,14 @@ int main(int argc, char *argv[])
                 setup->smoothCoef = smoothnessCoef;
                 setup->thickness = thickness;
                 selectedMethod = "ifOptSolver";
+            }
+            else if (methodType == 3)
+            {
+                setup = std::make_unique<SimulationSetupDynamicSolver>();
+                setup->penaltyCoef = penaltyCoef;   // for grad Abar
+                setup->smoothCoef = smoothnessCoef; // for delta q
+                setup->thickness = thickness;
+                selectedMethod = "dynamicSolver";
             }
             setup->abarPath = curPath + "/" + selectedMethod + "/" + selectedType + "_L_list_T_0_P_0_S_0.dat";
 
@@ -518,7 +607,7 @@ int main(int argc, char *argv[])
                 }
 
             }
-            if (ImGui::InputDouble("Penalty Coefficient", &penaltyCoef))
+            if (ImGui::InputDouble("Abar Penalty", &penaltyCoef))
             {
                 setup->penaltyCoef = penaltyCoef;
                 if(penaltyCoef == 0)
@@ -540,7 +629,7 @@ int main(int argc, char *argv[])
 
             }
 
-            if (ImGui::InputDouble("Smoothness Coefficient", &smoothnessCoef))
+            if (ImGui::InputDouble("Pos Smoothness Penalty", &smoothnessCoef))
             {
                 setup->smoothCoef = smoothnessCoef;
                 if(smoothnessCoef == 0)

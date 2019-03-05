@@ -111,7 +111,7 @@ void optConstraint::fillJacobianBlock(Eigen::VectorXd x, Jacobian &jac_block) co
     std::vector<Eigen::Triplet<double> > hessian;
     Eigen::VectorXd edgeDOFS(0);
     MidedgeAverageFormulation sff;
-//    elasticEnergy(_mesh, curPos, edgeDOFS, _lameAlpha, _lameBeta, _thickness, abars, bbars, sff, NULL, &hessian);
+    elasticEnergy(_mesh, curPos, edgeDOFS, _lameAlpha, _lameBeta, _thickness, abars, bbars, sff, NULL, &hessian);
     
     int nfaces =  _mesh.nFaces();
     int nverts = x.size() / 3 - nfaces;
@@ -298,21 +298,8 @@ void optConstraint::fillJacobianBlock(Eigen::VectorXd x, Jacobian &jac_block) co
     jac_block.resize(3*nverts, 3*(nverts+nfaces));
     jac_block.setZero();
     jac_block.setFromTriplets(hessian.begin(), hessian.end());
-    // std::vector<Eigen::Triplet<double>> nonzeroCols;
-    // for(int i=0; i<boundary.size(); i++)
-    // {
-    //     for(int k=0; k<3; k++)
-    //         nonzeroCols.push_back(Eigen::Triplet<double>(3*boundary(i) + k, 3*boundary(i) + k, 1));
-    // }
-    // for(int i=0; i<nfaces; i++)
-    // {
-    //     for(int k=0; k<3; k++)
-    //         nonzeroCols.push_back(Eigen::Triplet<double>(3*i + 3*nverts + k, 3*i + 3*nverts + k, 1));
-    // }
-    // Jacobian nonzeroColMat;
-    // nonzeroColMat.resize(3*(nverts+nfaces), 3*(nverts+nfaces));
-    // nonzeroColMat.setFromTriplets(nonzeroCols.begin(), nonzeroCols.end());
-    // jac_block = jac_block*nonzeroColMat;
+    
+// jac_block = jac_block*_boundaryMatrix;
 }
 
 
@@ -325,23 +312,23 @@ void optConstraint::testValueJacobian(Eigen::VectorXd x)
     
     Eigen::VectorXd epsVec(x.size());
     srand((unsigned)time(NULL));
-    // for(int i=0; i<boundary.size(); i++)
-    // {
-    //     for(int k=0; k<3; k++)
-    //     {
-    //         double epsValue =  random();
-    //         epsVec(3*boundary(i) + k) = epsValue;
-    //     }
-    // }
+     for(int i=0; i<boundary.size(); i++)
+     {
+         for(int k=0; k<3; k++)
+         {
+             double epsValue =  random();
+             epsVec(3*boundary(i) + k) = epsValue;
+         }
+     }
 
-    for(int i=0; i<nverts; i++)
-    {
-        for(int k=0; k<3; k++)
-        {
-            double epsValue =  random();
-            epsVec(3*i + k) = epsValue;
-        }
-    }
+//    for(int i=0; i<nverts; i++)
+//    {
+//        for(int k=0; k<3; k++)
+//        {
+//            double epsValue =  random();
+//            epsVec(3*i + k) = epsValue;
+//        }
+//    }
     
     for(int i=0; i<nfaces; i++)
     {
@@ -412,11 +399,11 @@ double optCost::getCost(Eigen::VectorXd x) const
     }
     double E = 0;
 
-//    E = getDifference(x);
+    E = getDifference(x);
 
     E += _lambda * getPenalty(x);
     
-//    E += _mu * getSmoothness(x);
+    E += _mu * getSmoothness(x);
 
     return E; 
     
@@ -507,39 +494,31 @@ void optCost::fillJacobianBlock(Eigen::VectorXd x, Jacobian &jac) const
             
         }
     }
-    // Eigen::VectorXi boundary =  _mesh.getBoundaryLoop();
     
-    // for(int i=0; i<boundary.size(); i++)
-    // {
-    //     for(int k=0; k<3; k++)
-    //     {
-    //         double result = x(3*boundary(i)+k) - _tarPos(boundary(i), k);
-    //         J.push_back(Eigen::Triplet<double>(0, 3 * boundary(i)+k, result));
-    //     }
-    // }
+     for(int i=0; i<_tarPos.rows(); i++)
+     {
+         for(int k=0; k<3; k++)
+         {
+             double result = _massVec(i) * (x(3*i+k) - _tarPos(i, k));
+             J.push_back(Eigen::Triplet<double>(0, 3 * i + k, result));
+         }
+     }
 
-//    
-//    for(int i=0; i<_tarPos.rows(); i++)
-//    {
-//        for(int k=0; k<3; k++)
-//        {
-//            double result = x(3*i + k) - _tarPos(i, k);
-//            J.push_back(Eigen::Triplet<double>(0, 3 * i + k, result));
-//        }
-//    }
- 
-//    jac.resize(1, 3*(nverts + nfaces));
-//    jac.setFromTriplets(J.begin(), J.end());
-//
-//
-//    Jacobian smoothJ = -(selectedX.transpose()*L*selectedX*(x-_tarPosVec)).transpose().sparseView();
-//    jac += _mu * smoothJ;
-//
-//    smoothJ = -(selectedY.transpose()*L*selectedY*(x-_tarPosVec)).transpose().sparseView();
-//    jac += _mu * smoothJ;
-//
-//    smoothJ = -(selectedZ.transpose()*L*selectedZ*(x-_tarPosVec)).transpose().sparseView();
-//    jac += _mu * smoothJ;
+    jac.resize(1, 3*(nverts + nfaces));
+    jac.setFromTriplets(J.begin(), J.end());
+    
+   
+
+    Jacobian smoothJ = -(selectedX.transpose()*L*selectedX*(x-_tarPosVec)).transpose().sparseView();
+    jac += _mu * smoothJ;
+
+    smoothJ = -(selectedY.transpose()*L*selectedY*(x-_tarPosVec)).transpose().sparseView();
+    jac += _mu * smoothJ;
+
+    smoothJ = -(selectedZ.transpose()*L*selectedZ*(x-_tarPosVec)).transpose().sparseView();
+    jac += _mu * smoothJ;
+    
+//    jac = jac * boundaryMatrix;
   
 }
 
@@ -619,8 +598,6 @@ double optCost::getPenalty(Eigen::VectorXd x) const
                 
                 abarj = (oppR.transpose()).inverse() * Lj * Lj.transpose() * oppR.inverse();
                 
-                Eigen::Matrix2d initialAbar = firstFundamentalForm(_mesh, _initialPos, i, NULL, NULL);
-                
                 double area = ( _areaList(i) + _areaList(oppFace) ) / 3.0;
                 
                 E +=  1.0 / _regionArea * ( (abar - abarj) * (abar - abarj).transpose() ).trace() * area / ( _bcPos.row(i) - _bcPos.row(oppFace) ).squaredNorm();
@@ -637,16 +614,11 @@ double optCost::getPenalty(Eigen::VectorXd x) const
 double optCost::getDifference(Eigen::VectorXd x) const
 {
     double E = 0;
-    Eigen::VectorXi boundary =  _mesh.getBoundaryLoop();
+//    Eigen::VectorXi boundary =  _mesh.getBoundaryLoop();
     
-    // for(int i=0; i<boundary.size(); i++)
-    // {
-    //     E += 0.5 * (x.segment<3>(3*boundary(i)).transpose() - _tarPos.row(boundary(i))) * (x.segment<3>(3*boundary(i)).transpose() - _tarPos.row(boundary(i))).transpose();
-    // }
-
     for(int i=0; i<_tarPos.rows(); i++)
     {
-        E += 0.5 * (x.segment<3>(3*i).transpose() - _tarPos.row(i)) * (x.segment<3>(3*i).transpose() - _tarPos.row(i)).transpose(); 
+        E += 0.5 * _massVec(i) * (x.segment<3>(3*i).transpose() - _tarPos.row(i)) * (x.segment<3>(3*i).transpose() - _tarPos.row(i)).transpose();
     }
 
     return E;
@@ -678,6 +650,32 @@ Eigen::SparseMatrix<double> optCost::computeSelectMatrix(int nVerts, int nFaces,
     return M;
 }
 
+
+void optCost::computeMassMatrix( Eigen::VectorXd &massVec, MeshConnectivity mesh, Eigen::MatrixXd V)
+{
+    int nverts = V.rows();
+    int nfaces = mesh.nFaces();
+    massVec.resize(nverts);
+    massVec.setZero();
+    
+    Eigen::VectorXd areaList;
+    igl::doublearea(V, mesh.faces(), areaList);
+    areaList = areaList / 2;
+    
+    for(int i=0; i < nfaces; i++)
+    {
+        double faceArea = areaList(i);
+        for(int j=0; j<3; j++)
+        {
+            int vertIdx = mesh.faceVertex(i, j);
+            massVec(vertIdx) += faceArea / 3;
+        }
+    }
+    
+    massVec = massVec / 3;
+    massVec = massVec / massVec.maxCoeff();
+}
+
 void optCost::testCostJacobian(Eigen::VectorXd x)
 {
     int nfaces = _mesh.nFaces();
@@ -687,23 +685,23 @@ void optCost::testCostJacobian(Eigen::VectorXd x)
     
     Eigen::VectorXd epsVec(x.size());
     srand((unsigned)time(NULL));
-    // for(int i=0; i<boundary.size(); i++)
-    // {
-    //     for(int k=0; k<3; k++)
-    //     {
-    //         double epsValue =  random();
-    //         epsVec(3*boundary(i) + k) = epsValue;
-    //     }
-    // }
+     for(int i=0; i<boundary.size(); i++)
+     {
+         for(int k=0; k<3; k++)
+         {
+             double epsValue =  random();
+             epsVec(3*boundary(i) + k) = epsValue;
+         }
+     }
 
-    for(int i=0; i<nverts; i++)
-    {
-        for(int k=0; k<3; k++)
-        {
-            double epsValue =  random();
-            epsVec(3*i + k) = epsValue;
-        }
-    }
+//    for(int i=0; i<nverts; i++)
+//    {
+//        for(int k=0; k<3; k++)
+//        {
+//            double epsValue =  random();
+//            epsVec(3*i + k) = epsValue;
+//        }
+//    }
     
     for(int i=0; i<nfaces; i++)
     {

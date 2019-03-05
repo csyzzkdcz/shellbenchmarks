@@ -2,9 +2,9 @@
 # Custom rules for ZERO_CHECK
 .SUFFIXES: 
 all: \
-	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/CMakeFiles/ZERO_CHECK
+	/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/glfw/CMakeFiles/ZERO_CHECK
 
 
-/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/CMakeFiles/ZERO_CHECK: 
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/glfw/CMakeFiles/ZERO_CHECK: 
 	echo ""
-	make -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/glfw/CMakeScripts/ReRunCMake.make
+	make -f /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/glfw/CMakeScripts/ReRunCMake.make

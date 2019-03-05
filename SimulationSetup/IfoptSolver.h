@@ -22,7 +22,7 @@
      class optVariables: public VariableSet
      {
      public:
-         optVariables(int num, MeshConnectivity mesh, Eigen::MatrixXd initialPos, const std::string& name) : VariableSet(num, name)
+         optVariables(int num, MeshConnectivity mesh, Eigen::MatrixXd initialPos, Eigen::MatrixXd targetPos, const std::string& name) : VariableSet(num, name)
          {
              _x.resize(num);
              _x.setZero();
@@ -37,9 +37,9 @@
              {
                  for (int i=0; i<nverts; i++)
                  {
-                     _x(3*i) = initialPos(i, 0);
-                     _x(3*i+1) = initialPos(i,1);
-                     _x(3*i+2) = initialPos(i,2);
+                     _x(3*i) = targetPos(i, 0);
+                     _x(3*i+1) = targetPos(i,1);
+                     _x(3*i+2) = targetPos(i,2);
                  }
 
                  for ( int i=0; i < nfaces; i++)
@@ -90,6 +90,32 @@
              _lameAlpha = lameAlpha;
              _lameBeta = lameBeta;
              _thickness = thickness;
+             
+             int nfaces = mesh.nFaces();
+             int nverts = num / 3;
+             
+             _boundaryMatrix.resize(3*(nverts + nfaces), 3*(nverts + nfaces));
+             _boundaryMatrix.setZero();
+             Eigen::VectorXi boundaryLoop = mesh.getBoundaryLoop();
+             std::vector<Eigen::Triplet<double> > triplet;
+
+             for(int i=0;i<boundaryLoop.size();i++)
+             {
+                 for(int j=0;j<3;j++)
+                 {
+                     triplet.push_back(Eigen::Triplet<double>(3*boundaryLoop(i) + j, 3*boundaryLoop(i) + j, 1));
+                 }
+             }
+
+             for(int i=0; i<nfaces; i++)
+             {
+                 for(int j=0;j<3;j++)
+                 {
+                     triplet.push_back(Eigen::Triplet<double>(3*(nverts + i) + j, 3*(nverts + i) + j, 1));
+                 }
+             }
+
+             _boundaryMatrix.setFromTriplets(triplet.begin(), triplet.end());
 
          }
 
@@ -121,6 +147,8 @@
          double _lameAlpha;
          double _lameBeta;
          double _thickness;
+         
+         Eigen::SparseMatrix<double> _boundaryMatrix;
 
      };
 
@@ -157,6 +185,32 @@
              _areaList = _areaList / 2;
              
              _regionArea = _areaList.sum();
+             
+             computeMassMatrix(_massVec, mesh, tarPos);
+             
+             boundaryMatrix.resize(3*(nverts + nfaces), 3*(nverts + nfaces));
+             boundaryMatrix.setZero();
+             Eigen::VectorXi boundaryLoop = mesh.getBoundaryLoop();
+             std::vector<Eigen::Triplet<double> > triplet;
+             
+             for(int i=0;i<boundaryLoop.size();i++)
+             {
+                 for(int j=0;j<3;j++)
+                 {
+                     triplet.push_back(Eigen::Triplet<double>(3*boundaryLoop(i) + j, 3*boundaryLoop(i) + j, 1));
+                 }
+             }
+             
+             for(int i=0; i<nfaces; i++)
+             {
+                 for(int j=0;j<3;j++)
+                 {
+                     triplet.push_back(Eigen::Triplet<double>(3*(nverts + i) + j, 3*(nverts + i) + j, 1));
+                 }
+             }
+
+             boundaryMatrix.setFromTriplets(triplet.begin(), triplet.end());
+             
                  
          }
          optCost(const std::string& name) : CostTerm(name){}
@@ -179,6 +233,7 @@
          
      private:
          Eigen::SparseMatrix<double> computeSelectMatrix(int nVerts, int nFaces, int index);
+         void computeMassMatrix( Eigen::VectorXd &massVec, MeshConnectivity mesh, Eigen::MatrixXd V);
 
      private:
          Eigen::MatrixXd _tarPos;
@@ -187,10 +242,14 @@
          Eigen::VectorXd _areaList;
          MeshConnectivity _mesh;
          Eigen::VectorXd _tarPosVec;
+         Eigen::VectorXd _massVec;
+         
          Eigen::SparseMatrix<double> L;
          Eigen::SparseMatrix<double> selectedX;
          Eigen::SparseMatrix<double> selectedY;
          Eigen::SparseMatrix<double> selectedZ;
+         Eigen::SparseMatrix<double> boundaryMatrix;
+         
          
          double _regionArea;
          double _lambda;

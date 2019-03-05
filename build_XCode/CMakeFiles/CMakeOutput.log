@@ -967,3 +967,61 @@ int main(int argc, char** argv)
 #endif
 }
 
+Determining if the function dgemm_ exists passed with the following output:
+Change Dir: /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/xcodebuild" "-project" "CMAKE_TRY_COMPILE.xcodeproj" "build" "-target" "cmTC_98776" "-configuration" "Debug"
+Prepare build
+note: Using legacy build system
+
+=== BUILD TARGET cmTC_98776 OF PROJECT CMAKE_TRY_COMPILE WITH CONFIGURATION Debug ===
+
+Check dependencies
+
+Write auxiliary files
+/bin/mkdir -p /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_98776.build/Objects-normal/x86_64
+write-file /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_98776.build/Objects-normal/x86_64/cmTC_98776.LinkFileList
+
+CompileC /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_98776.build/Objects-normal/x86_64/CheckFunctionExists.o /Applications/CMake.app/Contents/share/cmake-3.12/Modules/CheckFunctionExists.c normal x86_64 c com.apple.compilers.llvm.clang.1_0.compiler
+    cd /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/CMakeTmp
+    export LANG=en_US.US-ASCII
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -arch x86_64 -fmessage-length=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wno-shorten-64-to-32 -Wpointer-sign -Wno-newline-eof -DCMAKE_INTDIR=\"Debug\" -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk -fasm-blocks -fstrict-aliasing -Wdeprecated-declarations -mmacosx-version-min=10.14 -g -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -I/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/Debug/include -I/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_98776.build/DerivedSources/x86_64 -I/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_98776.build/DerivedSources -Wmost -Wno-four-char-constants -Wno-unknown-pragmas -F/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/Debug -DCHECK_FUNCTION_EXISTS=dgemm_ -MMD -MT dependencies -MF /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_98776.build/Objects-normal/x86_64/CheckFunctionExists.d --serialize-diagnostics /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_98776.build/Objects-normal/x86_64/CheckFunctionExists.dia -c /Applications/CMake.app/Contents/share/cmake-3.12/Modules/CheckFunctionExists.c -o /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_98776.build/Objects-normal/x86_64/CheckFunctionExists.o
+
+Ld /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/Debug/cmTC_98776 normal x86_64
+    cd /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/CMakeTmp
+    export MACOSX_DEPLOYMENT_TARGET=10.14
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -arch x86_64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk -L/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/Debug -F/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/Debug -filelist /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_98776.build/Objects-normal/x86_64/cmTC_98776.LinkFileList -mmacosx-version-min=10.14 -Xlinker -object_path_lto -Xlinker /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_98776.build/Objects-normal/x86_64/cmTC_98776_lto.o -Xlinker -no_deduplicate -Wl,-search_paths_first -Wl,-headerpad_max_install_names -framework Accelerate -Xlinker -dependency_info -Xlinker /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_98776.build/Objects-normal/x86_64/cmTC_98776_dependency_info.dat -o /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/Debug/cmTC_98776
+
+** BUILD SUCCEEDED **
+
+
+
+Determining if the function cheev_ exists passed with the following output:
+Change Dir: /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/xcodebuild" "-project" "CMAKE_TRY_COMPILE.xcodeproj" "build" "-target" "cmTC_24555" "-configuration" "Debug"
+Prepare build
+note: Using legacy build system
+
+=== BUILD TARGET cmTC_24555 OF PROJECT CMAKE_TRY_COMPILE WITH CONFIGURATION Debug ===
+
+Check dependencies
+
+Write auxiliary files
+/bin/mkdir -p /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_24555.build/Objects-normal/x86_64
+write-file /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_24555.build/Objects-normal/x86_64/cmTC_24555.LinkFileList
+
+CompileC /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_24555.build/Objects-normal/x86_64/CheckFunctionExists.o /Applications/CMake.app/Contents/share/cmake-3.12/Modules/CheckFunctionExists.c normal x86_64 c com.apple.compilers.llvm.clang.1_0.compiler
+    cd /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/CMakeTmp
+    export LANG=en_US.US-ASCII
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -arch x86_64 -fmessage-length=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wno-shorten-64-to-32 -Wpointer-sign -Wno-newline-eof -DCMAKE_INTDIR=\"Debug\" -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk -fasm-blocks -fstrict-aliasing -Wdeprecated-declarations -mmacosx-version-min=10.14 -g -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -I/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/Debug/include -I/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_24555.build/DerivedSources/x86_64 -I/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_24555.build/DerivedSources -Wmost -Wno-four-char-constants -Wno-unknown-pragmas -F/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/Debug -DCHECK_FUNCTION_EXISTS=cheev_ -MMD -MT dependencies -MF /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_24555.build/Objects-normal/x86_64/CheckFunctionExists.d --serialize-diagnostics /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_24555.build/Objects-normal/x86_64/CheckFunctionExists.dia -c /Applications/CMake.app/Contents/share/cmake-3.12/Modules/CheckFunctionExists.c -o /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_24555.build/Objects-normal/x86_64/CheckFunctionExists.o
+
+Ld /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/Debug/cmTC_24555 normal x86_64
+    cd /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/CMakeTmp
+    export MACOSX_DEPLOYMENT_TARGET=10.14
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -arch x86_64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk -L/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/Debug -F/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/Debug -filelist /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_24555.build/Objects-normal/x86_64/cmTC_24555.LinkFileList -mmacosx-version-min=10.14 -Xlinker -object_path_lto -Xlinker /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_24555.build/Objects-normal/x86_64/cmTC_24555_lto.o -Xlinker -no_deduplicate -Wl,-search_paths_first -Wl,-headerpad_max_install_names -framework Accelerate -framework Accelerate -Xlinker -dependency_info -Xlinker /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug/cmTC_24555.build/Objects-normal/x86_64/cmTC_24555_dependency_info.dat -o /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/CMakeTmp/Debug/cmTC_24555
+
+** BUILD SUCCEEDED **
+
+
+

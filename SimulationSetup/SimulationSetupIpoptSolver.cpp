@@ -124,8 +124,8 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
     
     using namespace ifopt;
     Problem nlp;
-    auto variable_set = std::make_shared<optVariables>(3*(nfaces+nverts), mesh, targetPos, "var_set");
-//    auto variable_set = std::make_shared<optVariables>(3*(nfaces+nverts), mesh, initialPos, "var_set");
+//    auto variable_set = std::make_shared<optVariables>(3*(nfaces+nverts), mesh, initialPos, initialPos, "var_set");
+    auto variable_set = std::make_shared<optVariables>(3*(nfaces+nverts), mesh, targetPos, targetPos, "var_set");
     auto constraint_set = std::make_shared<optConstraint>(3*nverts, mesh, lameAlpha, lameBeta, thickness, "constraint");
     auto cost_term = std::make_shared<optCost>(initialPos, targetPos, mesh, penaltyCoef);
     cost_term->_mu = smoothCoef;
@@ -189,7 +189,7 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
     // ipopt.SetOption("linear_solver", "ma97");
     ipopt.SetOption("jacobian_approximation", "exact");
     ipopt.SetOption("max_cpu_time", 1e6);
-    ipopt.SetOption("tol", std::min(1e-10, 1e-2*std::min(derivative.lpNorm<Eigen::Infinity>(), bendingDerivative.lpNorm<Eigen::Infinity>())));
+    ipopt.SetOption("tol", std::min(1e-8, 1e-2*std::min(derivative.lpNorm<Eigen::Infinity>(), bendingDerivative.lpNorm<Eigen::Infinity>())));
     ipopt.SetOption("print_level", 5);
     ipopt.SetOption("max_iter", int(2e4));
     

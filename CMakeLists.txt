@@ -3,6 +3,9 @@ project(shellbenchmark)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+find_package(LAPACK REQUIRED)
+
+
 # Use C++14
 set (CMAKE_CXX_STANDARD 14)
 
@@ -30,17 +33,32 @@ option(LIBIGL_WITH_XML               "Use XML"            OFF)
 
 find_package(LIBIGL REQUIRED QUIET)
 find_package(ifopt REQUIRED)
+find_package(eigen3 REQUIRED)
 find_package(MOSEK REQUIRED)
 
 # Add your project files
-file(GLOB SRCFILES *.cpp  *.h SecondFundamentalForm/*.cpp SimulationSetup/*.cpp SecondFundamentalForm/*.h SimulationSetup/*.h)
+file(GLOB SRCFILES *.cpp  *.h SecondFundamentalForm/*.cpp SimulationSetup/*.cpp SecondFundamentalForm/*.h SimulationSetup/*.h cppoptlib/*.cpp cppoptlib/*.h)
 
 # find_package(ifopt REQUIRED)
 message("Found IFOPT at ${ifopt_INCLUDE_DIRS} from $ENV(ifopt}")
 include_directories( ${ifopt_INCLUDE_DIRS} )
 
+if (LAPACK_FOUND)
+  include_directories(${LAPACK_INCLUDE_DIRS})
+endif()
+
+find_package(SuiteSparse REQUIRED)
+if (SUITESPARSE_FOUND)
+  include_directories(${SUITESPARSE_INCLUDE_DIRS})
+  message("found SuiteSparse at ${SUITESPARSE_INCLUDE_DIRS}")
+endif()
+
+
 message("Found MOSEK at ${MOSEK_INCLUDE_DIR}")
 include_directories(${MOSEK_INCLUDE_DIR})
+
+message("Found Eigen at ${EIGEN3_INCLUDE_DIR}")
+message("Eigen version is ${EIGEN3_VERSION}")
 
 message(" MOSEK Libs are ${MOSEK_LIBRARIES} ${MOSEK_FUSION_LIBRARIES}")
 
@@ -51,3 +69,4 @@ add_subdirectory(alglib)
 add_executable(${PROJECT_NAME}_bin ${SRCFILES})
 target_link_libraries(${PROJECT_NAME}_bin igl::core igl::opengl_glfw igl::opengl_glfw_imgui alglib ifopt::ifopt_ipopt)
 target_link_libraries(${PROJECT_NAME}_bin ${MOSEK_LIBRARIES} ${MOSEK_FUSION_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_bin ${SUITESPARSE_LIBRARIES})

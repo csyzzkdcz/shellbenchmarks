@@ -5,7 +5,6 @@ dependencies: \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SecondFundamentalForm/SecondFundamentalFormDiscretization.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/MeshConnectivity.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/GeometryDerivatives.h \
-  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/TestModels.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/ElasticShell.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetup.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/../MeshConnectivity.h \
@@ -22,6 +21,15 @@ dependencies: \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/IfoptSolver.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/../GeometryDerivatives.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/../SecondFundamentalForm/MidedgeAverageFormulation.h \
+  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/SimulationSetupDynamicSolver.h \
+  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/convertedopt.h \
+  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/../cppoptlib/solver/lbfgssolver.h \
+  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/../cppoptlib/solver/isolver.h \
+  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/../cppoptlib/solver/../meta.h \
+  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/../cppoptlib/solver/../problem.h \
+  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/../cppoptlib/solver/../linesearch/morethuente.h \
+  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationSetup/../cppoptlib/solver/../linesearch/../meta.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/ParseWimFiles.h \
   /Users/chenzhen/UT/Research/Projects/shellbenchmarks/StaticSolve.h \
-  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationState.h
+  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/SimulationState.h \
+  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/GeometryTools.h
