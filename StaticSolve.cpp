@@ -23,17 +23,18 @@ void takeOneStep(const SimulationSetup &setup, SimulationState &state, const Sec
     int nedges = setup.mesh.nEdges();
     int nedgedofs = sff.numExtraDOFs();
 
-    int constrainedDOFs = setup.clampedDOFs.size();
+//    int constrainedDOFs = setup.clampedDOFs.size();
+    int constrainedDOFs = 4;
 
     int freeDOFs = 3 * nverts + nedgedofs * nedges - constrainedDOFs;
     std::vector<Eigen::Triplet<double> > proj;
     int row = 0;
-    for (int i = 0; i < nverts; i++)
+    for (int i = 4; i < nverts; i++)
     {
         for (int j = 0; j < 3; j++)
         {
-            if (setup.clampedDOFs.find(3*i+j) != setup.clampedDOFs.end())
-                continue;
+//            if (setup.clampedDOFs.find(3*i+j) != setup.clampedDOFs.end())
+//                continue;
             proj.push_back(Eigen::Triplet<double>(row, 3 * i + j, 1.0));
             row++;
         }
@@ -98,12 +99,13 @@ void takeOneStep(const SimulationSetup &setup, SimulationState &state, const Sec
         //Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> cg;
         //cg.compute(reducedH);
         Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver(reducedH);
-//        if(solver.info() != Eigen::ComputationInfo::Success )
-//        {
-//            reg *= 2.0;
-//            std::cout << "The Hessian is not positive definite " << energy << " lambda now: " << reg << std::endl;
-//            continue;
-//        }
+        while(solver.info() != Eigen::ComputationInfo::Success )
+        {
+            reg *= 2.0;
+            std::cout << "The Hessian is not positive definite " << energy << " lambda now: " << reg << std::endl;
+            reducedH += reg * I;
+            solver.compute(reducedH);
+        }
         Eigen::VectorXd descentDir = solver.solve(reducedForce);
         //std::cout << "Solver residual: " << (reducedH*descentDir - reducedForce).norm() << std::endl;
         Eigen::VectorXd fullDir = projM.transpose() * descentDir;

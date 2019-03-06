@@ -135,6 +135,44 @@ void computeSphere(std::string rectPath)
     
 }
 
+void computeCylinder(std::string rectPath)
+{
+    Eigen::MatrixXd Vo;
+    Eigen::MatrixXi Fo;
+    igl::readOBJ(rectPath, Vo, Fo);
+    for(int i=0;i<Vo.rows();i++)
+    {
+        /*
+         x = R*sin(u / R)
+         y = v
+         z = R*cos(u / R) - R
+         */
+        double R = 0.5;
+        double x = R*sin(Vo(i,0)/R);
+        double z = R*cos(Vo(i,0)/R) - R;
+        Vo(i,0) = x;
+        Vo(i,2) = z;
+    }
+    int ind = rectPath.rfind("/");
+    igl::writeOBJ(rectPath.substr(0, ind) + "/cylinder_geometry.obj", Vo, Fo);
+}
+
+void computeSaddle(std::string rectPath)
+{
+    Eigen::MatrixXd Vo;
+    Eigen::MatrixXi Fo;
+    igl::readOBJ(rectPath, Vo, Fo);
+    for(int i=0;i<Vo.rows();i++)
+    {
+        double x = Vo(i,0);
+        double y = Vo(i,1);
+        double z = x*x -y*y;
+        Vo(i,2) = z;
+    }
+    int ind = rectPath.rfind("/");
+    igl::writeOBJ(rectPath.substr(0, ind) + "/saddle_geometry.obj", Vo, Fo);
+}
+
 
 void postProcess()
 {
@@ -332,7 +370,9 @@ int main(int argc, char *argv[])
 //
 //    numSteps = 30;
     
-//    computeSphere("../../benchmarks/TestModels/veryCoarse/sphere/draped_rect_geometry.obj");
+//    computeSphere("../../benchmarks/TestModels/middleCoarse/sphere/draped_rect_geometry.obj");
+//    computeSaddle("../../benchmarks/TestModels/middleCoarse/saddle/draped_rect_geometry.obj");
+//    computeCylinder("../../benchmarks/TestModels/middleCoarse/cylinder/draped_rect_geometry.obj");
 //    return 0;
     tolerance = 1e-8;
 
@@ -788,7 +828,7 @@ int main(int argc, char *argv[])
         if (ImGui::Button("Optimize Some Step", ImVec2(-1,0)))
         {
             //sff.testSecondFundamentalForm(setup->initialPos, setup->mesh.faces());
-            double reg = 1e-6;
+            double reg = 1e-10;
             int funcEvals = 0;
             double updateMag = std::numeric_limits<double>::infinity();
             double forceResidual = std::numeric_limits<double>::infinity();

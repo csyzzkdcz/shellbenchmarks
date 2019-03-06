@@ -781,7 +781,7 @@ void convertedProblem::projectBack(Eigen::VectorXd L, Eigen::MatrixXd &pos)
             Eigen::CholmodSimplicialLDLT<Eigen::SparseMatrix<double> > solver;
             
             solver.compute(reducedH);
-            while(solver.info() != Eigen::Success)
+            while(solver.info() != Eigen::ComputationInfo::Success)
             {
                 reg *=2;
                 reducedH += reg * I;

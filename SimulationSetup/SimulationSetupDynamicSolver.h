@@ -15,10 +15,12 @@ public:
     void testValueAndGradient();
 
 private:
-    double lineSearch(convertedProblem op, Eigen::VectorXd L, Eigen::MatrixXd &Pos, Eigen::VectorXd dir);
+    bool lineSearch(convertedProblem op, Eigen::VectorXd L, Eigen::MatrixXd &Pos, Eigen::VectorXd dir, double &rate);
     
     void projectConstraintsOp(convertedProblem &op, Eigen::VectorXd &L, Eigen::MatrixXd &pos);
     void projectBackOp(const SecondFundamentalFormDiscretization &sff, Eigen::VectorXd &L, Eigen::MatrixXd &pos);
+    
+    void testProjectBackSim();
 
 private:
     std::vector<Eigen::Matrix<double, 4, 9> > aderivs;

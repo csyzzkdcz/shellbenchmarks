@@ -75,16 +75,30 @@ bool SimulationSetupDynamicSolver::loadAbars()
     
     MidedgeAverageFormulation sff;
     
+    Eigen::SparseMatrix<double> projM;
+    
+    std::vector<Eigen::Triplet<double>> proj;
+    int row = 0;
+    for(int i=4;i<initialPos.rows();i++)
+    {
+        for(int j=0;j<3;j++)
+        {
+            proj.push_back(Eigen::Triplet<double>(row, 3*i+j, 1.0));
+            row ++;
+        }
+    }
+    projM.resize(3*initialPos.rows()-12, 3*initialPos.rows());
+    projM.setFromTriplets(proj.begin(), proj.end());
+    
     std::vector<Eigen::Triplet<double> > hessianTriplet;
     
     double energy = elasticEnergy(mesh, curPos, initialEdgeDOFs, lameAlpha, lameBeta, thickness, abars, bbars, sff, &derivative, &hessianTriplet);
     
-    Eigen::SparseMatrix<double> resH(3*nverts, 3*nverts);
-    Eigen::SparseMatrix<double> H(3*nverts, 3*nverts);
+    Eigen::SparseMatrix<double> H(3*nverts, 3*nverts), resH;
     H.setFromTriplets(hessianTriplet.begin(), hessianTriplet.end());
     
-    resH.setIdentity();
-    resH = 1e-8 * resH + H;
+    resH = projM * H * projM.transpose();
+    
     Eigen::CholmodSimplicialLLT<Eigen::SparseMatrix<double> > solver(resH);
     
     if(solver.info() == Eigen::ComputationInfo::Success )
@@ -96,10 +110,10 @@ bool SimulationSetupDynamicSolver::loadAbars()
         std::cout<<"Saddle point"<<std::endl;
     }
     
-    std::cout<<"Energy with current positions: "<<energy<<" Derivative with current positions: "<<derivative.norm()<<std::endl;
+    std::cout<<"Energy with current positions: "<<energy<<" Derivative with current positions: "<<(projM * derivative).norm()<<std::endl;
     
     energy = elasticEnergy(mesh, targetPos, initialEdgeDOFs, lameAlpha, lameBeta, thickness, abars, bbars, sff, &derivative, NULL);
-    std::cout<<"Energy with target positions: "<<energy<<" Derivative with target positions: "<<derivative.norm()<<std::endl;
+    std::cout<<"Energy with target positions: "<<energy<<" Derivative with target positions: "<<(projM * derivative).norm()<<std::endl;
     targetPosAfterFirstStep = curPos;
     return true;
 }
@@ -124,17 +138,16 @@ void SimulationSetupDynamicSolver::buildRestFundamentalForms(const SecondFundame
         findFirstFundamentalForms(sff);
 }
 
-double SimulationSetupDynamicSolver::lineSearch(convertedProblem op, Eigen::VectorXd L, Eigen::MatrixXd &pos, Eigen::VectorXd dir)
+bool SimulationSetupDynamicSolver::lineSearch(convertedProblem op, Eigen::VectorXd L, Eigen::MatrixXd &pos, Eigen::VectorXd dir, double &rate)
 {
     double c1 = 0.1;
     double c2 = 0.9;
-    double alpha = 1e-8;
-    double beta = 1e8;
+    double alpha = 1e-15;
+    double beta = 1e15;
     
     MidedgeAverageFormulation sff;
     Eigen::VectorXd grad;
     double orig = op.value(L, pos);
-    double rate = std::min(L.norm() / sqrt(L.size()) * 1e-2, 1.0/dir.norm());
     op.gradient(L, pos, grad);
     double deriv = dir.dot(grad);
     
@@ -154,18 +167,18 @@ double SimulationSetupDynamicSolver::lineSearch(convertedProblem op, Eigen::Vect
 //            std::cout<<"Voilate the first Wolfe Condition"<<std::endl;
             beta = rate;
             rate = 0.5*(alpha + beta);
-            if (beta - alpha < 1e-8 || rate <= 1e-8)
+            if (beta - alpha < 1e-8)
             {
-//                std::cout<<"Line Search failed, finished with Rate = "<<rate<<std::endl;
-                pos = newPos;
-                return rate;
+                std::cout<<"Line Search failed, finished with Rate = "<<rate<<std::endl;
+//                pos = newPos;
+                return false;
             }
         }
         else if (newdE.dot(dir) < c2*deriv)
         {
 //            std::cout<<"Voilate the second Wolfe Condition"<<std::endl;
             alpha = rate;
-            if (beta == 1e8)
+            if (beta == 1e15)
             {
                 rate = 2 * alpha;
             }
@@ -174,26 +187,26 @@ double SimulationSetupDynamicSolver::lineSearch(convertedProblem op, Eigen::Vect
                 rate = 0.5*(alpha + beta);
             }
             
-            if (beta - alpha < 1e-8 || rate <= 1e-8)
+            if (beta - alpha < 1e-8)
             {
 //                std::cout<<"Line Search Finished with Rate = "<<rate<<std::endl;
-                pos = newPos;
-                return rate;
+//                pos = newPos;
+                return true;
             }
         }
         else
         {
 //            std::cout<<"Line Search Finished with Rate = "<<rate<<std::endl;
-            pos = newPos;
-            return rate;
+//            pos = newPos;
+            return true;
         }
     }
 }
 
 void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundamentalFormDiscretization &sff)
 {
-        testValueAndGradient();
-        return;
+    testProjectBackSim();
+    return;
     using namespace cppoptlib;
     convertedProblem op;
     srand((unsigned)time(NULL));
@@ -238,6 +251,7 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
 //        if (grad.norm() < relativeEpsilon)
 //            break;
 //
+
 //        double H0k = 1;
 //        q = grad;
 //        const int k = std::min<double>(m, iter);
@@ -275,15 +289,49 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
 //            z = z + sVector.col(i) * (alpha(i) - beta);
 //        }
 //        std::cout<<"z: "<<z.norm()<<std::endl;
-//        double rate = lineSearch(op, L, pos, z);
-//        L = L - rate * grad;
-//        s = L - L_old;
-//        y = grad - grad_old;
-//
-//        grad_old = grad;
-//        op.gradient(L, pos, grad);
-//        L_old = L;
-//
+//        double rate = std::min(L.norm() / sqrt(L.size()) * 1e-2, 1.0/grad.norm());
+//        if(k<m)
+//        {
+//            rate = std::min(L.norm() / sqrt(L.size()) * 1e-2, 1.0/grad.norm());
+//            bool isSuccess = lineSearch(op, L, pos, -grad, rate);
+//            L = L - rate * grad;
+//            s = L - L_old;
+//            y = grad - grad_old;
+//            grad_old = grad;
+//            L_old = L;
+//            op.gradient(L, pos, grad);
+//            std::cout<<grad.norm()<<std::endl;
+//        }
+//        else
+//        {
+//            Eigen::MatrixXd old_pos = pos;
+//            bool isSuccess = lineSearch(op, L, old_pos, z, rate);
+//            if(isSuccess)
+//            {
+//                std::cout<<"L-BFGS succeeded!"<<std::endl;
+//                L = L + rate * z;
+//                s = L - L_old;
+//                pos = old_pos;
+//                y = grad - grad_old;
+//                grad_old = grad;
+//                L_old = L;
+//                op.gradient(L, pos, grad);
+//                std::cout<<grad.norm()<<std::endl;
+//            }
+//            else
+//            {
+//                std::cout<<"L-BFGS failed, using GD instead!!"<<std::endl;
+//                rate = std::min(L.norm() / sqrt(L.size()) * 1e-2, 1.0/grad.norm());
+//                bool isSuccess = lineSearch(op, L, pos, -grad, rate);
+//                L = L - rate * grad;
+//                s = L - L_old;
+//                y = grad - grad_old;
+//                grad_old = grad;
+//                L_old = L;
+//                op.gradient(L, pos, grad);
+//                std::cout<<grad.norm()<<std::endl;
+//            }
+//        }
 //        // update the history
 //        if (iter < m)
 //        {
@@ -299,9 +347,13 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
 //        }
         
         // find steplength
-        double rate = lineSearch(op, L, pos, -grad);
+        double rate = std::min(L.norm() / sqrt(L.size()) * 1e-2, 1.0/grad.norm());
+        int isSuccess = lineSearch(op, L, pos, -grad, rate);
+        
         L = L - rate * grad;
         grad_old = grad;
+        projectBackOp(sff, L, pos);
+        
         op.gradient(L, pos, grad);
 
         L_old = L;
@@ -387,7 +439,7 @@ void SimulationSetupDynamicSolver::projectBackOp(const SecondFundamentalFormDisc
             Eigen::CholmodSimplicialLDLT<Eigen::SparseMatrix<double> > solver;
             
             solver.compute(reducedH);
-            while(solver.info() != Eigen::Success)
+            while(solver.info() != Eigen::ComputationInfo::Success)
             {
                 reg *=2;
                 reducedH += reg * I;
@@ -411,7 +463,7 @@ void SimulationSetupDynamicSolver::projectBackOp(const SecondFundamentalFormDisc
             updateMag =  (projM.transpose() * descentDir).norm();
             if (newenergy <= energy)
             {
-                //                std::cout << "Old energy: " << energy << " new energy: " << newenergy << " force residual " << forceResidual << " pos change " << updateMag << std::endl;
+//                                std::cout << "Old energy: " << energy << " new energy: " << newenergy << " force residual " << forceResidual << " pos change " << updateMag << std::endl;
                 pos = newPos;
                 reg = std::max(1e-6, reg * 0.5);
                 break;
@@ -419,7 +471,7 @@ void SimulationSetupDynamicSolver::projectBackOp(const SecondFundamentalFormDisc
             else
             {
                 reg *= 2.0;
-                //                std::cout << "Old energy: " << energy << " new energy: " << newenergy << " lambda now: " << reg << std::endl;
+//                                std::cout << "Old energy: " << energy << " new energy: " << newenergy << " lambda now: " << reg << std::endl;
             }
         }
         if(forceResidual < M_TOL || updateMag < M_TOL)
@@ -562,7 +614,7 @@ void SimulationSetupDynamicSolver::testValueAndGradient()
     std::cout<<std::endl<<"dF/da validation"<<std::endl;
     op.testAbarDerivative(initialL, initialPos);
     std::cout<<std::endl<<"dq/da validation: "<<std::endl;
-    op.testDerivativeQ2Abr(tarL, initialPos);
+    op.testDerivativeQ2Abr(tarL, targetPos);
     
     //    double f = op(L);
     //    Eigen::VectorXd gradf;
@@ -584,4 +636,89 @@ void SimulationSetupDynamicSolver::testValueAndGradient()
     //        std::cout<< "The error is "<<abs(gradf.dot(epsVec) - (epsF - f)/eps)<<std::endl;
     //        igl::writeOBJ("test" + std::to_string(i)+".obj", pos, mesh.faces());
     //    }
+}
+
+
+void SimulationSetupDynamicSolver::testProjectBackSim()
+{
+    convertedProblem op;
+    srand((unsigned)time(NULL));
+    for(int i=0;i<initialPos.rows();i++)
+    {
+        initialPos(i,2) = (1e-6*rand())/RAND_MAX;
+    }
+    op.initialization(initialPos, targetPos, mesh, lameAlpha, lameBeta, thickness);
+    op.setPenalty(penaltyCoef, smoothCoef);
+    
+   
+    Eigen::VectorXd initialL(3*mesh.nFaces()), tarL(3*mesh.nFaces());
+    std::vector<Eigen::Matrix2d> as(mesh.nFaces());
+    for(int i =0; i<mesh.nFaces();i++)
+    {
+        Eigen::Matrix2d a = firstFundamentalForm(mesh, targetPos, i, NULL, NULL);
+        as[i] = a;
+        tarL(3*i) = sqrt(a(0,0));
+        tarL(3*i+1) = a(0,1) / tarL(3*i);
+        tarL(3*i+2) = sqrt(a.determinant()) / tarL(3*i);
+    }
+    
+    Eigen::MatrixXd pos = targetPos;
+    Eigen::MatrixXd epsPos = Eigen::MatrixXd::Random(pos.rows(), pos.cols());
+    epsPos.row(0).setZero();
+    epsPos.row(1).setZero();
+    epsPos.row(2).setZero();
+    epsPos.row(3).setZero();
+    epsPos.normalized();
+    
+    double eps = 1e-8;
+    MidedgeAverageFormulation sff;
+    Eigen::SparseMatrix<double> H0(3*targetPos.rows(), 3*targetPos.rows()), H1(3*targetPos.rows(), 3*targetPos.rows());
+    std::vector<Eigen::Triplet<double> > hessian;
+    Eigen::VectorXd edgeEOFs(0);
+    double  energy = 0;
+    
+    for(int i=10;i<=10;i++)
+    {
+        double a = 0.1 * i;
+        pos = a * initialPos + (1-a) * targetPos;
+        Eigen::MatrixXd pos0 = pos;
+        projectBackOp(sff, tarL, pos0);
+        
+        
+        energy = elasticEnergy(mesh, pos0, edgeEOFs, lameAlpha, lameBeta, thickness, as, bbars, sff, NULL, &hessian);
+        H0.setFromTriplets(hessian.begin(), hessian.end());
+        Eigen::CholmodSimplicialLDLT<Eigen::SparseMatrix<double> > solver;
+        solver.compute(H0);
+        if(solver.info() == Eigen::ComputationInfo::Success)
+        {
+            std::cout<<"Local minimal"<<std::endl;
+        }
+        else
+        {
+            std::cout<<"saddle point"<<std::endl;
+        }
+        
+        igl::writeOBJ("simed_saddle.obj", pos0, mesh.faces());
+        Eigen::MatrixXd pos1 = pos + eps * epsPos;
+        projectBackOp(sff, tarL, pos1);
+        
+        hessian.clear();
+        energy = elasticEnergy(mesh, pos1, edgeEOFs, lameAlpha, lameBeta, thickness, as, bbars, sff, NULL, &hessian);
+        H1.setFromTriplets(hessian.begin(), hessian.end());
+        
+        solver.compute(H1);
+        if(solver.info() == Eigen::ComputationInfo::Success)
+        {
+            std::cout<<"Local minimal"<<std::endl;
+        }
+        else
+        {
+            std::cout<<"saddle point"<<std::endl;
+        }
+        
+        igl::writeOBJ("simed_perturbed_saddle.obj", pos1, mesh.faces());
+        std::cout<<std::endl<<"The difference between two optimal solution is: "<<std::endl;
+        std::cout<<(pos1 - pos0).norm()<<std::endl<<std::endl;
+    }
+    
 }
