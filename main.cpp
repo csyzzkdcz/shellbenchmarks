@@ -357,6 +357,59 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
 
 }
 
+void updateAbarPath(std::string modelPath, std::string modelType, std::string methodType, double thickness, double penaltyCoef, double smoothnessCoef, std::string &abarPath)
+{
+    abarPath = modelPath + "/" + methodType + "/" + modelType + "_L_list_T_0_P_0_S_0.dat";
+    
+    int startIdx, endIdx;
+    std::string subString = "";
+    int expCoef;
+    // thickness
+    if(thickness == 0)
+        expCoef = 0;
+    else
+        expCoef = int(std::log10(thickness));
+    startIdx = abarPath.rfind("T");
+    endIdx = abarPath.rfind("P");
+    subString = "";
+    if(thickness > 0)
+        subString = "T_1e" + std::to_string(expCoef);
+    else
+        subString = "T_0";
+    abarPath = abarPath.replace(abarPath.begin() + startIdx, abarPath.begin()+endIdx-1, subString);
+    
+    // penalty
+    if(penaltyCoef == 0)
+        expCoef = 0;
+    else
+        expCoef = int(std::log10(penaltyCoef));
+    
+    startIdx = abarPath.rfind("P");
+    endIdx = abarPath.rfind("S");
+    subString = "";
+    if(penaltyCoef > 0)
+        subString = "P_1e" + std::to_string(expCoef);
+    else
+        subString = "P_0";
+    abarPath = abarPath.replace(abarPath.begin() + startIdx, abarPath.begin()+endIdx-1, subString);
+    
+    // smoothness
+    if(smoothnessCoef == 0)
+        expCoef = 0;
+    else
+        expCoef = int(std::log10(smoothnessCoef));
+    
+    startIdx = abarPath.rfind("S");
+    endIdx = abarPath.rfind(".");
+    subString = "";
+    if(smoothnessCoef > 0)
+        subString = "S_1e" + std::to_string(expCoef);
+    else
+        subString = "S_0";
+    abarPath = abarPath.replace(abarPath.begin() + startIdx, abarPath.begin()+endIdx, subString);
+    std::cout<<"Current abar loading path is: "<<abarPath<<std::endl;
+}
+
 int main(int argc, char *argv[])
 {
 //    Eigen::MatrixXd testV;
@@ -374,7 +427,7 @@ int main(int argc, char *argv[])
 //    computeSaddle("../../benchmarks/TestModels/middleCoarse/saddle/draped_rect_geometry.obj");
 //    computeCylinder("../../benchmarks/TestModels/middleCoarse/cylinder/draped_rect_geometry.obj");
 //    return 0;
-    tolerance = 1e-8;
+    tolerance = 1e-10;
 
     MidedgeAverageFormulation sff;
 
@@ -432,6 +485,7 @@ int main(int argc, char *argv[])
                     igl::readOBJ(tarShape + "_geometry.obj", curState.curPos, F);
                     setup->mesh = MeshConnectivity(F); // Just for repainting
                     std::cout<<curPath<<std::endl;
+                    updateAbarPath(curPath, selectedType, selectedMethod, thickness, penaltyCoef, smoothnessCoef, setup->abarPath);
                 }
                 repaint(viewer);
             }
@@ -568,56 +622,7 @@ int main(int argc, char *argv[])
                 setup->thickness = thickness;
                 selectedMethod = "dynamicSolver";
             }
-            setup->abarPath = curPath + "/" + selectedMethod + "/" + selectedType + "_L_list_T_0_P_0_S_0.dat";
-
-            int startIdx, endIdx;
-            std::string subString = "";
-
-            // thickness
-            if(thickness == 0)
-                expCoef = 0;
-            else
-                expCoef = int(std::log10(thickness));
-            startIdx = setup->abarPath.rfind("T");
-            endIdx = setup->abarPath.rfind("P");
-            subString = "";
-            if(thickness > 0)
-                subString = "T_1e" + std::to_string(expCoef);
-            else
-                subString = "T_0";
-            setup->abarPath = setup->abarPath.replace(setup->abarPath.begin() + startIdx, setup->abarPath.begin()+endIdx-1, subString);
-
-            // penalty
-            if(penaltyCoef == 0)
-                expCoef = 0;
-            else
-                expCoef = int(std::log10(penaltyCoef));
-
-            startIdx = setup->abarPath.rfind("P");
-            endIdx = setup->abarPath.rfind("S");
-            subString = "";
-            if(penaltyCoef > 0)
-                subString = "P_1e" + std::to_string(expCoef);
-            else
-                subString = "P_0";
-            setup->abarPath = setup->abarPath.replace(setup->abarPath.begin() + startIdx, setup->abarPath.begin()+endIdx-1, subString);
-
-            // smoothness
-            if(smoothnessCoef == 0)
-                expCoef = 0;
-            else
-                expCoef = int(std::log10(smoothnessCoef));
-
-            startIdx = setup->abarPath.rfind("S");
-            endIdx = setup->abarPath.rfind(".");
-            subString = "";
-            if(smoothnessCoef > 0)
-                subString = "S_1e" + std::to_string(expCoef);
-            else
-                subString = "S_0";
-            setup->abarPath = setup->abarPath.replace(setup->abarPath.begin() + startIdx, setup->abarPath.begin()+endIdx, subString);
-            std::cout<<"Current abar loading path is: "<<setup->abarPath<<std::endl;
-
+            updateAbarPath(curPath, selectedType, selectedMethod, thickness, penaltyCoef, smoothnessCoef, setup->abarPath);
         }
 
         if (ImGui::CollapsingHeader("Parameters", ImGuiTreeNodeFlags_DefaultOpen))
