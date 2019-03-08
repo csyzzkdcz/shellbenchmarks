@@ -18,6 +18,7 @@ public:
     double value(const Eigen::VectorXd &curL, const Eigen::MatrixXd curPos);
     void gradient(const  Eigen::VectorXd curL, const Eigen::MatrixXd curPos, Eigen::VectorXd &grad);
     void update(const Eigen::VectorXd &curL);
+    void projectBack(Eigen::VectorXd curL, Eigen::MatrixXd &curPos);
     
     Eigen::SparseMatrix<double> getConvertedGrad()
     {
@@ -31,7 +32,7 @@ public:
     }
     
 public:
-    void initialization(Eigen::MatrixXd initialPos, Eigen::MatrixXd tarPos, MeshConnectivity mesh, double lameAlpha, double lameBeta, double thickness)
+    void initialization(Eigen::MatrixXd initialPos, Eigen::MatrixXd tarPos, MeshConnectivity mesh, std::map<int, double> clampedDOFs, double lameAlpha, double lameBeta, double thickness)
     {
         _lambda = 0;
         _mu = 0;
@@ -68,16 +69,21 @@ public:
         }
 //        computeDerivativeQ2Abr(_initialPos, initialL, _convertedGrad);
         std::vector<Eigen::Triplet<double>> proj;
+        std::cout<<clampedDOFs.size()<<std::endl;
+        int freeDOFs = 3 * initialPos.rows() - clampedDOFs.size();
+        
         int row = 0;
-        for(int i=4;i<initialPos.rows();i++)
+        for(int i=0;i<initialPos.rows();i++)
         {
             for(int j=0;j<3;j++)
             {
+                if (clampedDOFs.find(3*i+j) != clampedDOFs.end())
+                    continue;
                 proj.push_back(Eigen::Triplet<double>(row, 3*i+j, 1.0));
                 row ++;
             }
         }
-        _projM.resize(3*initialPos.rows()-12, 3*initialPos.rows());
+        _projM.resize(freeDOFs, 3*initialPos.rows());
         _projM.setFromTriplets(proj.begin(), proj.end());
     }
     
@@ -86,6 +92,7 @@ public:
     void testDifferenceGrad(Eigen::MatrixXd curPos);
     void testAbarDerivative(Eigen::VectorXd curL, Eigen::MatrixXd curPos);
     void testDerivativeQ2Abr(Eigen::VectorXd curL, Eigen::MatrixXd curPos);
+    void testValueGrad(Eigen::VectorXd curL, Eigen::MatrixXd curPos);
     
 public:
     void computeDerivativeQ2Abr(Eigen::MatrixXd curPos, Eigen::VectorXd curL, Eigen::SparseMatrix<double> &derivative); // aAbr = L*L^T, we consider the drivative for L
@@ -98,6 +105,8 @@ public:
     void computeAbarSmoothnessGrad(Eigen::VectorXd curL, Eigen::VectorXd &grad);
     void computePositionSmoothnessGrad(Eigen::MatrixXd curPos, Eigen::VectorXd &grad);
     void computeDifferenceGrad(Eigen::MatrixXd curPos, Eigen::VectorXd &grad);
+    
+    void computeConvertedGrad(Eigen::MatrixXd curPos, Eigen::VectorXd curL, Eigen::VectorXd grad, Eigen::VectorXd &convertedGrad);
     
     
     
@@ -153,7 +162,9 @@ private:
     }
     
     void computeMassMatrix( Eigen::VectorXd &massVec, MeshConnectivity mesh, Eigen::MatrixXd V);
-    void projectBack(Eigen::VectorXd curL, Eigen::MatrixXd &curPos);
+    
+public:
+     Eigen::SparseMatrix<double> _projM; // We fixed 4 corner points
     
 private:
     Eigen::MatrixXd _initialPos;
@@ -164,7 +175,7 @@ private:
     Eigen::VectorXd _massVec;
     Eigen::SparseMatrix<double> _laplacianMat;
     Eigen::SparseMatrix<double> _convertedGrad;
-    Eigen::SparseMatrix<double> _projM; // We fixed 4 corner points
+   
     
     Eigen::VectorXd _areaList;
   

@@ -26,6 +26,8 @@
 
 bool SimulationSetupDynamicSolver::loadAbars()
 {
+//    testValueAndGradient();
+//    return true;
     std::ifstream infile(abarPath);
     if(!infile)
         return false;
@@ -71,7 +73,7 @@ bool SimulationSetupDynamicSolver::loadAbars()
     igl::edge_lengths(curPos, mesh.faces(), L);
     
     convertedProblem op;
-    op.initialization(initialPos, targetPos, mesh, lameAlpha, lameBeta, thickness);
+    op.initialization(initialPos, targetPos, mesh, clampedDOFs, lameAlpha, lameBeta, thickness);
     
     double differenceValue = op.computeDifference(curPos);
     double smoothnessAbarValue = op.computeAbarSmoothness(x.segment(3*nverts, 3*mesh.nFaces()));
@@ -85,18 +87,7 @@ bool SimulationSetupDynamicSolver::loadAbars()
     
     Eigen::SparseMatrix<double> projM;
     
-    std::vector<Eigen::Triplet<double>> proj;
-    int row = 0;
-    for(int i=4;i<initialPos.rows();i++)
-    {
-        for(int j=0;j<3;j++)
-        {
-            proj.push_back(Eigen::Triplet<double>(row, 3*i+j, 1.0));
-            row ++;
-        }
-    }
-    projM.resize(3*initialPos.rows()-12, 3*initialPos.rows());
-    projM.setFromTriplets(proj.begin(), proj.end());
+    projM = op._projM;
     
     std::vector<Eigen::Triplet<double> > hessianTriplet;
     
@@ -117,7 +108,7 @@ bool SimulationSetupDynamicSolver::loadAbars()
     {
         std::cout<<"Saddle point"<<std::endl;
     }
-    
+    std::cout<<projM.rows()<<" "<<projM.cols()<<std::endl;
     std::cout<<"Energy with current positions: "<<energy<<" Derivative with current positions: "<<(projM * derivative).norm()<<std::endl;
     
     energy = elasticEnergy(mesh, targetPos, initialEdgeDOFs, lameAlpha, lameBeta, thickness, abars, bbars, sff, &derivative, NULL);
@@ -166,7 +157,7 @@ bool SimulationSetupDynamicSolver::lineSearch(convertedProblem op, Eigen::Vector
         Eigen::VectorXd newdE;
         Eigen::VectorXd newL = L + rate*dir;
         Eigen::MatrixXd newPos = pos;
-        projectBackOp(sff, newL, newPos);
+        op.projectBack(newL, newPos);
         double newenergy = op.value(newL, newPos);
         op.gradient(newL, newPos, newdE);
         
@@ -198,11 +189,11 @@ bool SimulationSetupDynamicSolver::lineSearch(convertedProblem op, Eigen::Vector
                 rate = 0.5*(alpha + beta);
             }
             
-            if (beta - alpha < 1e-15)
+            if (beta - alpha < 1e-10)
             {
-                std::cout<<"Line Search Failed with beta - alph < 1e-15, Rate = "<<rate<<" alpha: "<<alpha<<" beta: "<<beta<<std::endl;
+                std::cout<<"Line Search Finished with beta - alph < 1e-10, Rate = "<<rate<<" alpha: "<<alpha<<" beta: "<<beta<<std::endl;
 //                pos = newPos;
-                return false;
+                return true;
             }
         }
         else
@@ -216,14 +207,14 @@ bool SimulationSetupDynamicSolver::lineSearch(convertedProblem op, Eigen::Vector
 
 void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundamentalFormDiscretization &sff)
 {
-    using namespace cppoptlib;
+//    using namespace cppoptlib;
     convertedProblem op;
     srand((unsigned)time(NULL));
     for(int i=0;i<initialPos.rows();i++)
     {
         initialPos(i,2) = (1e-6*rand())/RAND_MAX;
     }
-    op.initialization(initialPos, targetPos, mesh, lameAlpha, lameBeta, thickness);
+    op.initialization(initialPos, targetPos, mesh, clampedDOFs, lameAlpha, lameBeta, thickness);
     op.setPenalty(penaltyCoef, smoothCoef);
     
     int nfaces = mesh.nFaces();
@@ -237,7 +228,7 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
         L(3*i+2) = sqrt(a.determinant())/L(3*i);
     }
     Eigen::MatrixXd pos = targetPos;
-    projectBackOp(sff, L, pos);
+    op.projectBack(L, pos);
     igl::writeOBJ("test.obj", pos, mesh.faces());
     
     int m = 10;
@@ -249,6 +240,7 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
     op.gradient(L, pos, grad);
     Eigen::VectorXd L_old = L;
     grad_old = grad;
+    double fmin = op.value(L, pos);
     
     int iter = 0;
     double gradNorm = 0;
@@ -304,7 +296,7 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
             rate = std::min(L.norm() / sqrt(L.size()) * 1e-2, 1.0/grad.norm());
             bool isSuccess = lineSearch(op, L, pos, -grad, rate);
             L = L - rate * grad;
-            projectBackOp(sff, L, pos);
+            op.projectBack(L, pos);
             op.gradient(L, pos, grad);
             
             y = grad - grad_old;
@@ -319,7 +311,7 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
             {
                 std::cout<<"L-BFGS succeeded!"<<std::endl;
                 L = L - rate * z;
-                projectBackOp(sff, L, pos);
+                op.projectBack(L, pos);
                 op.gradient(L, pos, grad);
                 s = L - L_old;
                 y = grad - grad_old;
@@ -332,7 +324,7 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
                 rate = std::min(L.norm() / sqrt(L.size()) * 1e-2, 1.0/grad.norm());
                 bool isSuccess = lineSearch(op, L, pos, -grad, rate);
                 L = L - rate * grad;
-                projectBackOp(sff, L, pos);
+                op.projectBack(L, pos);
                 op.gradient(L, pos, grad);
                 s = L - L_old;
                 y = grad - grad_old;
@@ -384,7 +376,7 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
 //
 //        L_old = L;
         
-        std::cout << "iter: "<<iter<< ", f = " <<  op.value(L, pos) << ", ||g||_inf "<<grad.template lpNorm<Eigen::Infinity>()<< ", Rate: "<<rate<<std::endl<<std::endl;
+        std::cout << "iter: "<<iter<< ", f = " <<  op.value(L, pos) << ", ||g||_inf "<<grad.template lpNorm<Eigen::Infinity>()<<", pos change "<<s.lpNorm<Eigen::Infinity>()<<", gradient change "<<y.lpNorm<Eigen::Infinity>()<< ", Rate: "<<rate<<std::endl<<std::endl;
         
         iter++;
         gradNorm = grad.template lpNorm<Eigen::Infinity>();
@@ -398,113 +390,34 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
             std::cout<<"Force norm is less than "<<M_TOL<<std::endl;
             break;
         }
-        if(iter % 100 == 0)
-            saveAbars(L, pos);
-    }
-    
-    saveAbars(L, pos);
-    
-}
-
-void SimulationSetupDynamicSolver::projectBackOp(const SecondFundamentalFormDiscretization &sff, Eigen::VectorXd &L, Eigen::MatrixXd &pos)
-{
-    double reg = 1e-6;
-    int nverts = pos.rows();
-    int nfaces = mesh.nFaces();
-    
-    std::vector<Eigen::Matrix2d> curAbars(nfaces);
-    std::vector<Eigen::Matrix2d> bbars(nfaces);
-    
-    for(int i = 0; i < nfaces; i++)
-    {
-        curAbars[i] << L(3*i),0,
-        L(3*i+1), L(3*i+2);
-        curAbars[i] = curAbars[i] * curAbars[i].transpose();
-        
-        bbars[i].setZero();
-    }
-    
-    Eigen::VectorXd edgeEOFs(0);
-    double forceResidual = std::numeric_limits<double>::infinity();
-    double updateMag = std::numeric_limits<double>::infinity();
-    
-    Eigen::SparseMatrix<double> projM;
-    
-    std::vector<Eigen::Triplet<double>> proj;
-    int row = 0;
-    for(int i=4;i<initialPos.rows();i++)
-    {
-        for(int j=0;j<3;j++)
+        if(s.template lpNorm<Eigen::Infinity>() <= M_TOL)
         {
-            proj.push_back(Eigen::Triplet<double>(row, 3*i+j, 1.0));
-            row ++;
-        }
-    }
-    projM.resize(3*initialPos.rows()-12, 3*initialPos.rows());
-    projM.setFromTriplets(proj.begin(), proj.end());
-    
-    for(int i=0; i< MAX_ITR; i++)
-    {
-        while (true)
-        {
-            Eigen::VectorXd derivative;
-            std::vector<Eigen::Triplet<double> > hessian;
-            double energy = elasticEnergy(mesh, pos, edgeEOFs, lameAlpha, lameBeta, thickness, curAbars, bbars, sff, &derivative, &hessian);
-            
-            Eigen::SparseMatrix<double> H(3 * nverts, 3 * nverts);
-            H.setFromTriplets(hessian.begin(), hessian.end());
-            
-            
-            Eigen::VectorXd force = -derivative;
-            
-            Eigen::VectorXd reducedForce = projM * force;
-            Eigen::SparseMatrix<double> reducedH = projM * H * projM.transpose();
-            Eigen::SparseMatrix<double> I(reducedH.rows(), reducedH.cols());
-            I.setIdentity();
-            reducedH += reg * I;
-            
-            Eigen::CholmodSimplicialLDLT<Eigen::SparseMatrix<double> > solver;
-            
-            solver.compute(reducedH);
-            while(solver.info() != Eigen::ComputationInfo::Success)
-            {
-                reg *=2;
-                reducedH += reg * I;
-                solver.compute(reducedH);
-            }
-            
-            Eigen::VectorXd descentDir = solver.solve(reducedForce);
-            Eigen::VectorXd fullDir = projM.transpose() * descentDir;
-            
-            Eigen::MatrixXd newPos = pos;
-            for (int i = 0; i < nverts; i++)
-            {
-                newPos.row(i) += fullDir.segment<3>(3 * i);
-            }
-            
-            double newenergy = elasticEnergy(mesh, newPos, edgeEOFs, lameAlpha, lameBeta, thickness, curAbars, bbars, sff, &derivative, NULL);
-            force = -derivative;
-            
-            reducedForce = projM * force;
-            forceResidual = reducedForce.norm();
-            updateMag =  (projM.transpose() * descentDir).norm();
-            if (newenergy <= energy)
-            {
-//                                std::cout << "Old energy: " << energy << " new energy: " << newenergy << " force residual " << forceResidual << " pos change " << updateMag << std::endl;
-                pos = newPos;
-                reg = std::max(1e-6, reg * 0.5);
-                break;
-            }
-            else
-            {
-                reg *= 2.0;
-//                                std::cout << "Old energy: " << energy << " new energy: " << newenergy << " lambda now: " << reg << std::endl;
-            }
-        }
-        if(forceResidual < M_TOL || updateMag < M_TOL)
+            std::cout<<"Abar update is less than "<<M_TOL<<std::endl;
             break;
+        }
+        if(y.template lpNorm<Eigen::Infinity>() <= M_TOL)
+        {
+            std::cout<<"gradient update is less than "<<M_TOL<<std::endl;
+            break;
+        }
+        if(iter % 100 == 0)
+        {
+            double f = op.value(L, pos);
+            if(f < fmin)
+            {
+                saveAbars(L, pos);
+                fmin = f;
+            }
+        }
     }
-    std::cout<<forceResidual<<std::endl;
+    
+    double f = op.value(L, pos);
+    if(f < fmin)
+    {
+        saveAbars(L, pos);
+        fmin = f;
+    }
+    
 }
 
 void SimulationSetupDynamicSolver::saveAbars(Eigen::VectorXd L, Eigen::MatrixXd pos)
@@ -604,7 +517,7 @@ void SimulationSetupDynamicSolver::testValueAndGradient()
     {
         initialPos(i,2) = (1e-6*rand())/RAND_MAX;
     }
-    op.initialization(initialPos, targetPos, mesh, lameAlpha, lameBeta, thickness);
+    op.initialization(initialPos, targetPos, mesh, clampedDOFs, lameAlpha, lameBeta, thickness);
     op.setPenalty(penaltyCoef, smoothCoef);
     
     int nfaces = mesh.nFaces();
@@ -640,8 +553,10 @@ void SimulationSetupDynamicSolver::testValueAndGradient()
 //    op.testAbarSmoothnessGrad(tarL);
     std::cout<<std::endl<<"dF/da validation"<<std::endl;
     op.testAbarDerivative(initialL, initialPos);
-    std::cout<<std::endl<<"dq/da validation: "<<std::endl;
-    op.testDerivativeQ2Abr(tarL, targetPos);
+    std::cout<<std::endl<<"dE/da validation: "<<std::endl;
+    op.testValueGrad(tarL, targetPos);
+//    op.testDerivativeQ2Abr(tarL, targetPos);
+    
     
     //    double f = op(L);
     //    Eigen::VectorXd gradf;
@@ -674,7 +589,7 @@ void SimulationSetupDynamicSolver::testProjectBackSim()
     {
         initialPos(i,2) = (1e-6*rand())/RAND_MAX;
     }
-    op.initialization(initialPos, targetPos, mesh, lameAlpha, lameBeta, thickness);
+    op.initialization(initialPos, targetPos, mesh, clampedDOFs, lameAlpha, lameBeta, thickness);
     op.setPenalty(penaltyCoef, smoothCoef);
     
    
@@ -709,7 +624,7 @@ void SimulationSetupDynamicSolver::testProjectBackSim()
         double a = 0.1 * i;
         pos = a * initialPos + (1-a) * targetPos;
         Eigen::MatrixXd pos0 = pos;
-        projectBackOp(sff, tarL, pos0);
+        op.projectBack(tarL, pos0);
         
         
         energy = elasticEnergy(mesh, pos0, edgeEOFs, lameAlpha, lameBeta, thickness, as, bbars, sff, NULL, &hessian);
@@ -727,7 +642,7 @@ void SimulationSetupDynamicSolver::testProjectBackSim()
         
         igl::writeOBJ("simed_saddle.obj", pos0, mesh.faces());
         Eigen::MatrixXd pos1 = pos + eps * epsPos;
-        projectBackOp(sff, tarL, pos1);
+        op.projectBack(tarL, pos1);
         
         hessian.clear();
         energy = elasticEnergy(mesh, pos1, edgeEOFs, lameAlpha, lameBeta, thickness, as, bbars, sff, NULL, &hessian);

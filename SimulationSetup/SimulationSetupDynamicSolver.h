@@ -16,10 +16,6 @@ public:
 
 private:
     bool lineSearch(convertedProblem op, Eigen::VectorXd L, Eigen::MatrixXd &Pos, Eigen::VectorXd dir, double &rate);
-    
-    void projectConstraintsOp(convertedProblem &op, Eigen::VectorXd &L, Eigen::MatrixXd &pos);
-    void projectBackOp(const SecondFundamentalFormDiscretization &sff, Eigen::VectorXd &L, Eigen::MatrixXd &pos);
-    
     void testProjectBackSim();
 
 private:

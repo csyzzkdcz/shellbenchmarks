@@ -13,18 +13,32 @@
 double convertedProblem::value(const Eigen::VectorXd &curL, const Eigen::MatrixXd curPos)
 {
 //    return computeDifference(curPos) + _lambda * computeAbarSmoothness(curL) + _mu * computePositionSmoothness(curPos);
-    return computeDifference(curPos);
+    return computeDifference(curPos) + _lambda * computeAbarSmoothness(curL);
 }
 
 void convertedProblem::gradient(const Eigen::VectorXd curL, const Eigen::MatrixXd curPos, Eigen::VectorXd &grad)
 {
-    Eigen::VectorXd gradDiff, gradAbarSmooth, gradPosSmooth;
-    computeDerivativeQ2Abr(curPos, curL, _convertedGrad);
-//    computeAbarSmoothnessGrad(curL, gradAbarSmooth);
+    Eigen::VectorXd gradDiff, gradAbarSmooth, gradPosSmooth, gradPos;
+    Eigen::SparseMatrix<double> hessianL(3*curPos.rows(), curL.size());
+    
+    std::vector<Eigen::Triplet<double> > hessian;
+    computeAbarDerivative(curPos, curL, &hessian);
+    hessianL.setFromTriplets(hessian.begin(), hessian.end());
+    
+//    computeDerivativeQ2Abr(curPos, curL, _convertedGrad);
+    computeAbarSmoothnessGrad(curL, gradAbarSmooth);
     computeDifferenceGrad(curPos, gradDiff);
 //    computePositionSmoothnessGrad(curPos, gradPosSmooth);
 //    grad.transpose = (gradDiff + _mu * gradPosSmooth).transpose() *_convertedGrad + _lambda * gradAbarSmooth.transpose();
-    grad.transpose() = gradDiff.transpose() * _convertedGrad;
+//    grad.transpose() = gradDiff.transpose() * _convertedGrad;
+    
+    gradPos = gradDiff;
+    
+    Eigen::VectorXd convertedGrad;
+    computeConvertedGrad(curPos, curL, gradPos, convertedGrad);
+    
+    grad.transpose() = convertedGrad.transpose() * hessianL + _lambda * gradAbarSmooth.transpose();
+    
    
 }
 
@@ -56,6 +70,45 @@ void convertedProblem::computeMassMatrix(Eigen::VectorXd &massVec, MeshConnectiv
     
     massVec = massVec / 3;
     massVec = massVec / massVec.maxCoeff();
+}
+
+void convertedProblem::computeConvertedGrad(Eigen::MatrixXd curPos, Eigen::VectorXd curL, Eigen::VectorXd grad, Eigen::VectorXd &convertedGrad)
+{
+    int nverts = curPos.rows();
+    int nfaces =  _mesh.nFaces();
+    std::vector<Eigen::Matrix2d> abars(nfaces);
+    std::vector<Eigen::Matrix2d> bbars(nfaces);
+    for(int i=0;i<nfaces;i++)
+    {
+        abars[i] << curL(3*i), 0,
+        curL(3*i+1),curL(3*i+2);
+        abars[i] = abars[i] * abars[i].transpose();
+        
+        bbars[i].setZero();
+    }
+    std::vector<Eigen::Triplet<double> > hessian;
+    Eigen::VectorXd edgeDOFS(0);
+    Eigen::VectorXd f;
+    MidedgeAverageFormulation sff;
+    elasticEnergy(_mesh, curPos, edgeDOFS, _lameAlpha, _lameBeta, _thickness, abars, bbars, sff, &f, &hessian);
+    //    std::cout<<f.norm()<<std::endl;
+    Eigen::SparseMatrix<double> hessianQ(3*nverts, 3*nverts), hessianL(3*nverts, 3*nfaces);
+    hessianQ.setFromTriplets(hessian.begin(), hessian.end());
+    
+    Eigen::SparseMatrix<double> reductQ = _projM * hessianQ * _projM.transpose();
+    
+    Eigen::SparseMatrix<double> I(reductQ.rows(), reductQ.cols());
+    I.setIdentity();
+    double reg = pow(10, -8);
+    reductQ += reg*I;
+    
+    Eigen::CholmodSimplicialLDLT<Eigen::SparseMatrix<double> > solver;
+    solver.compute(reductQ);
+    
+    Eigen::VectorXd reductGrad = solver.solve(-_projM * grad);
+    
+    convertedGrad = _projM.transpose() * reductGrad;
+    
 }
 
 void convertedProblem::computeDerivativeQ2Abr(Eigen::MatrixXd curPos, Eigen::VectorXd curL, Eigen::SparseMatrix<double> &derivative)
@@ -735,6 +788,30 @@ void convertedProblem::testDerivativeQ2Abr(Eigen::VectorXd curL, Eigen::MatrixXd
     
 }
 
+void convertedProblem::testValueGrad(Eigen::VectorXd curL, Eigen::MatrixXd curPos)
+{
+    projectBack(curL, curPos);
+    Eigen::MatrixXd updatedPos = curPos;
+    double f = value(curL, curPos);
+    Eigen::VectorXd df;
+    gradient(curL, curPos, df);
+    Eigen::VectorXd epsVec = Eigen::VectorXd::Random(curL.size());
+    
+    epsVec.normalized();
+    for(int i = 6; i< 14; i++ )
+    {
+        double eps = pow(4, -i);
+        Eigen::VectorXd updatedL = curL + eps * epsVec;
+        projectBack(updatedL, updatedPos);
+        double f1 = value(updatedL, updatedPos);
+        std::cout<<"EPS is "<<eps<<std::endl;
+        std::cout<< "Gradient is "<<df.dot(epsVec)<< " Finite difference is "<<(f1 - f)/eps<<std::endl;
+        std::cout<< "The error is "<<std::abs(df.dot(epsVec) - (f1 - f)/eps )<<std::endl;
+        updatedPos = curPos;
+    }
+    
+}
+
 void convertedProblem::projectBack(Eigen::VectorXd L, Eigen::MatrixXd &pos)
 {
     double reg = 1e-6;
@@ -758,7 +835,9 @@ void convertedProblem::projectBack(Eigen::VectorXd L, Eigen::MatrixXd &pos)
     double updateMag = std::numeric_limits<double>::infinity();
     MidedgeAverageFormulation sff;
     
-    for(int i=0; i< 1e4; i++)
+    int itr;
+    
+    for(itr=0; itr < 1e4; itr++)
     {
         while (true)
         {
@@ -819,6 +898,20 @@ void convertedProblem::projectBack(Eigen::VectorXd L, Eigen::MatrixXd &pos)
         if(forceResidual < 1e-10 || updateMag < 1e-10)
             break;
     }
-    std::cout<<forceResidual<<std::endl;
+    std::cout<<"Finishwd with "<<"Force = "<<forceResidual<<" pos change = "<<updateMag<<" iteration time = "<<itr<<std::endl;
+    
+    if(_projM.rows() == _projM.cols())
+    {
+        Eigen::Matrix3d R;
+        Eigen::Vector3d t;
+        
+        GeometryTools::rigidMotionTransformation(pos, _tarPos, _mesh, R, t);
+        
+        Eigen::MatrixXd ones(1, pos.rows());
+        ones.setOnes();
+        
+        pos.transpose() = R * pos.transpose() + t * ones;
+    }
+    
     
 }

@@ -1,51 +1,3 @@
-//#include "SimulationSetup/convertedopt.h"
-//#include <igl/readOBJ.h>
-//
-//using namespace cppoptlib;
-//
-//int main(int argc, char const *argv[])
-//{
-//    convertedProblem f;
-//    Eigen::MatrixXd initialPos, tarPos;
-//    Eigen::MatrixXi F;
-//    igl::readOBJ("../../benchmarks/TestModels/coarse/sphere/draped_rect_geometry.obj", initialPos, F);
-//    igl::readOBJ("../../benchmarks/TestModels/coarse/sphere/sphere_geometry.obj", tarPos, F);
-//    MeshConnectivity mesh(F);
-//    double thickness = pow(10, -4);
-//    double lameAlpha = 1000;
-//    double lameBeta = 512;
-//    f.initialization(initialPos, tarPos, mesh, lameAlpha, lameBeta, thickness);
-//
-//    Eigen::VectorXd initialL(3*mesh.nFaces()), tarL(3*mesh.nFaces());
-//    for(int i =0; i<mesh.nFaces();i++)
-//    {
-//        Eigen::Matrix2d abar = firstFundamentalForm(mesh, initialPos, i, NULL, NULL);
-//        initialL(3*i) = sqrt(abar(0,0));
-//        initialL(3*i+1) = abar(0,1) / initialL(3*i);
-//        initialL(3*i+2) = sqrt(abar.determinant()) / initialL(3*i);
-//
-//        Eigen::Matrix2d a = firstFundamentalForm(mesh, tarPos, i, NULL, NULL);
-//        tarL(3*i) = sqrt(a(0,0));
-//        tarL(3*i+1) = a(0,1) / tarL(3*i);
-//        tarL(3*i+2) = sqrt(a.determinant()) / tarL(3*i);
-//
-//    }
-//    std::cout<<"Differece term validation"<<std::endl;
-//    f.testDifferenceGrad(initialPos);
-//    std::cout<<std::endl<<"Position Smoothness Term validation"<<std::endl;
-//    f.testPositionSmoothnessGrad(initialPos);
-//
-//    std::cout<<std::endl<<"Abar Smoothness Term validation"<<std::endl;
-//    f.testAbarSmoothnessGrad(tarL);
-//    std::cout<<std::endl<<"Abar Derivative validation"<<std::endl;
-//    f.testAbarDerivative(initialL);
-//
-//    return 0;
-//}
-
-
-
-
 #include <igl/opengl/glfw/Viewer.h>
 
 #include <random>
@@ -102,6 +54,8 @@ std::string tarShape = "";
 std::string curPath = "";
 std::string selectedType = "sphere";
 
+bool isFixedConer = true;
+
 double thickness = 1e-4;
 double penaltyCoef = 0;
 double smoothnessCoef = 0;
@@ -134,6 +88,29 @@ void computeSphere(std::string rectPath)
     igl::writeOBJ(rectPath.substr(0, ind) + "/sphere_geometry.obj", Vo, Fo);
     
 }
+
+void computeEllipsoid(std::string rectPath)
+{
+    Eigen::MatrixXd Vo;
+    Eigen::MatrixXi Fo;
+    igl::readOBJ(rectPath, Vo, Fo);
+    for(int i=0;i<Vo.rows();i++)
+    {
+        double R = 0.5;
+        double u = Vo(i,0);
+        double v = Vo(i,1);
+        double z = R - R*R/sqrt(R*R+u*u+v*v);
+        double x = (R-z)/R*u * 0.5;
+        double y = (R-z)/R*v;
+        Vo(i,0) = R*x;
+        Vo(i,1) = R*y;
+        Vo(i,2) = R*z;
+    }
+    int ind = rectPath.rfind("/");
+    igl::writeOBJ(rectPath.substr(0, ind) + "/ellipsoid_geometry.obj", Vo, Fo);
+    
+}
+
 
 void computeCylinder(std::string rectPath)
 {
@@ -357,9 +334,12 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
 
 }
 
-void updateAbarPath(std::string modelPath, std::string modelType, std::string methodType, double thickness, double penaltyCoef, double smoothnessCoef, std::string &abarPath)
+void updateAbarPath(std::string modelPath, std::string modelType, std::string methodType, double thickness, double penaltyCoef, double smoothnessCoef, std::string &abarPath, bool isFixedCorners)
 {
-    abarPath = modelPath + "/" + methodType + "/" + modelType + "_L_list_T_0_P_0_S_0.dat";
+    std::string cornerStat = "Free";
+    if(isFixedConer)
+        cornerStat = "PinedCorners";
+    abarPath = modelPath + "/" + methodType + "/" + cornerStat + "/" + modelType + "_L_list_T_0_P_0_S_0.dat";
     
     int startIdx, endIdx;
     std::string subString = "";
@@ -423,9 +403,10 @@ int main(int argc, char *argv[])
 //
 //    numSteps = 30;
     
-//    computeSphere("../../benchmarks/TestModels/middleCoarse/sphere/draped_rect_geometry.obj");
-//    computeSaddle("../../benchmarks/TestModels/middleCoarse/saddle/draped_rect_geometry.obj");
-//    computeCylinder("../../benchmarks/TestModels/middleCoarse/cylinder/draped_rect_geometry.obj");
+//    computeSphere("../../benchmarks/TestModels/middleCoarse/sphere/draped_disk_geometry.obj");
+////    computeSaddle("../../benchmarks/TestModels/middleCoarse/saddle/draped_rect_geometry.obj");
+////    computeCylinder("../../benchmarks/TestModels/middleCoarse/cylinder/draped_rect_geometry.obj");
+//    computeEllipsoid("../../benchmarks/TestModels/middleCoarse/ellipsoid/draped_disk_geometry.obj");
 //    return 0;
     tolerance = 1e-10;
 
@@ -485,7 +466,7 @@ int main(int argc, char *argv[])
                     igl::readOBJ(tarShape + "_geometry.obj", curState.curPos, F);
                     setup->mesh = MeshConnectivity(F); // Just for repainting
                     std::cout<<curPath<<std::endl;
-                    updateAbarPath(curPath, selectedType, selectedMethod, thickness, penaltyCoef, smoothnessCoef, setup->abarPath);
+//                    updateAbarPath(curPath, selectedType, selectedMethod, thickness, penaltyCoef, smoothnessCoef, setup->abarPath);
                 }
                 repaint(viewer);
             }
@@ -548,6 +529,10 @@ int main(int argc, char *argv[])
             if(ImGui::Checkbox("Face Colors", &isShowFaceColor))
             {
                 repaint(viewer);
+            }
+            if(ImGui::Checkbox("Fixed Corners", &isFixedConer))
+            {
+                
             }
             ImGui::Checkbox("Show texture", &(viewer.data().show_texture));
             if (ImGui::Checkbox("Invert normals", &(viewer.data().invert_normals)))
@@ -622,7 +607,6 @@ int main(int argc, char *argv[])
                 setup->thickness = thickness;
                 selectedMethod = "dynamicSolver";
             }
-            updateAbarPath(curPath, selectedType, selectedMethod, thickness, penaltyCoef, smoothnessCoef, setup->abarPath);
         }
 
         if (ImGui::CollapsingHeader("Parameters", ImGuiTreeNodeFlags_DefaultOpen))
@@ -716,6 +700,7 @@ int main(int argc, char *argv[])
 
         if (ImGui::Button("load and Compute", ImVec2(-1, 0)))
         {
+            updateAbarPath(curPath, selectedType, selectedMethod, thickness, penaltyCoef, smoothnessCoef, setup->abarPath, isFixedConer);
             bool ok = parseWimFiles(resShape, tarShape, *setup, sff);
             if (!ok)
             {
@@ -724,11 +709,23 @@ int main(int argc, char *argv[])
                 std::cerr << "Target Shape: "<< tarShape << std::endl;
                 return -1;
             }
+            
+            if(isFixedConer)
+            {
+                for(int vid = 0; vid < 4; vid++)
+                {
+                    setup->clampedDOFs[3*vid + 0] = setup->targetPos(vid,0);
+                    setup->clampedDOFs[3*vid + 1] = setup->targetPos(vid,0);
+                    setup->clampedDOFs[3*vid + 2] = setup->targetPos(vid,0);
+                }
+            }
+            
             std::cout<<thickness<<std::endl;
             setup->thickness = thickness;
             setup->penaltyCoef = penaltyCoef;
             setup->smoothCoef = smoothnessCoef;
             setup->buildRestFundamentalForms(sff);
+            
 
             /*
             if(selectedType == "sphere")
@@ -843,7 +840,7 @@ int main(int argc, char *argv[])
                 curState.curPos = setup->initialPos;
                 for(int i=0;i<curState.curPos.rows();i++)
                 {
-                    curState.curPos(i,2) = (1e-6*rand())/RAND_MAX;
+                    curState.curPos(i,2) = (1e-4*rand())/RAND_MAX;
                 }
             }
             setup->thickness = thickness;

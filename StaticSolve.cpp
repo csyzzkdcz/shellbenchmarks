@@ -23,8 +23,7 @@ void takeOneStep(const SimulationSetup &setup, SimulationState &state, const Sec
     int nedges = setup.mesh.nEdges();
     int nedgedofs = sff.numExtraDOFs();
 
-//    int constrainedDOFs = setup.clampedDOFs.size();
-    int constrainedDOFs = 4;
+    int constrainedDOFs = setup.clampedDOFs.size();
 
     int freeDOFs = 3 * nverts + nedgedofs * nedges - constrainedDOFs;
     std::vector<Eigen::Triplet<double> > proj;
@@ -33,8 +32,8 @@ void takeOneStep(const SimulationSetup &setup, SimulationState &state, const Sec
     {
         for (int j = 0; j < 3; j++)
         {
-//            if (setup.clampedDOFs.find(3*i+j) != setup.clampedDOFs.end())
-//                continue;
+            if (setup.clampedDOFs.find(3*i+j) != setup.clampedDOFs.end())
+                continue;
             proj.push_back(Eigen::Triplet<double>(row, 3 * i + j, 1.0));
             row++;
         }
