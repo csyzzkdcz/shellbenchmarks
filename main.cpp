@@ -6,7 +6,15 @@
 #include <igl/decimate.h>
 #include <igl/upsample.h>
 #include <igl/doublearea.h>
+#include <igl/arap.h>
+#include <igl/boundary_loop.h>
+#include <igl/harmonic.h>
+#include <igl/map_vertices_to_circle.h>
+#include <igl/readOFF.h>
+#include <igl/lscm.h>
 #include <imgui/imgui.h>
+#include <igl/hessian_energy.h>
+#include <igl/massmatrix.h>
 #include <memory>
 //#include <igl/triangle/triangulate.h>
 //#include "SecondFundamentalForm/MidedgeAngleSinFormulation.h"
@@ -54,12 +62,88 @@ std::string tarShape = "";
 std::string curPath = "";
 std::string selectedType = "sphere";
 
-bool isFixedConer = true;
+bool isFixedConer = false;
 
 double thickness = 1e-4;
 double penaltyCoef = 0;
 double smoothnessCoef = 0;
 int expCoef;
+
+
+void meshResampling(std::string filepath, int targetResolution)
+{
+    //    Eigen::MatrixXd V;
+    //    Eigen::MatrixXi E;
+    //    Eigen::MatrixXd H;
+    //
+    //    // Triangulated interior
+    //    Eigen::MatrixXd V2;
+    //    Eigen::MatrixXi F2;
+    //    V.resize(8,1);
+    //    E.resize(8,1);
+    //
+    //    V << -1,-1, 1,-1, 1,1, -1, 1,
+    //
+    //    E << 0,1, 1,2, 2,3, 3,0,
+    //
+    //
+    //    // Triangulate the interior
+    //    igl::triangle::triangulate(V,E,H,"a0.005q",V2,F2);
+    
+    // Plot the generated mesh
+    Eigen::MatrixXd Vcurr;
+    Eigen::MatrixXi Fcurr;
+    igl::readOBJ(filepath, Vcurr, Fcurr);
+    while ( Fcurr.rows() < targetResolution * 2)
+    {
+        Eigen::MatrixXd Vtmp = Vcurr;
+        Eigen::MatrixXi Ftmp = Fcurr;
+        igl::upsample(Vtmp, Ftmp, Vcurr, Fcurr, 1);
+    }
+    Eigen::MatrixXd V;
+    Eigen::MatrixXi F;
+    Eigen::VectorXi J;
+    
+    igl::decimate(Vcurr, Fcurr, targetResolution, V, F, J);
+    int ind = filepath.rfind(".");
+    
+    typedef Eigen::SparseMatrix<double> SparseMat;
+    
+    //Read our mesh
+    Eigen::MatrixXi E;
+    igl::edges(F,E);
+    
+    //Constructing an exact function to smooth
+    Eigen::VectorXd zexact = V.block(0,2,V.rows(),1).array()
+    + 0.5*V.block(0,1,V.rows(),1).array()
+    + V.block(0,1,V.rows(),1).array().pow(2)
+    + V.block(0,2,V.rows(),1).array().pow(3);
+    
+    //Make the exact function noisy
+    srand(5);
+    const double s = 0.2*(zexact.maxCoeff() - zexact.minCoeff());
+    Eigen::VectorXd znoisy = zexact + s*Eigen::VectorXd::Random(zexact.size());
+    
+    //Constructing the squared Laplacian and squared Hessian energy
+    SparseMat L, M;
+    igl::cotmatrix(V, F, L);
+    igl::massmatrix(V, F, igl::MASSMATRIX_TYPE_BARYCENTRIC, M);
+    Eigen::SimplicialLDLT<SparseMat> solver(M);
+    SparseMat MinvL = solver.solve(L);
+    SparseMat QL = L.transpose()*MinvL;
+    SparseMat QH;
+    igl::hessian_energy(V, F, QH);
+    
+    const double al = 8e-4;
+    Eigen::SimplicialLDLT<SparseMat> lapSolver(al*QL + (1.-al)*M);
+    Eigen::VectorXd zl = lapSolver.solve(al*M*znoisy);
+    const double ah = 5e-6;
+    Eigen::SimplicialLDLT<SparseMat> hessSolver(ah*QH + (1.-ah)*M);
+    Eigen::VectorXd zh = hessSolver.solve(ah*M*znoisy);
+    
+    igl::writeOBJ(filepath.substr(0, ind) + "_resampled.obj", V, F);
+    
+}
 
 
 void computeSphere(std::string rectPath)
@@ -390,6 +474,50 @@ void updateAbarPath(std::string modelPath, std::string modelType, std::string me
     std::cout<<"Current abar loading path is: "<<abarPath<<std::endl;
 }
 
+void conformalParametrization(Eigen::MatrixXd V, Eigen::MatrixXi F, Eigen::MatrixXd &UV)
+{
+    Eigen::VectorXi bnd,b(2,1);
+    igl::boundary_loop(F,bnd);
+    b(0) = bnd(0);
+    b(1) = bnd(round(bnd.size()/2));
+    Eigen::MatrixXd bc(2,2);
+    bc<<0,0,1,0;
+    
+    // LSCM parametrization
+    igl::lscm(V,F,b,bc,UV);
+}
+
+void conformalParametrizationARAP(Eigen::MatrixXd V, Eigen::MatrixXi F, Eigen::MatrixXd &UV)
+{
+ 
+    // Compute the initial solution for ARAP (harmonic parametrization)
+    Eigen::VectorXi bnd;
+    igl::boundary_loop(F,bnd);
+    Eigen::MatrixXd bnd_uv;
+    Eigen::MatrixXd initial_guess;
+    igl::map_vertices_to_circle(V,bnd,bnd_uv);
+    
+    igl::harmonic(V,F,bnd,bnd_uv,1,initial_guess);
+    
+    // Add dynamic regularization to avoid to specify boundary conditions
+    igl::ARAPData arap_data;
+    arap_data.with_dynamics = true;
+    Eigen::VectorXi b  = Eigen::VectorXi::Zero(0);
+    Eigen::MatrixXd bc = Eigen::MatrixXd::Zero(0,0);
+    
+    // Initialize ARAP
+    arap_data.max_iter = 100;
+    // 2 means that we're going to *solve* in 2d
+    arap_precomputation(V,F,2,b,arap_data);
+    
+    
+    // Solve arap using the harmonic map as initial guess
+    UV = initial_guess;
+    
+    arap_solve(bc,arap_data,UV);
+
+}
+
 int main(int argc, char *argv[])
 {
 //    Eigen::MatrixXd testV;
@@ -406,7 +534,28 @@ int main(int argc, char *argv[])
 //    computeSphere("../../benchmarks/TestModels/middleCoarse/sphere/draped_disk_geometry.obj");
 ////    computeSaddle("../../benchmarks/TestModels/middleCoarse/saddle/draped_rect_geometry.obj");
 ////    computeCylinder("../../benchmarks/TestModels/middleCoarse/cylinder/draped_rect_geometry.obj");
-//    computeEllipsoid("../../benchmarks/TestModels/middleCoarse/ellipsoid/draped_disk_geometry.obj");
+//    computeEllipsoid("../../benchmarks/TestModels/coarse/ellipsoid/draped_rect_geometry.obj");
+//    computeEllipsoid("../../benchmarks/TestModels/fine/ellipsoid/draped_rect_geometry.obj");
+//    return 0;
+    
+    
+//    Eigen::MatrixXd V, UV, V_P;
+//    Eigen::MatrixXi F;
+//    igl::readOBJ("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/benchmarks/TestModels/fine/Nefertiti/Nefertiti_geometry.obj", V, F);
+////    meshResampling("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/benchmarks/TestModels/veryCoarse/Nefertiti/Nefertiti_geometry.obj", 1000);
+//    V_P = V;
+//    conformalParametrization(V, F, UV);
+//    double norm_uv = UV.norm();
+//    double norm_V = V_P.norm();
+//    std::cout<<norm_uv<<" "<<norm_V<<std::endl;
+//    for(int i = 0; i<UV.rows();i++)
+//    {
+//        V_P(i,0) = sqrt(2) * UV(i,0) * norm_V / norm_uv;
+//        V_P(i,1) = sqrt(2) * UV(i,1) * norm_V / norm_uv;
+//        V_P(i,2) = 0;
+//    }
+//    igl::writeOBJ("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/benchmarks/TestModels/fine/Nefertiti/draped_rect_geometry.obj", V_P, F);
+//
 //    return 0;
     tolerance = 1e-10;
 
@@ -695,7 +844,7 @@ int main(int argc, char *argv[])
         if(ImGui::Button("Set Middle", ImVec2(-1,0)))
         {
             setMiddle();
-            //            repaint(viewer, faceColorType);
+            repaint(viewer);
         }
 
         if (ImGui::Button("load and Compute", ImVec2(-1, 0)))
@@ -718,6 +867,10 @@ int main(int argc, char *argv[])
                     setup->clampedDOFs[3*vid + 1] = setup->targetPos(vid,0);
                     setup->clampedDOFs[3*vid + 2] = setup->targetPos(vid,0);
                 }
+            }
+            else
+            {
+                setup->clampedDOFs.clear();
             }
             
             std::cout<<thickness<<std::endl;

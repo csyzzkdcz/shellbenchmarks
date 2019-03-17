@@ -37,7 +37,7 @@ find_package(eigen3 REQUIRED)
 find_package(MOSEK REQUIRED)
 
 # Add your project files
-file(GLOB SRCFILES *.cpp  *.h SecondFundamentalForm/*.cpp SimulationSetup/*.cpp SecondFundamentalForm/*.h SimulationSetup/*.h cppoptlib/*.cpp cppoptlib/*.h)
+file(GLOB SRCFILES *.cpp  *.h SecondFundamentalForm/*.cpp SimulationSetup/*.cpp SecondFundamentalForm/*.h SimulationSetup/*.h cppoptlib/*.cpp cppoptlib/*.h SensitiveAnalysis/*.h SensitiveAnalysis/*.cpp)
 
 # find_package(ifopt REQUIRED)
 message("Found IFOPT at ${ifopt_INCLUDE_DIRS} from $ENV(ifopt}")

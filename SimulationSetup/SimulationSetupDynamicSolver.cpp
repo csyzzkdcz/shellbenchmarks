@@ -1,11 +1,10 @@
 #include <igl/writeOBJ.h>
+#include <igl/readOBJ.h>
 #include <igl/edge_lengths.h>
 #include <iomanip>
 #include <Eigen/CholmodSupport>
 
 #include "SimulationSetupDynamicSolver.h"
-#include "../cppoptlib/solver/lbfgssolver.h"
-#include "../cppoptlib/linesearch/morethuente.h"
 #include "../ElasticShell.h"
 
 #ifndef M_TOL
@@ -29,6 +28,7 @@ bool SimulationSetupDynamicSolver::loadAbars()
 //    testValueAndGradient();
 //    return true;
     std::ifstream infile(abarPath);
+//    std::ifstream infile("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build/release/error.dat");
     if(!infile)
         return false;
     infile >> thickness;
@@ -57,6 +57,7 @@ bool SimulationSetupDynamicSolver::loadAbars()
         x(vertNum + 3*i) = d1;
         x(vertNum + 3*i + 1) = d2;
         x(vertNum + 3*i + 2) = d3;
+        
     }
     
     
@@ -72,12 +73,17 @@ bool SimulationSetupDynamicSolver::loadAbars()
     Eigen::MatrixXd L(mesh.nFaces(), 3);
     igl::edge_lengths(curPos, mesh.faces(), L);
     
-    convertedProblem op;
+    SensitiveAnalysisAbarPos op;
     op.initialization(initialPos, targetPos, mesh, clampedDOFs, lameAlpha, lameBeta, thickness);
     
     double differenceValue = op.computeDifference(curPos);
     double smoothnessAbarValue = op.computeAbarSmoothness(x.segment(3*nverts, 3*mesh.nFaces()));
     double smoothnessPositionValue = op.computePositionSmoothness(curPos);
+    
+    Eigen::VectorXd grad;
+    
+    op.gradient(x.segment(0, 3*mesh.nFaces()), curPos, grad);
+    std::cout<<grad.norm()<<std::endl;
     
     std::cout<<"Abar Penalty: "<<smoothnessAbarValue<<" Penalty Coefficient: "<<penaltyCoef<<std::endl;
     std::cout<<"Delta q Penalty: "<<smoothnessPositionValue<<" Smootheness Coefficient: "<<smoothCoef<<std::endl;
@@ -98,7 +104,14 @@ bool SimulationSetupDynamicSolver::loadAbars()
     
     resH = projM * H * projM.transpose();
     
-    Eigen::CholmodSimplicialLLT<Eigen::SparseMatrix<double> > solver(resH);
+    Eigen::CholmodSimplicialLLT<Eigen::SparseMatrix<double> > solver;
+    
+    Eigen::SparseMatrix<double> I(resH.rows(), resH.cols());
+    I.setIdentity();
+    
+    resH += 1e-8 * I;
+    
+    solver.compute(resH);
     
     if(solver.info() == Eigen::ComputationInfo::Success )
     {
@@ -139,17 +152,16 @@ void SimulationSetupDynamicSolver::buildRestFundamentalForms(const SecondFundame
         findFirstFundamentalForms(sff);
 }
 
-bool SimulationSetupDynamicSolver::lineSearch(convertedProblem op, Eigen::VectorXd L, Eigen::MatrixXd &pos, Eigen::VectorXd dir, double &rate)
+bool SimulationSetupDynamicSolver::lineSearch(std::shared_ptr<SensitiveAnalysis> op, Eigen::VectorXd L, Eigen::MatrixXd &pos, Eigen::VectorXd dir, double &rate)
 {
     double c1 = 0.1;
     double c2 = 0.9;
     double alpha = M_MIN;
     double beta = M_MAX;
     
-    MidedgeAverageFormulation sff;
     Eigen::VectorXd grad;
-    double orig = op.value(L, pos);
-    op.gradient(L, pos, grad);
+    double orig = op->value(L, pos);
+    op->gradient(L, pos, grad);
     double deriv = dir.dot(grad);
     
     while (true)
@@ -157,9 +169,9 @@ bool SimulationSetupDynamicSolver::lineSearch(convertedProblem op, Eigen::Vector
         Eigen::VectorXd newdE;
         Eigen::VectorXd newL = L + rate*dir;
         Eigen::MatrixXd newPos = pos;
-        op.projectBack(newL, newPos);
-        double newenergy = op.value(newL, newPos);
-        op.gradient(newL, newPos, newdE);
+        op->projectBack(newL, newPos);
+        double newenergy = op->value(newL, newPos);
+        op->gradient(newL, newPos, newdE);
         
 //        std::cout << "Trying rate = " << rate << ", energy now " << newenergy << std::endl;
         
@@ -191,15 +203,21 @@ bool SimulationSetupDynamicSolver::lineSearch(convertedProblem op, Eigen::Vector
             
             if (beta - alpha < 1e-10)
             {
-                std::cout<<"Line Search Finished with beta - alph < 1e-10, Rate = "<<rate<<" alpha: "<<alpha<<" beta: "<<beta<<std::endl;
-//                pos = newPos;
-                return true;
+                if(newenergy > orig)
+                {
+                    std::cout<<"Line Search failed with beta - alph < 1e-10, Rate = "<<rate<<" alpha: "<<alpha<<" beta: "<<beta<<std::endl;
+                    return false;
+                }
+                else
+                {
+                    std::cout<<"Line Search succeed with beta - alph < 1e-10, Rate = "<<rate<<" alpha: "<<alpha<<" beta: "<<beta<<std::endl;
+                    return true;
+                }
             }
         }
         else
         {
             std::cout<<"Line Search Finished with Rate = "<<rate<<std::endl;
-//            pos = newPos;
             return true;
         }
     }
@@ -208,27 +226,36 @@ bool SimulationSetupDynamicSolver::lineSearch(convertedProblem op, Eigen::Vector
 void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundamentalFormDiscretization &sff)
 {
 //    using namespace cppoptlib;
-    convertedProblem op;
-    srand((unsigned)time(NULL));
-    for(int i=0;i<initialPos.rows();i++)
-    {
-        initialPos(i,2) = (1e-6*rand())/RAND_MAX;
-    }
-    op.initialization(initialPos, targetPos, mesh, clampedDOFs, lameAlpha, lameBeta, thickness);
-    op.setPenalty(penaltyCoef, smoothCoef);
+    auto baseOp = std::shared_ptr<SensitiveAnalysis>();
+//    srand((unsigned)time(NULL));
+//    for(int i=0;i<initialPos.rows();i++)
+//    {
+//        initialPos(i,2) = (1e-6*rand())/RAND_MAX;
+//    }
+    std::shared_ptr<SensitiveAnalysisAbarPos> op =
+    std::dynamic_pointer_cast<SensitiveAnalysisAbarPos> (baseOp);
+    op = std::make_shared<SensitiveAnalysisAbarPos>();
     
+    op->initialization(initialPos, targetPos, mesh, clampedDOFs, lameAlpha, lameBeta, thickness);
+    op->setPenalty(penaltyCoef, smoothCoef);
+    
+    Eigen::MatrixXd ellipsoid;
+    Eigen::MatrixXi F;
+//    igl::readOBJ("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/benchmarks/TestModels/middleCoarse/ellipsoid/ellipsoid_geometry.obj", ellipsoid, F);
     int nfaces = mesh.nFaces();
     Eigen::VectorXd L(3*nfaces);
     
     for(int i=0;i<nfaces;i++)
     {
+//        Eigen::Matrix2d a = firstFundamentalForm(mesh, ellipsoid, i, NULL, NULL);
         Eigen::Matrix2d a = firstFundamentalForm(mesh, targetPos, i, NULL, NULL);
         L(3*i) = sqrt(a(0,0));
         L(3*i+1) = a(0,1)/L(3*i);
         L(3*i+2) = sqrt(a.determinant())/L(3*i);
     }
     Eigen::MatrixXd pos = targetPos;
-    op.projectBack(L, pos);
+//    Eigen::MatrixXd pos = ellipsoid;
+    op->projectBack(L, pos);
     igl::writeOBJ("test.obj", pos, mesh.faces());
     
     int m = 10;
@@ -237,10 +264,10 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
     Eigen::MatrixXd sVector = Eigen::MatrixXd ::Zero(DIM, m);
     Eigen::MatrixXd yVector = Eigen::MatrixXd::Zero(DIM, m);
     Eigen::Matrix<double, Eigen::Dynamic, 1> alpha = Eigen::Matrix<double, Eigen::Dynamic, 1>::Zero(m);
-    op.gradient(L, pos, grad);
+    op->gradient(L, pos, grad);
     Eigen::VectorXd L_old = L;
     grad_old = grad;
-    double fmin = op.value(L, pos);
+    double fmin = op->value(L, pos);
     
     int iter = 0;
     double gradNorm = 0;
@@ -296,8 +323,8 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
             rate = std::min(L.norm() / sqrt(L.size()) * 1e-2, 1.0/grad.norm());
             bool isSuccess = lineSearch(op, L, pos, -grad, rate);
             L = L - rate * grad;
-            op.projectBack(L, pos);
-            op.gradient(L, pos, grad);
+            op->projectBack(L, pos);
+            op->gradient(L, pos, grad);
             
             y = grad - grad_old;
             s = L - L_old;
@@ -311,8 +338,8 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
             {
                 std::cout<<"L-BFGS succeeded!"<<std::endl;
                 L = L - rate * z;
-                op.projectBack(L, pos);
-                op.gradient(L, pos, grad);
+                op->projectBack(L, pos);
+                op->gradient(L, pos, grad);
                 s = L - L_old;
                 y = grad - grad_old;
                 grad_old = grad;
@@ -324,8 +351,8 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
                 rate = std::min(L.norm() / sqrt(L.size()) * 1e-2, 1.0/grad.norm());
                 bool isSuccess = lineSearch(op, L, pos, -grad, rate);
                 L = L - rate * grad;
-                op.projectBack(L, pos);
-                op.gradient(L, pos, grad);
+                op->projectBack(L, pos);
+                op->gradient(L, pos, grad);
                 s = L - L_old;
                 y = grad - grad_old;
                 grad_old = grad;
@@ -345,6 +372,7 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
             yVector.leftCols(m - 1) = yVector.rightCols(m - 1).eval();
             yVector.rightCols(1) = y;
         }
+        std::cout<<"s.dot(y) = "<<s.dot(y)<<std::endl;
         
 ///////////////////////////////////////////// G-N /////////////////////////////////////////////////////////////////
 //        double rate = std::min(L.norm() / sqrt(L.size()) * 1e-2, 1.0/grad.norm());
@@ -376,10 +404,40 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
 //
 //        L_old = L;
         
-        std::cout << "iter: "<<iter<< ", f = " <<  op.value(L, pos) << ", ||g||_inf "<<grad.template lpNorm<Eigen::Infinity>()<<", pos change "<<s.lpNorm<Eigen::Infinity>()<<", gradient change "<<y.lpNorm<Eigen::Infinity>()<< ", Rate: "<<rate<<std::endl<<std::endl;
+        std::cout << "iter: "<<iter<< ", f = " <<  op->value(L, pos) << ", ||g||_inf "<<grad.template lpNorm<Eigen::Infinity>()<<", pos change "<<s.lpNorm<Eigen::Infinity>()<<", gradient change "<<y.lpNorm<Eigen::Infinity>()<< ", Rate: "<<rate<<std::endl<<std::endl;
         
         iter++;
         gradNorm = grad.template lpNorm<Eigen::Infinity>();
+        if(isnan(gradNorm) || isnan(s.dot(y)))
+        {
+            std::cout<<"Something wrong happened!!"<<std::endl;
+            std::ofstream outfile("error.dat", std::ios::trunc);
+            int nverts = targetPos.rows();
+            int nfaces = mesh.nFaces();
+            
+            outfile<<thickness<<"\n";
+            outfile<<penaltyCoef<<"\n";
+            outfile<<smoothCoef<<"\n";
+            outfile<<3*nverts<<"\n";
+            outfile<<3*nfaces<<"\n";
+            
+            std::cout<<3*nverts + 3*nfaces<<std::endl;
+            
+            for(int i=0;i<nverts;i++)
+            {
+                outfile<<std::setprecision(16)<<pos(i, 0)<<"\n";
+                outfile<<std::setprecision(16)<<pos(i, 1)<<"\n";
+                outfile<<std::setprecision(16)<<pos(i, 2)<<"\n";
+            }
+            
+            for(int i=0;i<3*nfaces;i++)
+            {
+                outfile<<std::setprecision(16)<<L(i)<<"\n";
+            }
+            outfile<<std::setprecision(16)<<L(L.size()-1);
+            outfile.close();
+            igl::writeOBJ("resampled_error.obj", pos, mesh.faces());
+        }
         if(iter == MAX_ITR)
         {
             std::cout<<"Maximun iteration reached!"<<std::endl;
@@ -400,9 +458,9 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
             std::cout<<"gradient update is less than "<<M_TOL<<std::endl;
             break;
         }
-        if(iter % 100 == 0)
+        if(iter % 10 == 0)
         {
-            double f = op.value(L, pos);
+            double f = op->value(L, pos);
             if(f < fmin)
             {
                 saveAbars(L, pos);
@@ -411,7 +469,7 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
         }
     }
     
-    double f = op.value(L, pos);
+    double f = op->value(L, pos);
     if(f < fmin)
     {
         saveAbars(L, pos);
@@ -510,8 +568,7 @@ void SimulationSetupDynamicSolver::saveAbars(Eigen::VectorXd L, Eigen::MatrixXd 
 
 void SimulationSetupDynamicSolver::testValueAndGradient()
 {
-    using namespace cppoptlib;
-    convertedProblem op;
+    SensitiveAnalysisAbarPos op;
     srand((unsigned)time(NULL));
     for(int i=0;i<initialPos.rows();i++)
     {
@@ -583,7 +640,7 @@ void SimulationSetupDynamicSolver::testValueAndGradient()
 
 void SimulationSetupDynamicSolver::testProjectBackSim()
 {
-    convertedProblem op;
+    SensitiveAnalysisAbarPos op;
     srand((unsigned)time(NULL));
     for(int i=0;i<initialPos.rows();i++)
     {

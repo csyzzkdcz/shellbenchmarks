@@ -97,7 +97,7 @@ void takeOneStep(const SimulationSetup &setup, SimulationState &state, const Sec
         
         //Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> cg;
         //cg.compute(reducedH);
-        Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver(reducedH);
+        Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > solver(reducedH);
         while(solver.info() != Eigen::ComputationInfo::Success )
         {
             reg *= 2.0;

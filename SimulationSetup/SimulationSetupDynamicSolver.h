@@ -2,7 +2,10 @@
 #define SIMULATIONSETUPDYNAMICSOLVER_H
 
 #include "SimulationSetup.h"
-#include "convertedopt.h"
+#include "../SensitiveAnalysis/SensitiveAnalysisAbarPos.h"
+#include "../SensitiveAnalysis/SensitiveAnalysisABbarPos.h"
+#include "../SensitiveAnalysis/SensitiveAnalysisAbarBbar.h"
+#include "../SensitiveAnalysis/SensitiveAnalysis.h"
 
 class SimulationSetupDynamicSolver : public SimulationSetup
 {
@@ -15,7 +18,7 @@ public:
     void testValueAndGradient();
 
 private:
-    bool lineSearch(convertedProblem op, Eigen::VectorXd L, Eigen::MatrixXd &Pos, Eigen::VectorXd dir, double &rate);
+    bool lineSearch(std::shared_ptr<SensitiveAnalysis> op, Eigen::VectorXd L, Eigen::MatrixXd &Pos, Eigen::VectorXd dir, double &rate);
     void testProjectBackSim();
 
 private:
