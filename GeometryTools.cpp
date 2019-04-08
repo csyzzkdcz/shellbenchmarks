@@ -1,6 +1,7 @@
 
 #include <igl/doublearea.h>
 #include <igl/readOBJ.h>
+#include <iostream>
 #include "GeometryTools.h"
 
 using namespace GeometryTools;

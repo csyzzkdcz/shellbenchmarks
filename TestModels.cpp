@@ -1,7 +1,7 @@
 #include <vector>
+#include <iostream>
 #include <igl/barycenter.h>
 #include <igl/doublearea.h>
-
 #include "TestModels.h"
 #include "BuildModels.h"
 #include "MeshConnectivity.h"

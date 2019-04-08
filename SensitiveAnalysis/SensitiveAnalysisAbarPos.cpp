@@ -9,19 +9,19 @@
 #include "../GeometryTools.h"
 #include "SensitiveAnalysisAbarPos.h"
 
-double SensitiveAnalysisAbarPos::value(const Eigen::VectorXd &curL, const Eigen::MatrixXd curPos)
+double SensitiveAnalysisAbarPos::value(Eigen::VectorXd curL, Eigen::VectorXd curS, Eigen::MatrixXd curPos)
 {
     //    return computeDifference(curPos) + _lambda * computeAbarSmoothness(curL) + _mu * computePositionSmoothness(curPos);
-    return computeDifference(curPos) + _lambda * computeAbarSmoothness(curL);
+    return computeDifference(curPos) + _lambdaAbar * computeAbarSmoothness(curL);
 }
 
-void SensitiveAnalysisAbarPos::gradient(const Eigen::VectorXd curL, const Eigen::MatrixXd curPos, Eigen::VectorXd &grad)
+void SensitiveAnalysisAbarPos::gradient(Eigen::VectorXd curL, Eigen::VectorXd curS, Eigen::MatrixXd curPos, Eigen::VectorXd &grad)
 {
     Eigen::VectorXd gradDiff, gradAbarSmooth, gradPosSmooth, gradPos;
     Eigen::SparseMatrix<double> hessianL(3*curPos.rows(), curL.size());
     
     std::vector<Eigen::Triplet<double> > hessian;
-    computeAbarDerivative(curPos, curL, &hessian);
+    computeAbarDerivative(curL, curPos, &hessian);
     hessianL.setFromTriplets(hessian.begin(), hessian.end());
     
     //    computeDerivativeQ2Abr(curPos, curL, _convertedGrad);
@@ -38,42 +38,9 @@ void SensitiveAnalysisAbarPos::gradient(const Eigen::VectorXd curL, const Eigen:
     Eigen::VectorXd convertedGrad;
     computeConvertedGrad(curPos, curL, gradPos, convertedGrad);
     //    std::cout<<convertedGrad<<std::endl;
-    grad.transpose() = convertedGrad.transpose() * hessianL + _lambda * gradAbarSmooth.transpose();
+    grad.transpose() = convertedGrad.transpose() * hessianL + _lambdaAbar * gradAbarSmooth.transpose();
     
     
-}
-
-void SensitiveAnalysisAbarPos::computeMassMatrix(Eigen::VectorXd &massVec, MeshConnectivity mesh, Eigen::MatrixXd V)
-{
-    int nverts = V.rows();
-    int nfaces = mesh.nFaces();
-    massVec.resize(nverts);
-    massVec.setZero();
-    
-    Eigen::VectorXd areaList;
-    igl::doublearea(V, mesh.faces(), areaList);
-    areaList = areaList / 2;
-    
-    for(int i=0; i < nfaces; i++)
-    {
-        double faceArea = areaList(i);
-        for(int j=0; j<3; j++)
-        {
-            int vertIdx = mesh.faceVertex(i, j);
-            massVec(vertIdx) += faceArea / 3;
-        }
-    }
-    
-    massVec = massVec / 3;
-    massVec = massVec / massVec.maxCoeff();
-    
-    Eigen::VectorXd boundary;
-    igl::boundary_loop(mesh.faces(), boundary);
-    for(int i=0;i<boundary.size();i++)
-    {
-        int vidx = boundary(i);
-        massVec(vidx) *= 1e-3;
-    }
 }
 
 void SensitiveAnalysisAbarPos::computeConvertedGrad(Eigen::MatrixXd curPos, Eigen::VectorXd curL, Eigen::VectorXd grad, Eigen::VectorXd &convertedGrad)
@@ -143,7 +110,7 @@ void SensitiveAnalysisAbarPos::computeDerivativeQ2Abr(Eigen::MatrixXd curPos, Ei
     
     // Compute the hessian w.r.t. abars.
     hessian.clear();
-    computeAbarDerivative(curPos, curL, &hessian);
+    computeAbarDerivative(curL, curPos, &hessian);
     hessianL.setFromTriplets(hessian.begin(), hessian.end());
     
     Eigen::SparseMatrix<double> reductL = _projM * hessianL;
@@ -176,7 +143,7 @@ void SensitiveAnalysisAbarPos::computeDerivativeQ2Abr(Eigen::MatrixXd curPos, Ei
     
 }
 
-void SensitiveAnalysisAbarPos::computeAbarDerivative(Eigen::MatrixXd curPos, Eigen::VectorXd curL, std::vector<Eigen::Triplet<double> > *grad)
+void SensitiveAnalysisAbarPos::computeAbarDerivative(Eigen::VectorXd curL, Eigen::MatrixXd curPos, std::vector<Eigen::Triplet<double> > *grad)
 {
     int nfaces =  _mesh.nFaces();
     
@@ -366,192 +333,6 @@ void SensitiveAnalysisAbarPos::computeAbarDerivative(Eigen::MatrixXd curPos, Eig
     }
 }
 
-double SensitiveAnalysisAbarPos::computeDifference(Eigen::MatrixXd curPos)
-{
-    double differece = 0;
-    int nverts = curPos.rows();
-    
-    for(int i = 0; i < nverts; i++)
-    {
-        differece += 0.5 * _massVec(i) * (curPos.row(i) - _tarPos.row(i)).squaredNorm();
-    }
-    return differece;
-}
-
-void SensitiveAnalysisAbarPos::computeDifferenceGrad(Eigen::MatrixXd curPos, Eigen::VectorXd &grad)
-{
-    int nverts = curPos.rows();
-    grad.resize(3*nverts);
-    grad.setZero();
-    for(int i = 0; i<nverts;i++)
-    {
-        grad.segment(3*i, 3) = _massVec(i) * (curPos.row(i) - _tarPos.row(i));
-    }
-    grad = _projM.transpose() * _projM * grad;
-}
-
-double SensitiveAnalysisAbarPos::computeAbarSmoothness(Eigen::VectorXd curL)
-{
-    int nfaces =  _mesh.nFaces();
-    
-    double E = 0;
-    Eigen::Matrix<double, 2, 3> w;
-    w << 1, 0, 1,
-    -1, 1, 0;
-    
-    std::vector<Eigen::Matrix2d> Lderivs(3);
-    
-    Lderivs[0] << 1,0,
-    0,0;
-    
-    Lderivs[1] << 0,0,
-    1,0;
-    
-    Lderivs[2] << 0,0,
-    0,1;
-    
-    
-    for(int i = 0; i < nfaces; i++)
-    {
-        Eigen::Matrix2d L;
-        
-        L << curL(3*i), 0,
-        curL(3*i+1), curL(3*i+2);
-        for(int j = 0; j < 3; j++)
-        {
-            int oppVerIdx =  _mesh.vertexOppositeFaceEdgeIndex(i, j);
-            int oppFace = _mesh.faceOppositeVertex(i, j);
-            if (oppFace != -1)
-            {
-                Eigen::Matrix2d Lj;
-                Lj << curL(3*oppFace), 0,
-                curL(3*oppFace+1), curL(3*oppFace+2);
-                
-                // Compute the tranfermation matrix M
-                
-                Eigen::Vector3d oppNormal, curNormal, oppEdge;
-                
-                oppNormal = faceNormal(_mesh, _initialPos, oppFace, oppVerIdx, NULL, NULL);
-                curNormal = faceNormal(_mesh, _initialPos, i, j, NULL, NULL);
-                
-                oppNormal = oppNormal/oppNormal.norm();
-                curNormal = curNormal/curNormal.norm();
-                
-                oppEdge = _initialPos.row(_mesh.faceVertex(i, (j + 1)%3)) - _initialPos.row(_mesh.faceVertex(i, (j + 2)%3));
-                oppEdge = oppEdge/oppEdge.norm();
-                
-                Eigen::Matrix3d A, A1, T;
-                A.col(0) = oppEdge;
-                A.col(1) = curNormal;
-                A.col(2) = oppEdge.cross(curNormal);
-                
-                A1.col(0) = oppEdge;
-                A1.col(1) = oppNormal;
-                A1.col(2) = oppEdge.cross(oppNormal);
-                
-                T = A1*A.inverse();
-                
-                Eigen::Matrix2d R, oppR, abar, abarj;
-                
-                R.col(0) = ( _initialPos.row(_mesh.faceVertex(i, 1)) - _initialPos.row(_mesh.faceVertex(i, 0)) ).segment(0, 2);
-                
-                R.col(1) = ( _initialPos.row(_mesh.faceVertex(i, 2)) - _initialPos.row(_mesh.faceVertex(i, 0)) ).segment(0, 2);
-                
-                oppR.col(0) = ( _initialPos.row(_mesh.faceVertex(oppFace, 1)) - _initialPos.row(_mesh.faceVertex(oppFace, 0)) ).segment(0, 2);
-                oppR.col(1) = ( _initialPos.row(_mesh.faceVertex(oppFace, 2)) - _initialPos.row(_mesh.faceVertex(oppFace, 0)) ).segment(0, 2);
-                
-                abar = (R.transpose()).inverse() * L * L.transpose() * R.inverse();
-                
-                abarj = (oppR.transpose()).inverse() * Lj * Lj.transpose() * oppR.inverse();
-                
-                double area = ( _areaList(i) + _areaList(oppFace) ) / 3.0;
-                
-                E +=  1.0 / _regionArea * ( (abar - abarj) * (abar - abarj).transpose() ).trace() * area / ( _bcPos.row(i) - _bcPos.row(oppFace) ).squaredNorm();
-                
-                
-            }
-            
-        }
-    }
-    
-    return E;
-}
-
-void SensitiveAnalysisAbarPos::computeAbarSmoothnessGrad(Eigen::VectorXd curL, Eigen::VectorXd &grad)
-{
-    int nfaces =  _mesh.nFaces();
-    grad.resize(3*nfaces);
-    grad.setZero();
-    
-    Eigen::Matrix<double, 2, 3> w;
-    w << 1, 0, 1,
-    -1, 1, 0;
-    
-    std::vector<Eigen::Matrix2d> Lderivs(3);
-    
-    Lderivs[0] << 1,0,
-    0,0;
-    
-    Lderivs[1] << 0,0,
-    1,0;
-    
-    Lderivs[2] << 0,0,
-    0,1;
-    
-    
-    for(int i = 0; i < nfaces; i++)
-    {
-        Eigen::Matrix2d L;
-        
-        L << curL(3*i), 0,
-        curL(3*i+1), curL(3*i+2);
-        for(int j = 0; j < 3; j++)
-        {
-            int oppFace = _mesh.faceOppositeVertex(i, j);
-            if (oppFace != -1)
-            {
-                Eigen::Matrix2d Lj;
-                Lj << curL(3*oppFace), 0,
-                curL(3*oppFace+1), curL(3*oppFace+2);
-                
-                Eigen::Matrix2d R, oppR, abar, abarj;
-                
-                R.col(0) = ( _initialPos.row(_mesh.faceVertex(i, 1)) - _initialPos.row(_mesh.faceVertex(i, 0)) ).segment(0, 2);
-                
-                R.col(1) = ( _initialPos.row(_mesh.faceVertex(i, 2)) - _initialPos.row(_mesh.faceVertex(i, 0)) ).segment(0, 2);
-                
-                oppR.col(0) = ( _initialPos.row(_mesh.faceVertex(oppFace, 1)) - _initialPos.row(_mesh.faceVertex(oppFace, 0)) ).segment(0, 2);
-                oppR.col(1) = ( _initialPos.row(_mesh.faceVertex(oppFace, 2)) - _initialPos.row(_mesh.faceVertex(oppFace, 0)) ).segment(0, 2);
-                
-                abar = (R.inverse()).transpose() * L * L.transpose() * R.inverse();
-                
-                abarj = (oppR.inverse()).transpose() * Lj * Lj.transpose() * oppR.inverse();
-                
-                for(int k = 0; k < 3; k++)
-                {
-                    Eigen::Matrix2d abarderiv, abarderivj;
-                    abarderiv = (R.inverse()).transpose() *( Lderivs[k] * L.transpose() + L * Lderivs[k].transpose() ) * R.inverse();
-                    abarderivj = (oppR.inverse()).transpose() * (Lderivs[k] * Lj.transpose() + Lj * Lderivs[k].transpose() ) * oppR.inverse();
-                    
-                    double result;
-                    double area = ( _areaList(i) + _areaList(oppFace) ) / 3.0;
-                    
-                    result = 2.0 / _regionArea * ( abarderiv * (abar - abarj).transpose() ).trace() * area / ( _bcPos.row(i) - _bcPos.row(oppFace) ).squaredNorm();
-                    
-                    grad(3*i+k) += result;
-                    
-                    
-                    result = - 2.0 / _regionArea * ( abarderivj * (abar - abarj).transpose() ).trace() * area / ( _bcPos.row(i) - _bcPos.row(oppFace) ).squaredNorm();
-                    
-                    grad(3 * oppFace + k) += result;
-                }
-                
-            }
-            
-        }
-    }
-}
-
 double SensitiveAnalysisAbarPos::computePositionSmoothness(Eigen::MatrixXd curPos)
 // \int ||df||^2 = - \int f * lap(f) = - f^T * L * f (discretized)
 {
@@ -574,6 +355,37 @@ void SensitiveAnalysisAbarPos::computePositionSmoothnessGrad(Eigen::MatrixXd cur
     grad = _projM.transpose() * _projM * grad;
 }
 
+
+void SensitiveAnalysisAbarPos::test()
+{
+    int nfaces = _mesh.nFaces();
+    Eigen::VectorXd initialL(3*_mesh.nFaces()), tarL(3*_mesh.nFaces());
+    for(int i =0; i<nfaces;i++)
+    {
+        Eigen::Matrix2d abar = firstFundamentalForm(_mesh, _initialPos, i, NULL, NULL);
+        initialL(3*i) = sqrt(abar(0,0));
+        initialL(3*i+1) = abar(0,1) / initialL(3*i);
+        initialL(3*i+2) = sqrt(abar.determinant()) / initialL(3*i);
+        
+        Eigen::Matrix2d a = firstFundamentalForm(_mesh, _tarPos, i, NULL, NULL);
+        tarL(3*i) = sqrt(a(0,0));
+        tarL(3*i+1) = a(0,1) / tarL(3*i);
+        tarL(3*i+2) = sqrt(a.determinant()) / tarL(3*i);
+        
+    }
+    std::cout<<"dE/dq validation: "<<std::endl;
+    testDifferenceGrad(_initialPos);
+    //    std::cout<<std::endl<<"Position Smoothness Term validation"<<std::endl;
+    //    op.testPositionSmoothnessGrad(initialPos);
+    //
+    //    std::cout<<std::endl<<"Abar Smoothness Term validation"<<std::endl;
+    //    op.testAbarSmoothnessGrad(tarL);
+    std::cout<<std::endl<<"dF/da validation"<<std::endl;
+    testAbarDerivative(initialL, _initialPos);
+    std::cout<<std::endl<<"dE/da validation: "<<std::endl;
+    Eigen::VectorXd S(0);
+    testValueGrad(tarL, S, _tarPos);
+}
 
 void SensitiveAnalysisAbarPos::testDifferenceGrad(Eigen::MatrixXd curPos)
 {
@@ -721,7 +533,7 @@ void SensitiveAnalysisAbarPos::testAbarDerivative(Eigen::VectorXd curL, Eigen::M
         bbars[i].setZero();
     }
     elasticEnergy(_mesh, curPos, edgeDOFS, _lameAlpha, _lameBeta, _thickness, abars, bbars, sff, &F, NULL);
-    computeAbarDerivative(curPos, curL, &T);
+    computeAbarDerivative(curL, curPos, &T);
     J.setFromTriplets(T.begin(), T.end());
     
     for(int i=3; i< 13; i++)
@@ -746,7 +558,8 @@ void SensitiveAnalysisAbarPos::testAbarDerivative(Eigen::VectorXd curL, Eigen::M
 
 void SensitiveAnalysisAbarPos::testDerivativeQ2Abr(Eigen::VectorXd curL, Eigen::MatrixXd curPos)
 {
-    projectBack(curL, curPos);
+    Eigen::VectorXd S(0);
+    projectBack(curL, S, curPos);
     Eigen::MatrixXd updatedPos = curPos;
     Eigen::SparseMatrix<double> J;
     computeDerivativeQ2Abr(curPos, curL, J);
@@ -766,7 +579,7 @@ void SensitiveAnalysisAbarPos::testDerivativeQ2Abr(Eigen::VectorXd curL, Eigen::
             tarPos.row(i) += epsPos.segment(3*i, 3);
         }
         //        updatedPos = tarPos;
-        projectBack(updatedL, updatedPos);
+        projectBack(updatedL, S, updatedPos);
         igl::writeOBJ("projected_"+std::to_string(i)+".obj", updatedPos, _mesh.faces());
         //        GeometryTools::rigidMotionTransformation(updatedPos, tarPos, _mesh, R, t);
         //        for(int i=0; i<updatedPos.rows();i++)
@@ -792,31 +605,7 @@ void SensitiveAnalysisAbarPos::testDerivativeQ2Abr(Eigen::VectorXd curL, Eigen::
     
 }
 
-void SensitiveAnalysisAbarPos::testValueGrad(Eigen::VectorXd curL, Eigen::MatrixXd curPos)
-{
-    projectBack(curL, curPos);
-    Eigen::MatrixXd updatedPos = curPos;
-    double f = value(curL, curPos);
-    Eigen::VectorXd df;
-    gradient(curL, curPos, df);
-    Eigen::VectorXd epsVec = Eigen::VectorXd::Random(curL.size());
-    
-    epsVec.normalized();
-    for(int i = 6; i< 14; i++ )
-    {
-        double eps = pow(4, -i);
-        Eigen::VectorXd updatedL = curL + eps * epsVec;
-        projectBack(updatedL, updatedPos);
-        double f1 = value(updatedL, updatedPos);
-        std::cout<<"EPS is "<<eps<<std::endl;
-        std::cout<< "Gradient is "<<df.dot(epsVec)<< " Finite difference is "<<(f1 - f)/eps<<std::endl;
-        std::cout<< "The error is "<<std::abs(df.dot(epsVec) - (f1 - f)/eps )<<std::endl;
-        updatedPos = curPos;
-    }
-    
-}
-
-void SensitiveAnalysisAbarPos::projectBack(Eigen::VectorXd L, Eigen::MatrixXd &pos)
+void SensitiveAnalysisAbarPos::projectBack(Eigen::VectorXd L, Eigen::VectorXd &curS, Eigen::MatrixXd &pos)
 {
     double reg = 1e-6;
     int nverts = pos.rows();

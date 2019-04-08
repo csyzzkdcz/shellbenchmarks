@@ -13,5 +13,9 @@
 /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/glfw/src/CMakeFiles/glfw.dir
 /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/imgui/CMakeFiles/install.dir
 /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/imgui/CMakeFiles/imgui.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/triangle/CMakeFiles/install.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/triangle/CMakeFiles/triangle.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/triangle/CMakeFiles/ALL_BUILD.dir
+/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/triangle/CMakeFiles/ZERO_CHECK.dir
 /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/alglib/CMakeFiles/install.dir
 /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/alglib/CMakeFiles/alglib.dir

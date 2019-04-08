@@ -1,10 +1,10 @@
- #include <ifopt/problem.h>
- #include <ifopt/ipopt_solver.h>
- #include <ifopt/test_vars_constr_cost.h>
+#include <ifopt/problem.h>
+#include <ifopt/ipopt_solver.h>
+#include <ifopt/test_vars_constr_cost.h>
 #include <igl/writeOBJ.h>
 #include <igl/edge_lengths.h>
 #include <iomanip>
-
+#include <fstream>
 
 #include "SimulationSetupIpoptSolver.h"
 #include "../GeometryDerivatives.h"
@@ -16,7 +16,7 @@ bool SimulationSetupIpoptSolver::loadAbars()
     if(!infile)
         return false;
     infile >> thickness;
-    infile >> penaltyCoef;
+    infile >> abarCoef;
     infile >> smoothCoef;
     int vertNum, faceNum;
     infile >> vertNum >> faceNum;
@@ -43,12 +43,12 @@ bool SimulationSetupIpoptSolver::loadAbars()
         x(vertNum + 3*i + 2) = d3;
     }
 
-    auto cost_term = std::make_shared<ifopt::optCost>(initialPos, targetPos, mesh, penaltyCoef);
+    auto cost_term = std::make_shared<ifopt::optCost>(initialPos, targetPos, mesh, abarCoef);
     double differenceValue = cost_term->getDifference(x);
     double penaltyValue = cost_term->getPenalty(x);
     double smoothnessValue = cost_term->getSmoothness(x);
 
-    std::cout<<"Penalty: "<<penaltyValue<<" Penalty Coefficient: "<<penaltyCoef<<std::endl;
+    std::cout<<"Penalty: "<<penaltyValue<<"Abar Penalty Coefficient: "<<abarCoef<<std::endl;
     std::cout<<"Smoothness: "<<smoothnessValue<<" Smootheness Coefficient: "<<smoothCoef<<std::endl;
     std::cout<<"Shape Changed Value: "<<differenceValue<<" Thickness: "<<thickness<<std::endl;
 
@@ -127,7 +127,7 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
 //    auto variable_set = std::make_shared<optVariables>(3*(nfaces+nverts), mesh, initialPos, initialPos, "var_set");
     auto variable_set = std::make_shared<optVariables>(3*(nfaces+nverts), mesh, targetPos, targetPos, "var_set");
     auto constraint_set = std::make_shared<optConstraint>(3*nverts, mesh, lameAlpha, lameBeta, thickness, "constraint");
-    auto cost_term = std::make_shared<optCost>(initialPos, targetPos, mesh, penaltyCoef);
+    auto cost_term = std::make_shared<optCost>(initialPos, targetPos, mesh, abarCoef);
     cost_term->_mu = smoothCoef;
     Eigen::VectorXd x1 = variable_set->GetValues();
     Eigen::MatrixXd curPos(nverts,3);
@@ -175,7 +175,7 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
     double differenceValue = cost_term->getDifference(x1);
     double smoothnessValue = cost_term->getSmoothness(x1);
 
-    std::cout<<"Initial Penalty: "<<penaltyValue<<" Penalty Coefficient: "<<penaltyCoef<<std::endl;
+    std::cout<<"Initial Penalty: "<<penaltyValue<<" Penalty Coefficient: "<<abarCoef<<std::endl;
     std::cout<<"Initial Smoothness: "<<smoothnessValue<<" Smoothness coefficient: "<<smoothCoef<<std::endl;
     std::cout<<"Initial Difference: "<<differenceValue<<" Thickness: "<<thickness<<std::endl;
     
@@ -213,7 +213,7 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
     smoothnessValue = cost_term->getSmoothness(x);
 
 
-    std::cout<<"Final Penalty: "<<penaltyValue<<" Penalty Coefficient: "<<penaltyCoef<<std::endl;
+    std::cout<<"Final Penalty: "<<penaltyValue<<" Penalty Coefficient: "<<abarCoef<<std::endl;
     std::cout<<"Final Smoothness: "<<smoothnessValue<<" Smoothness Coefficient: "<<smoothCoef<<std::endl;
     std::cout<<"Final Difference: "<<differenceValue<<" Thickness: "<<thickness<<std::endl;
 
@@ -264,7 +264,7 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
     std::ofstream outfile(abarPath, std::ios::trunc);
     
     outfile<<thickness<<"\n";
-    outfile<<penaltyCoef<<"\n";
+    outfile<<abarCoef<<"\n";
     outfile<<smoothCoef<<"\n";
     outfile<<3*nverts<<"\n";
     outfile<<3*nfaces<<"\n";
@@ -307,15 +307,15 @@ void SimulationSetupIpoptSolver::findFirstFundamentalForms(const SecondFundament
     resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.begin() + endIdx - 1, subString);
     
     // penalty
-    if(penaltyCoef == 0)
+    if(abarCoef == 0)
         expCoef = 0;
     else
-        expCoef = int(std::log10(penaltyCoef));
+        expCoef = int(std::log10(abarCoef));
     
     startIdx = resampledPath.rfind("P");
     endIdx = resampledPath.rfind("S");
     subString = "";
-    if(penaltyCoef > 0)
+    if(abarCoef > 0)
         subString = "P_1e" + std::to_string(expCoef);
     else
         subString = "P_0";

@@ -14,21 +14,53 @@
 
 class SensitiveAnalysis
 /*
- Do sensitive analysis for min E(X, Y), s.t. F(X,Y) = 0
+ Do sensitive analysis for min E(X, Y, Z), s.t. F(X,Y, Z) = 0
  */
 {
 public:
-    virtual double value(const Eigen::VectorXd &X, const Eigen::MatrixXd Y) = 0;
-    virtual void gradient(const  Eigen::VectorXd X, const Eigen::MatrixXd Y, Eigen::VectorXd &grad) = 0;
-    virtual void projectBack(Eigen::VectorXd X, Eigen::MatrixXd &Y) = 0; // update Y = Y(X)
+    virtual double value(Eigen::VectorXd X, Eigen::VectorXd Y, Eigen::MatrixXd Z) = 0;
+    virtual void gradient(Eigen::VectorXd X, Eigen::VectorXd Y, Eigen::MatrixXd Z, Eigen::VectorXd &grad) = 0;
+    virtual void projectBack(Eigen::VectorXd X, Eigen::VectorXd &Y, Eigen::MatrixXd &Z) = 0; 
     
-    void setPenalty(double abarPanalty, double deltaqPenalty)
+    virtual void initialization(Eigen::MatrixXd initialPos, Eigen::MatrixXd tarPos, MeshConnectivity mesh, std::map<int, double> clampedDOFs, double lameAlpha, double lameBeta, double thickness) = 0;
+    
+    void setPenalty(double abarPenalty, double bbarPenalty, double deltaqPenalty)
     {
-        _lambda = abarPanalty;
+        _lambdaAbar = abarPenalty;
+        _lambdaBbar = bbarPenalty;
         _mu = deltaqPenalty;
     }
+    
+    double computeAbarSmoothness(Eigen::VectorXd curL);
+    double computeDifference(Eigen::MatrixXd curPos);
+    void computeDifferenceGrad(Eigen::MatrixXd curPos, Eigen::VectorXd &grad);
+    void computeAbarSmoothnessGrad(Eigen::VectorXd curL, Eigen::VectorXd &grad);
+    void testValueGrad(Eigen::VectorXd X, Eigen::VectorXd Y, Eigen::MatrixXd Z);
+    
+    virtual void test() = 0;
+    
 
 protected:
+    void generalInitialization(Eigen::MatrixXd initialPos, Eigen::MatrixXd tarPos, MeshConnectivity mesh, std::map<int, double> clampedDOFs, double lameAlpha, double lameBeta, double thickness)
+    {
+        _lambdaAbar = 0;
+        _lambdaBbar = 0;
+        _mu = 0;
+        _initialPos = initialPos;
+        igl::cotmatrix(initialPos,mesh.faces(),_laplacianMat);
+        igl::doublearea(initialPos, mesh.faces(), _areaList);
+        igl::barycenter(initialPos, mesh.faces(), _bcPos);
+        computeMassMatrix(_massVec, mesh, tarPos);
+        _areaList = _areaList/2.0;
+        _regionArea = _areaList.sum();
+        
+        _tarPos = tarPos;
+        _mesh = mesh;
+        _lameAlpha = lameAlpha;
+        _lameBeta = lameBeta;
+        _thickness = thickness;
+    }
+    
     void computeInvMatDeriv(Eigen::Matrix2d A, Eigen::Matrix<double, 4, 3> &dA)
     {
         double x,y,z;
@@ -79,8 +111,12 @@ protected:
         return M;
     }
     
+    void computeMassMatrix( Eigen::VectorXd &massVec, MeshConnectivity mesh, Eigen::MatrixXd V);
+
+    
 protected:
-    double _lambda;
+    double _lambdaAbar;
+    double _lambdaBbar;
     double _mu;
     
     Eigen::MatrixXd _initialPos;
@@ -95,6 +131,9 @@ protected:
     double _lameBeta;
     double _thickness;
     double _regionArea;
+    
+    Eigen::VectorXd _areaList;
+    Eigen::VectorXd _massVec;
 
 };
     

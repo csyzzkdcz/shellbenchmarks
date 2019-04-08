@@ -1,0 +1,1 @@
+../benchmarks/TestModels/coarse/bunnyHead/draped_rect_geometry.obj

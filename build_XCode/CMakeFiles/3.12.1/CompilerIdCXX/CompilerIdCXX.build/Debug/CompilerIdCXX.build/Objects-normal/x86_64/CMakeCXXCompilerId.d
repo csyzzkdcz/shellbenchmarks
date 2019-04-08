@@ -1,2 +1,2 @@
 dependencies: \
-  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_XCode/CMakeFiles/3.12.1/CompilerIdCXX/CMakeCXXCompilerId.cpp
+  /Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/CMakeFiles/3.12.1/CompilerIdCXX/CMakeCXXCompilerId.cpp

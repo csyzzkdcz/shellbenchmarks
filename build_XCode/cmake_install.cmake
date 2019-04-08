@@ -57,6 +57,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/glad/cmake_install.cmake")
   include("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/glfw/cmake_install.cmake")
   include("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/imgui/cmake_install.cmake")
+  include("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/triangle/cmake_install.cmake")
   include("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/alglib/cmake_install.cmake")
 
 endif()

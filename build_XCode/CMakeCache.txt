@@ -404,7 +404,7 @@ LIBIGL_WITH_PYTHON:BOOL=OFF
 LIBIGL_WITH_TETGEN:BOOL=OFF
 
 //Use Triangle
-LIBIGL_WITH_TRIANGLE:BOOL=OFF
+LIBIGL_WITH_TRIANGLE:BOOL=ON
 
 //Use OpenGL viewer
 LIBIGL_WITH_VIEWER:BOOL=ON
@@ -448,6 +448,9 @@ SUITESPARSE_CONFIG_INCLUDE_DIR:PATH=/usr/local/include/suitesparse
 
 //Path to a library.
 SUITESPARSE_CONFIG_LIBRARY:FILEPATH=/usr/local/lib/libsuitesparseconfig.a
+
+//Path to a library.
+SUITESPARSE_LIBRARY:FILEPATH=SUITESPARSE_LIBRARY-NOTFOUND
 
 //AMD root directory
 SuiteSparse_AMD_DIR:PATH=
@@ -600,6 +603,12 @@ TBB_LIBRARIES:FILEPATH=/usr/local/lib/libtbb.dylib
 TBB_MALLOC_LIB:FILEPATH=/usr/local/lib/libtbbmalloc.dylib
 
 //Path to a file.
+UMFPACK_INCLUDES:PATH=/usr/local/include/suitesparse
+
+//Path to a library.
+UMFPACK_LIBRARIES:FILEPATH=/usr/local/lib/libumfpack.dylib
+
+//Path to a file.
 VULKAN_INCLUDE_DIR:PATH=VULKAN_INCLUDE_DIR-NOTFOUND
 
 //Path to a library.
@@ -625,6 +634,12 @@ shellbenchmark_BINARY_DIR:STATIC=/Users/chenzhen/UT/Research/Projects/shellbench
 
 //Value Computed by CMake
 shellbenchmark_SOURCE_DIR:STATIC=/Users/chenzhen/UT/Research/Projects/shellbenchmarks
+
+//Value Computed by CMake
+triangle_BINARY_DIR:STATIC=/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build_Xcode/triangle
+
+//Value Computed by CMake
+triangle_SOURCE_DIR:STATIC=/Users/chenzhen/UT/Research/Projects/Tools/libigl/external/triangle
 
 
 ########################
@@ -795,7 +810,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=6
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=7
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -856,6 +871,8 @@ FIND_PACKAGE_MESSAGE_DETAILS_OpenGL:INTERNAL=[/Applications/Xcode.app/Contents/D
 FIND_PACKAGE_MESSAGE_DETAILS_SuiteSparse:INTERNAL=[TRUE][TRUE][TRUE][TRUE][TRUE][TRUE][TRUE][TRUE][TRUE][5.1.0][v5.1.0()]
 //Details about finding Threads
 FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
+//Details about finding UMFPACK
+FIND_PACKAGE_MESSAGE_DETAILS_UMFPACK:INTERNAL=[/usr/local/include/suitesparse][/usr/local/lib/libumfpack.dylib;/usr/local/lib/libcolamd.a;/usr/local/lib/libamd.a;/usr/local/lib/libcholmod.a][v()]
 //ADVANCED property for variable: LAPACK_Accelerate_LIBRARY
 LAPACK_Accelerate_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: LAPACK_Accelerate_WORKS
@@ -890,6 +907,8 @@ PROJECT_GLFW_GUID_CMAKE:INTERNAL=7277329F40814FA5A6765112
 PROJECT_glad_GUID_CMAKE:INTERNAL=A27427404E80470194E0A39B
 //Stored Xcode object GUID
 PROJECT_shellbenchmark_GUID_CMAKE:INTERNAL=B79594DFC97E45D997497A9C
+//Stored Xcode object GUID
+PROJECT_triangle_GUID_CMAKE:INTERNAL=F49386C76F5F4FE8AA162E8B
 //ADVANCED property for variable: SUITESPARSEQR_INCLUDE_DIR
 SUITESPARSEQR_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: SUITESPARSEQR_LIBRARY
@@ -926,4 +945,6 @@ imgui_GUID_CMAKE:INTERNAL=0A7F0BB81DAC45F8A3B6D69C
 install_GUID_CMAKE:INTERNAL=348A20F35E40453A8F54C8A4
 //Stored Xcode object GUID
 shellbenchmark_bin_GUID_CMAKE:INTERNAL=9C581BA563A0496EBD4F6907
+//Stored Xcode object GUID
+triangle_GUID_CMAKE:INTERNAL=42346FA27F654DF2B12DBE1D
 

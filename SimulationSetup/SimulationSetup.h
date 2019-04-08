@@ -34,7 +34,8 @@ class SimulationSetup
     double thickness;
     double YoungsModulus;
     double PoissonsRatio;
-    double penaltyCoef;     // default value is 0
+    double abarCoef;     // default value is 0
+    double bbarCoef;     // default value is 0
     double smoothCoef;      // default value is 0
     
     std::string abarPath;
@@ -46,6 +47,10 @@ class SimulationSetup
 
     virtual void buildRestFundamentalForms(const SecondFundamentalFormDiscretization &sff) = 0;
     virtual bool loadAbars() = 0;   // The path is given by abarPath + "L_list.dat".  abar = L*L^T
+    
+    void remeshProcessing(Eigen::MatrixXd remeshedPos, Eigen::MatrixXi remeshedFaces);
+    
+    std::string selectedDynamicType;
 };
 
 

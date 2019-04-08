@@ -7,6 +7,7 @@
 #include "GeometryDerivatives.h"
 #include <iostream>
 #include <igl/cotmatrix.h>
+#include <Eigen/CholmodSupport>
 
 
 
@@ -60,10 +61,14 @@ void takeOneStep(const SimulationSetup &setup, SimulationState &state, const Sec
     
     // combine the optimized abar with the initial abars
     std::vector<Eigen::Matrix2d> curAbars(setup.abars.size());
+    std::vector<Eigen::Matrix2d> curBbars(setup.bbars.size());
+   
     for(int i = 0; i < setup.abars.size(); i++)
     {
         Eigen::Matrix2d abar = firstFundamentalForm(setup.mesh, setup.initialPos, i, NULL, NULL);
         curAbars[i] = interp * setup.abars[i] + (1 - interp) * abar;
+        curBbars[i] = interp * setup.bbars[i];
+//        std::cout<<setup.bbars[i]<<std::endl;
     }
 
     while (true)
@@ -72,7 +77,7 @@ void takeOneStep(const SimulationSetup &setup, SimulationState &state, const Sec
         std::vector<Eigen::Triplet<double> > hessian;
         
 //        double energy = elasticEnergy(setup.mesh, state.curPos, state.curEdgeDOFs, lameAlpha, lameBeta, setup.thickness, setup.abars, setup.bbars, sff, &derivative, &hessian);
-        double energy = elasticEnergy(setup.mesh, state.curPos, state.curEdgeDOFs, lameAlpha, lameBeta, setup.thickness, curAbars, setup.bbars, sff, &derivative, &hessian);
+        double energy = elasticEnergy(setup.mesh, state.curPos, state.curEdgeDOFs, lameAlpha, lameBeta, setup.thickness, curAbars, curBbars, sff, &derivative, &hessian);
 
         funcEvals++;
         // work of external forces
@@ -97,7 +102,7 @@ void takeOneStep(const SimulationSetup &setup, SimulationState &state, const Sec
         
         //Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> cg;
         //cg.compute(reducedH);
-        Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > solver(reducedH);
+        Eigen::CholmodSimplicialLLT<Eigen::SparseMatrix<double> > solver(reducedH);
         while(solver.info() != Eigen::ComputationInfo::Success )
         {
             reg *= 2.0;
@@ -120,7 +125,7 @@ void takeOneStep(const SimulationSetup &setup, SimulationState &state, const Sec
 
 
 //        double newenergy = elasticEnergy(setup.mesh, newPos, newEdgeDofs, lameAlpha, lameBeta, setup.thickness, setup.abars, setup.bbars, sff, &derivative, NULL);
-        double newenergy = elasticEnergy(setup.mesh, newPos, state.curEdgeDOFs, lameAlpha, lameBeta, setup.thickness, curAbars, setup.bbars, sff, &derivative, &hessian);
+        double newenergy = elasticEnergy(setup.mesh, newPos, state.curEdgeDOFs, lameAlpha, lameBeta, setup.thickness, curAbars, curBbars, sff, &derivative, &hessian);
         funcEvals++;
         force = -derivative;
 

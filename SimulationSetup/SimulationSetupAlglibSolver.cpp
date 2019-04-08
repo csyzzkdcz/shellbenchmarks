@@ -396,10 +396,10 @@ void SimulationSetupAlglibSolver::getFunctionGradient(const alglib::real_1d_arra
     Eigen::VectorXd penaltyDerivative;
     double penaltyTerm = computePenaltyTerm(x, penaltyDerivative);
     
-    std::cout<<"Penalty Coefficient: "<<penaltyCoef<<"\t"<<"Penalty Term: "<<penaltyTerm<<"\t"<<"||Penalty Gradient||: "<<penaltyDerivative.norm()<<std::endl;
+    std::cout<<"Abar Penalty Coefficient: "<<abarCoef<<"\t"<<"Penalty Term: "<<penaltyTerm<<"\t"<<"||Penalty Gradient||: "<<penaltyDerivative.norm()<<std::endl;
     
-    f += penaltyCoef * penaltyTerm;
-    gradf += penaltyCoef * penaltyDerivative;
+    f += abarCoef * penaltyTerm;
+    gradf += abarCoef * penaltyDerivative;
     
     for(int i=0;i<df.length();i++)
     {
