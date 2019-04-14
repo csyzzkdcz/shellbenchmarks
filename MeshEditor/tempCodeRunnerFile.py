@@ -1,1 +1,2 @@
-../benchmarks/TestModels/coarse/bunnyHead/draped_rect_geometry.obj
+print(uv);
+    # print(faces);

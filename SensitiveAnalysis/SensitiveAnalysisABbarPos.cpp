@@ -722,39 +722,42 @@ Eigen::VectorXd SensitiveAnalysisABbarPos::getInplaneForce()
 
 double SensitiveAnalysisABbarPos::computeBbarSmoothness(Eigen::VectorXd curL, Eigen::VectorXd curS, Eigen::MatrixXd curPos)
 {
-    int nfaces =  _mesh.nFaces();
-    double E = 0;
-    for(int i=0;i<nfaces;i++)
-    {
-        for(int j=0;j<3;j++)
-        {
-            int oppFace = _mesh.faceOppositeVertex(i, j);
-            if (oppFace != -1)
-            {
-                E += (curS(i) - curS(oppFace)) * (curS(i) - curS(oppFace)) * _areaList(i);
-            }
-        }
-    }
+//    int nfaces =  _mesh.nFaces();
+    double E = 0.5*(curS-_starget).transpose()*lapFaceMat*(curS-_starget);
+//    for(int i=0;i<nfaces;i++)
+//    {
+//        for(int j=0;j<3;j++)
+//        {
+//            int oppFace = _mesh.faceOppositeVertex(i, j);
+//            if (oppFace != -1)
+//            {
+//                double gradS = (curS(i) - _starget(i) - (curS(oppFace) - _starget(oppFace))) / ( _bcPos.row(i) - _bcPos.row(oppFace) ).norm();
+//                E += gradS * gradS * _areaList(i) * _areaList(i);   // multiple by square of face area to make the unit consist (length^2)
+//            }
+//        }
+//    }
     return E;
 }
 
 void SensitiveAnalysisABbarPos::computeBbarSmoothnessGrad(Eigen::VectorXd curL, Eigen::VectorXd curS, Eigen::MatrixXd curPos, Eigen::VectorXd &grad)
 {
-    int nfaces =  _mesh.nFaces();
-    grad.resize(nfaces);
-    grad.setZero();
-    for(int i=0;i<nfaces;i++)
-    {
-        for(int j=0;j<3;j++)
-        {
-            int oppFace = _mesh.faceOppositeVertex(i, j);
-            if(oppFace != -1)
-            {
-                grad(i) += 2 * (curS(i) - curS(oppFace)) * _areaList(i);
-                grad(oppFace) -= 2 * (curS(i) - curS(oppFace)) * _areaList(i);
-            }
-        }
-    }
+//    int nfaces =  _mesh.nFaces();
+//    grad.resize(nfaces);
+//    grad.setZero();
+//    for(int i=0;i<nfaces;i++)
+//    {
+//        for(int j=0;j<3;j++)
+//        {
+//            int oppFace = _mesh.faceOppositeVertex(i, j);
+//            if(oppFace != -1)
+//            {
+//                double gradS = (curS(i) - _starget(i) - (curS(oppFace) - _starget(oppFace))) / ( _bcPos.row(i) - _bcPos.row(oppFace) ).norm();
+//                grad(i) += 2.0 / ( _bcPos.row(i) - _bcPos.row(oppFace) ).norm() * gradS * _areaList(i) * _areaList(i);
+//                grad(oppFace) -= 2.0 / ( _bcPos.row(i) - _bcPos.row(oppFace) ).norm() * gradS * _areaList(i) * _areaList(i);
+//            }
+//        }
+//    }
+    grad = lapFaceMat*(curS-_starget);
 }
 
 
@@ -766,7 +769,7 @@ void SensitiveAnalysisABbarPos::testBbarSmoothAndGrad(Eigen::VectorXd curL, Eige
     Eigen::VectorXd epsVec = Eigen::VectorXd::Random(curS.size());
     epsVec.normalized();
     
-    for(int i=4;i<13;i++)
+    for(int i=4;i<20;i++)
     {
         double eps = pow(4, -i);
         Eigen::VectorXd newS = curS + eps * epsVec;

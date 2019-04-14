@@ -39,6 +39,7 @@ class SimulationSetup
     double smoothCoef;      // default value is 0
     
     std::string abarPath;
+    std::string resamplingPath;
     std::vector<PostprocessTest> tests;
 
     // Derived from the above
@@ -51,6 +52,9 @@ class SimulationSetup
     void remeshProcessing(Eigen::MatrixXd remeshedPos, Eigen::MatrixXi remeshedFaces);
     
     std::string selectedDynamicType;
+    
+    bool _is_overwrite;
+    bool _is_continue;
 };
 
 

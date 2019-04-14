@@ -24,33 +24,34 @@ void takeOneStep(const SimulationSetup &setup, SimulationState &state, const Sec
     int nedges = setup.mesh.nEdges();
     int nedgedofs = sff.numExtraDOFs();
 
-    int constrainedDOFs = setup.clampedDOFs.size();
-
-    int freeDOFs = 3 * nverts + nedgedofs * nedges - constrainedDOFs;
-    std::vector<Eigen::Triplet<double> > proj;
-    int row = 0;
-    for (int i = 4; i < nverts; i++)
-    {
-        for (int j = 0; j < 3; j++)
-        {
-            if (setup.clampedDOFs.find(3*i+j) != setup.clampedDOFs.end())
-                continue;
-            proj.push_back(Eigen::Triplet<double>(row, 3 * i + j, 1.0));
-            row++;
-        }
-    }
-    for (int i = 0; i < nedges; i++)
-    {
-        for (int j = 0; j < nedgedofs; j++)
-        {
-            proj.push_back(Eigen::Triplet<double>(row, 3 * nverts + nedgedofs * i + j, 1.0));
-            row++;
-        }
-    }
-    assert(row == freeDOFs);
-    Eigen::SparseMatrix<double> projM(freeDOFs, 3 * nverts + nedgedofs * nedges);
-    projM.setFromTriplets(proj.begin(), proj.end());
-
+//    int constrainedDOFs = setup.clampedDOFs.size();
+//
+//    int freeDOFs = 3 * nverts + nedgedofs * nedges - constrainedDOFs;
+//    std::vector<Eigen::Triplet<double> > proj;
+//    int row = 0;
+//    for (int i = 0; i < nverts; i++)
+//    {
+//        for (int j = 0; j < 3; j++)
+//        {
+//            if (setup.clampedDOFs.find(3*i+j) != setup.clampedDOFs.end())
+//                continue;
+//            proj.push_back(Eigen::Triplet<double>(row, 3 * i + j, 1.0));
+//            row++;
+//        }
+//    }
+//    for (int i = 0; i < nedges; i++)
+//    {
+//        for (int j = 0; j < nedgedofs; j++)
+//        {
+//            proj.push_back(Eigen::Triplet<double>(row, 3 * nverts + nedgedofs * i + j, 1.0));
+//            row++;
+//        }
+//    }
+//    assert(row == freeDOFs);
+//    freeDOFs = 3 * nverts + nedgedofs * nedges;
+//    Eigen::SparseMatrix<double> projM(freeDOFs, 3 * nverts + nedgedofs * nedges);
+////    projM.setFromTriplets(proj.begin(), proj.end());
+//    projM.setIdentity();
     // enforce constrained DOFs
 //    for (auto &it : setup.clampedDOFs)
 //    {
@@ -58,6 +59,10 @@ void takeOneStep(const SimulationSetup &setup, SimulationState &state, const Sec
 //        int coord = it.first % 3;
 //        state.curPos(vid, coord) = interp * it.second + (1.0 - interp) * setup.initialPos(vid, coord);
 //    }
+    
+    Eigen::SparseMatrix<double> projM(3 * nverts + nedgedofs * nedges, 3 * nverts + nedgedofs * nedges);
+    projM.setIdentity();
+    int freeDOFs = 3 * nverts + nedgedofs * nedges;
     
     // combine the optimized abar with the initial abars
     std::vector<Eigen::Matrix2d> curAbars(setup.abars.size());

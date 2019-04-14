@@ -7,6 +7,7 @@
 
 #include "SimulationSetupDynamicSolver.h"
 #include "../ElasticShell.h"
+#include "LBFGSBSolver.h"
 
 #ifndef M_TOL
 #define M_TOL 1e-8
@@ -26,9 +27,10 @@
 
 bool SimulationSetupDynamicSolver::loadAbars()
 {
-//    testValueAndGradient();
-//    return true;
-    
+    //    testValueAndGradient();
+    //    return true;
+    //    testLBFGS();
+    //    return true;
     auto op = std::shared_ptr<SensitiveAnalysis>();
     
     if(selectedDynamicType == "AbarBbar")
@@ -45,7 +47,7 @@ bool SimulationSetupDynamicSolver::loadAbars()
     }
     
     std::ifstream infile(abarPath);
-//    std::ifstream infile("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build/release/error.dat");
+    //    std::ifstream infile("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/build/release/error.dat");
     if(!infile)
         return false;
     infile >> thickness;
@@ -130,9 +132,22 @@ bool SimulationSetupDynamicSolver::loadAbars()
     
     op->initialization(initialPos, targetPos, mesh, clampedDOFs, lameAlpha, lameBeta, thickness);
     
+    
+    Eigen::VectorXd sol(curL.size() + curS.size());
+    sol.segment(0, curL.size()) = curL;
+    sol.segment(curL.size(), curS.size()) = curS;
+    if(op->isValid(sol))
+    {
+        std::cout<<"Solution is feasible"<<std::endl;
+    }
+    else
+    {
+        std::cout<<"Solution is not feasible"<<std::endl;
+    }
+    
     double differenceValue = op->computeDifference(curPos);
     double smoothnessAbarValue = op->computeAbarSmoothness(curL);
-//    double smoothnessPositionValue = op->computePositionSmoothness(curPos);
+    //    double smoothnessPositionValue = op->computePositionSmoothness(curPos);
     Eigen::SparseMatrix<double> projM;
     
     
@@ -147,7 +162,7 @@ bool SimulationSetupDynamicSolver::loadAbars()
         double smoothnessBbarValue = op1->computeBbarSmoothness(curL, curS, curPos);
         std::cout<<"Bbar Penalty: "<<smoothnessBbarValue<<" Penalty Coefficient: "<<bbarCoef<<std::endl;
     }
-//    std::cout<<"Delta q Penalty: "<<smoothnessPositionValue<<" Smootheness Coefficient: "<<smoothCoef<<std::endl;
+    //    std::cout<<"Delta q Penalty: "<<smoothnessPositionValue<<" Smootheness Coefficient: "<<smoothCoef<<std::endl;
     std::cout<<"Shape Changed Value: "<<differenceValue<<" Thickness: "<<thickness<<std::endl;
     
     MidedgeAverageFormulation sff;
@@ -207,7 +222,7 @@ void SimulationSetupDynamicSolver::buildRestFundamentalForms(const SecondFundame
         bbars[i].setZero();
         initialAbars[i] = firstFundamentalForm(mesh, initialPos, i, NULL, NULL);
     }
-    if(!loadAbars())
+    if(!loadAbars() || _is_overwrite || _is_continue)
     {
         findFirstFundamentalForms(sff);
         bool flag = loadAbars();
@@ -217,87 +232,82 @@ void SimulationSetupDynamicSolver::buildRestFundamentalForms(const SecondFundame
     
 }
 
-bool SimulationSetupDynamicSolver::lineSearch(std::shared_ptr<SensitiveAnalysis> op, Eigen::VectorXd L, Eigen::VectorXd S, Eigen::MatrixXd &pos, Eigen::VectorXd dir, double &rate)
-{
-    double c1 = 0.1;
-    double c2 = 0.9;
-    double alpha = M_MIN;
-    double beta = M_MAX;
-    
-    Eigen::VectorXd grad;
-    double orig = op->value(L, S, pos);
-    op->gradient(L, S, pos, grad);
-    double deriv = dir.dot(grad);
-    
-    while (true)
-    {
-        Eigen::VectorXd newdE;
-        Eigen::VectorXd newL = L + rate*dir.segment(0, L.size());
-        Eigen::MatrixXd newPos = pos;
-        Eigen::VectorXd newS = S + rate*dir.segment(L.size(), S.size());
-        op->projectBack(newL, newS, newPos);
-        double newenergy = op->value(newL, newS, newPos);
-        op->gradient(newL, newS, newPos, newdE);
-        
-        std::cout << "Trying rate = " << rate << ", energy now " << newenergy<<", L update "<<(newL-L).norm()<<", S update "<<(newS - S).norm() << std::endl;
-        
-        if (std::isnan(newenergy) || newenergy > orig + rate*deriv*c1)
-        {
-//            std::cout<<"Voilate the first Wolfe Condition"<<std::endl;
-            beta = rate;
-            rate = 0.5*(alpha + beta);
-            if (beta - alpha < 1e-15)
-            {
-                rate = 1e-15;
-                std::cout<<"Line Search failed, finished with Rate = "<<rate<<" alpha: "<<alpha<<" beta: "<<beta<<std::endl;
-//                pos = newPos;
-                return false;
-            }
-        }
-        else if (newdE.dot(dir) < c2*deriv)
-        {
-//            std::cout<<"Voilate the second Wolfe Condition"<<std::endl;
-            alpha = rate;
-            if (beta == M_MAX)
-            {
-                rate = 2 * alpha;
-            }
-            else
-            {
-                rate = 0.5*(alpha + beta);
-            }
-            
-            if (beta - alpha < 1e-10)
-            {
-                if(newenergy > orig)
-                {
-                    std::cout<<"Line Search failed with beta - alph < 1e-10, Rate = "<<rate<<" alpha: "<<alpha<<" beta: "<<beta<<std::endl;
-                    return false;
-                }
-                else
-                {
-                    std::cout<<"Line Search succeed with beta - alph < 1e-10, Rate = "<<rate<<" alpha: "<<alpha<<" beta: "<<beta<<std::endl;
-                    return true;
-                }
-            }
-        }
-        else
-        {
-            std::cout<<"Line Search Finished with Rate = "<<rate<<std::endl;
-            return true;
-        }
-    }
-}
+//bool SimulationSetupDynamicSolver::lineSearch(std::shared_ptr<SensitiveAnalysis> op, Eigen::VectorXd L, Eigen::VectorXd S, Eigen::MatrixXd &pos, Eigen::VectorXd dir, double &rate)
+//{
+//    double c1 = 0.1;
+//    double c2 = 0.9;
+//    double alpha = M_MIN;
+//    double beta = M_MAX;
+//
+//    Eigen::VectorXd grad;
+//    double orig = op->value(L, S, pos);
+//    op->gradient(L, S, pos, grad);
+//    double deriv = dir.dot(grad);
+//
+//    while (true)
+//    {
+//        Eigen::VectorXd newdE;
+//        Eigen::VectorXd newL = L + rate*dir.segment(0, L.size());
+//        Eigen::MatrixXd newPos = pos;
+//        Eigen::VectorXd newS = S + rate*dir.segment(L.size(), S.size());
+//        op->projectBack(newL, newS, newPos);
+//        double newenergy = op->value(newL, newS, newPos);
+//        op->gradient(newL, newS, newPos, newdE);
+//
+//        std::cout << "Trying rate = " << rate << ", energy now " << newenergy<<", L update "<<(newL-L).norm()<<", S update "<<(newS - S).norm() << ", L grad "<<newdE.segment(0, L.rows()).norm()<<" , S grad "<<newdE.segment(L.rows(), S.rows()).norm() << std::endl;
+//
+//        if (std::isnan(newenergy) || newenergy > orig + rate*deriv*c1)
+//        {
+//            //            std::cout<<"Voilate the first Wolfe Condition"<<std::endl;
+//            beta = rate;
+//            rate = 0.5*(alpha + beta);
+//            if (beta - alpha < 1e-15)
+//            {
+//                rate = 1e-15;
+//                std::cout<<"Line Search failed, finished with Rate = "<<rate<<" alpha: "<<alpha<<" beta: "<<beta<<std::endl;
+//                //                pos = newPos;
+//                return false;
+//            }
+//        }
+//        else if (newdE.dot(dir) < c2*deriv)
+//        {
+//            //            std::cout<<"Voilate the second Wolfe Condition"<<std::endl;
+//            alpha = rate;
+//            if (beta == M_MAX)
+//            {
+//                rate = 2 * alpha;
+//            }
+//            else
+//            {
+//                rate = 0.5*(alpha + beta);
+//            }
+//
+//            if (beta - alpha < 1e-10)
+//            {
+//                if(newenergy > orig)
+//                {
+//                    std::cout<<"Line Search failed with beta - alph < 1e-10 without decreasing energy, Rate = "<<rate<<" alpha: "<<alpha<<" beta: "<<beta<<std::endl;
+//                    return false;
+//                }
+//                else
+//                {
+//                    std::cout<<"Line Search succeed with beta - alph < 1e-10 without sufficient decrease, Rate = "<<rate<<" alpha: "<<alpha<<" beta: "<<beta<<std::endl;
+//                    return false;
+//                }
+//            }
+//        }
+//        else
+//        {
+//            std::cout<<"Line Search Finished with Rate = "<<rate<<std::endl;
+//            return true;
+//        }
+//    }
+//}
 
 void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundamentalFormDiscretization &sff)
 {
-//    using namespace cppoptlib;
+    ////////////////////////////// Initialization ////////////////////////////////////////////
     auto op = std::shared_ptr<SensitiveAnalysis>();
-//    srand((unsigned)time(NULL));
-//    for(int i=0;i<initialPos.rows();i++)
-//    {
-//        initialPos(i,2) = (1e-6*rand())/RAND_MAX;
-//    }
     
     if(selectedDynamicType == "AbarBbar")
     {
@@ -312,332 +322,416 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
         op = std::make_shared<SensitiveAnalysisABbarPos>();
     }
     
-    
-    op->initialization(initialPos, targetPos, mesh, clampedDOFs, lameAlpha, lameBeta, thickness);
-    op->setPenalty(abarCoef, bbarCoef, smoothCoef);
-    
-    Eigen::MatrixXd ellipsoid;
-    Eigen::MatrixXi F;
-//    igl::readOBJ("/Users/chenzhen/UT/Research/Projects/shellbenchmarks/benchmarks/TestModels/middleCoarse/ellipsoid/ellipsoid_geometry.obj", ellipsoid, F);
+    bool is_exist = false;
     int nfaces = mesh.nFaces();
     Eigen::VectorXd L(3*nfaces);
     Eigen::VectorXd S(0);
-    for(int i=0;i<nfaces;i++)
+    Eigen::MatrixXd pos;
+    
+    if(_is_continue)
     {
-//        Eigen::Matrix2d a = firstFundamentalForm(mesh, ellipsoid, i, NULL, NULL);
-        Eigen::Matrix2d a = firstFundamentalForm(mesh, targetPos, i, NULL, NULL);
-        L(3*i) = sqrt(a(0,0));
-        L(3*i+1) = a(0,1)/L(3*i);
-        L(3*i+2) = sqrt(a.determinant())/L(3*i);
-        
-        if(selectedDynamicType == "AbarBbar")
-        {
-            S.resize(3*nfaces);
-            Eigen::VectorXd extraDOFs(0);
-            Eigen::Matrix2d b = sff.secondFundamentalForm(mesh, targetPos, extraDOFs, i, NULL, NULL);
-            auto op1 = std::dynamic_pointer_cast<SensitiveAnalysisAbarBbar>(op);
-            S.segment(3*i, 3) = op1->convertBar2s(a, b);
-        }
-        else if(selectedDynamicType == "ABbarPos")
-        {
-            S.resize(nfaces);
-            Eigen::VectorXd extraDOFs(0);
-            Eigen::Matrix2d b = sff.secondFundamentalForm(mesh, targetPos, extraDOFs, i, NULL, NULL);
-            auto op1 = std::dynamic_pointer_cast<SensitiveAnalysisABbarPos>(op);
-            S(i) = 0.5 * (a.inverse() * b).trace();
-        }
+        is_exist = loadAbars();
     }
-    if(selectedDynamicType == "AbarBbar")
+    
+    if(!is_exist)
     {
-        double result = 0;
+        op->initialization(initialPos, targetPos, mesh, clampedDOFs, lameAlpha, lameBeta, thickness);
+        op->setPenalty(abarCoef, bbarCoef, smoothCoef);
         for(int i=0;i<nfaces;i++)
         {
-            std::cout<<S(3*i+1)<<std::endl;
-            std::cout<<S(3*i+2)<<std::endl;
-            result += S(3*i+1) * S(3*i+1) + S(3*i+2) * S(3*i+2);
-    }
-    std::cout<<result<<std::endl;
-    }
-    std::cout<<S.size()<<std::endl;
-    Eigen::MatrixXd pos = targetPos;
-    op->projectBack(L, S, pos);
-    igl::writeOBJ("test.obj", pos, mesh.faces());
-    
-    int m = 10;
-    int DIM = L.rows() + S.rows();
-    Eigen::VectorXd grad(DIM), q(DIM), grad_old(DIM), s(DIM), y(DIM), z(DIM);
-    Eigen::MatrixXd sVector = Eigen::MatrixXd ::Zero(DIM, m);
-    Eigen::MatrixXd yVector = Eigen::MatrixXd::Zero(DIM, m);
-    Eigen::Matrix<double, Eigen::Dynamic, 1> alpha = Eigen::Matrix<double, Eigen::Dynamic, 1>::Zero(m);
-    op->gradient(L, S, pos, grad);
-    Eigen::VectorXd L_old = L;
-    Eigen::VectorXd S_old = S;
-    grad_old = grad;
-    double fmin = op->value(L, S, pos);
-    
-    int iter = 0;
-    double gradNorm = 0;
-    std::cout<<"Simulation start (L-BFGS)!! Initial function value is: "<<fmin<<std::endl;
-    while(true)
-    {
+            //        Eigen::Matrix2d a = firstFundamentalForm(mesh, ellipsoid, i, NULL, NULL);
+            Eigen::Matrix2d a = firstFundamentalForm(mesh, targetPos, i, NULL, NULL);
+            L(3*i) = sqrt(a(0,0));
+            L(3*i+1) = a(0,1)/L(3*i);
+            L(3*i+2) = sqrt(a.determinant())/L(3*i);
+            
+            if(selectedDynamicType == "AbarBbar")
+            {
+                S.resize(3*nfaces);
+                Eigen::VectorXd extraDOFs(0);
+                Eigen::Matrix2d b = sff.secondFundamentalForm(mesh, targetPos, extraDOFs, i, NULL, NULL);
+                auto op1 = std::dynamic_pointer_cast<SensitiveAnalysisAbarBbar>(op);
+                S.segment(3*i, 3) = op1->convertBar2s(a, b);
+            }
+            else if(selectedDynamicType == "ABbarPos")
+            {
+                S.resize(nfaces);
+                Eigen::VectorXd extraDOFs(0);
+                Eigen::Matrix2d b = sff.secondFundamentalForm(mesh, targetPos, extraDOFs, i, NULL, NULL);
+                auto op1 = std::dynamic_pointer_cast<SensitiveAnalysisABbarPos>(op);
+                S(i) = 0.5 * (a.inverse() * b).trace();
+                double len = op->m_upperBound(3*nfaces + i) - op->m_lowerBound(3*nfaces + i);
+                if(S(i) < op->m_lowerBound(3*nfaces + i))
+                    S(i) = op->m_lowerBound(3*nfaces + i) + 1e-2 * len;
+                if(S(i) > op->m_upperBound(3*nfaces + i))
+                    S(i) = op->m_upperBound(3* nfaces + i) - 1e-2 * len;
+                //            S(i) = 0;
+            }
+        }
+        if(selectedDynamicType == "AbarBbar")
+        {
+            double result = 0;
+            for(int i=0;i<nfaces;i++)
+            {
+                std::cout<<S(3*i+1)<<std::endl;
+                std::cout<<S(3*i+2)<<std::endl;
+                result += S(3*i+1) * S(3*i+1) + S(3*i+2) * S(3*i+2);
+            }
+            std::cout<<result<<std::endl;
+        }
         
-//        const double relativeEpsilon = static_cast<double>(1e-6) * std::max<double>(static_cast<double>(1.0), L.norm());
+        pos = targetPos;
+        op->projectBack(L, S, pos);
+        saveAbars(L, S, pos, true);
+    }
+    else
+    {
+        op->initialization(initialPos, targetPos, mesh, clampedDOFs, lameAlpha, lameBeta, thickness);
+        op->setPenalty(abarCoef, bbarCoef, smoothCoef);
+        
+        for(int i=0;i<nfaces;i++)
+        {
+            //        Eigen::Matrix2d a = firstFundamentalForm(mesh, ellipsoid, i, NULL, NULL);
+            Eigen::Matrix2d a = abars[i];
+            L(3*i) = sqrt(a(0,0));
+            L(3*i+1) = a(0,1)/L(3*i);
+            L(3*i+2) = sqrt(a.determinant())/L(3*i);
+            
+            if(selectedDynamicType == "ABbarPos")
+            {
+                S.resize(nfaces);
+                Eigen::Matrix2d b = bbars[i];
+                auto op1 = std::dynamic_pointer_cast<SensitiveAnalysisABbarPos>(op);
+                S(i) = 0.5 * (a.inverse() * b).trace();
+            }
+        }
+        pos = targetPosAfterFirstStep;
+    }
+    
+    LbfgsbSolver<SensitiveAnalysisABbarPos> solver;
+    solver.setOptions(M_TOL, MAX_ITR, abarPath);
+    Eigen::VectorXd x(4*nfaces);
+    x.segment(0, L.size()) = L;
+    x.segment(L.size(), S.size()) = S;
+    auto op1 = std::dynamic_pointer_cast<SensitiveAnalysisABbarPos>(op);
+    solver.minimize(op1, x, pos);
+    
+    
+//    //////////////////////////////////////// Optimization ///////////////////////////////////////////////
+//    int m = 10;
+//    int DIM = L.rows() + S.rows();
+//    Eigen::VectorXd grad(DIM), q(DIM), grad_old(DIM), s(DIM), y(DIM), z(DIM), x(DIM);
+//    Eigen::MatrixXd sVector = Eigen::MatrixXd ::Zero(DIM, m);
+//    Eigen::MatrixXd yVector = Eigen::MatrixXd::Zero(DIM, m);
+//    Eigen::Matrix<double, Eigen::Dynamic, 1> alpha = Eigen::Matrix<double, Eigen::Dynamic, 1>::Zero(m);
+//    op->gradient(L, S, pos, grad);
+//    Eigen::VectorXd L_old = L;
+//    Eigen::VectorXd S_old = S;
+//    grad_old = grad;
+//    double fmin = op->value(L, S, pos);
 //
-//        if (grad.norm() < relativeEpsilon)
+//    std::cout<<"Initial Shape Difference: "<<op->computeDifference(pos)<<std::endl;
+//    std::cout<<"Initial Abar Penalty: "<<op->computeAbarSmoothness(L)<<" Penalty Coefficient: "<<abarCoef<<std::endl;
+//    if(selectedDynamicType == "ABbarPos")
+//    {
+//        auto op1 = std::dynamic_pointer_cast<SensitiveAnalysisABbarPos>(op);
+//        double smoothnessBbarValue = op1->computeBbarSmoothness(L, S, pos);
+//        std::cout<<"Initial Bbar Penalty: "<<smoothnessBbarValue<<" Penalty Coefficient: "<<bbarCoef<<std::endl;
+//    }
+//
+//    int iter = 0;
+//    double gradNorm = 0;
+//    std::cout<<"Simulation start (L-BFGS)!! Initial function value is: "<<fmin<<std::endl<<std::endl;
+//    while(true)
+//    {
+//
+//        //        const double relativeEpsilon = static_cast<double>(1e-6) * std::max<double>(static_cast<double>(1.0), L.norm());
+//        //
+//        //        if (grad.norm() < relativeEpsilon)
+//        //            break;
+//        //
+//        /////////////////////////////////////////////// L-BFGS /////////////////////////////////////////////////////////////////
+//        double H0k = 1;
+//        q = -grad;
+//        const int k = std::min<double>(m, iter);
+//        // for i = k − 1, k − 2, . . . , k − m§
+//        for (int i = k - 1; i >= 0; i--)
+//        {
+//            if(k < m)
+//                break;
+//            // alpha_i <- rho_i*s_i^T*q
+//            double rho = 1.0 / (sVector.col(i)).dot(yVector.col(i));
+//            //            std::cout<<rho<<std::endl;
+//            alpha(i) = rho * sVector.col(i).dot(q);
+//            // q <- q - alpha_i*y_i
+//            q = q - alpha(i) * yVector.col(i);
+//        }
+//        // z <- H_k^0*q
+//        // update the scaling factor
+//        if(k >= m)
+//        {
+//            H0k = yVector.col(m-1).dot(sVector.col(m-1)) / yVector.col(m-1).dot(yVector.col(m-1));
+//        }
+//        std::cout<<"H0K: "<<H0k<<std::endl;
+//        z = H0k * q;
+//        //for i k − m, k − m + 1, . . . , k − 1
+//        for (int i = 0; i <= k-1; i++)
+//        {
+//            if(k < m)
+//                break;
+//            // beta <- rho_i * y_i^T * r
+//            double rho = 1.0 / (sVector.col(i)).dot(yVector.col(i));
+//            double beta = rho * yVector.col(i).dot(z);
+//            // z <- z + s_i * ( alpha_i - beta)
+//            z = z + sVector.col(i) * (alpha(i) - beta);
+//        }
+//        std::cout<<"z: "<<z.norm()<<", z_l: "<<z.segment(0, L.size()).norm()<<", z_s: "<<z.segment(L.size(), S.size()).norm()<<std::endl;
+//        x.segment(0, L.rows()) = L;
+//        x.segment(L.rows(), S.rows()) = S;
+//        double rate = 0;
+//        if(k<m)
+//        {
+//            rate = std::min(x.norm() / sqrt(x.size()) * 1e-3, 1e-5/grad.norm() * x.norm());
+//            std::cout<<"initial rate: "<<rate<<" , (L,S) norm : "<<x.norm()<<" , direction norm: "<<grad.norm()<<", L direction norm: "<<grad.segment(0, L.size()).norm()<<", S direction norm: "<<grad.segment(L.size(), S.size()).norm()<<std::endl;
+//            //            std::cout<<x.norm() / sqrt(x.size()) * 1e-3<<" "<<1e-5/grad.norm() * x.norm()<<std::endl;
+//            bool isSuccess = lineSearch(op, L, S, pos, -grad, rate);
+//            L = L - rate * grad.segment(0,L.size());
+//            S = S - rate * grad.segment(L.size(), S.size());
+//            op->projectBack(L, S, pos);
+//            op->gradient(L, S, pos, grad);
+//
+//            y = grad - grad_old;
+//            s.segment(0, L.size()) = L - L_old;
+//            s.segment(L.size(), S.size()) = S - S_old;
+//            grad_old = grad;
+//            L_old = L;
+//            S_old = S;
+//        }
+//        else
+//        {
+//            rate = 1.0;
+//            std::cout<<"initial rate: "<<rate<<" , (L,S) norm : "<<x.norm()<<" , direction norm: "<<z.norm()<<", L direction norm: "<<z.segment(0, L.size()).norm()<<", S direction norm: "<<z.segment(L.size(), S.size()).norm()<<std::endl;
+//            bool isSuccess = lineSearch(op, L, S, pos, z, rate);
+//            if(isSuccess)
+//            {
+//                std::cout<<"L-BFGS succeeded!"<<std::endl;
+//                L = L + rate * z.segment(0,L.size());
+//                S = S + rate * z.segment(L.size(), S.size());
+//                op->projectBack(L, S, pos);
+//                op->gradient(L, S, pos, grad);
+//
+//                y = grad - grad_old;
+//                s.segment(0, L.size()) = L - L_old;
+//                s.segment(L.size(), S.size()) = S - S_old;
+//                grad_old = grad;
+//                L_old = L;
+//                S_old = S;
+//            }
+//            else
+//            {
+//                std::cout<<"L-BFGS failed, using GD instead!!"<<std::endl;
+//                rate = std::min(x.norm() / sqrt(x.size()) * 1e-3, 1e-5/grad.norm() * x.norm());
+//                bool isSuccess = lineSearch(op, L, S, pos, -grad, rate);
+//                L = L - rate * grad.segment(0,L.size());
+//                S = S - rate * grad.segment(L.size(), S.size());
+//                op->projectBack(L, S, pos);
+//                op->gradient(L, S, pos, grad);
+//
+//                y = grad - grad_old;
+//                s.segment(0, L.size()) = L - L_old;
+//                s.segment(L.size(), S.size()) = S - S_old;
+//                grad_old = grad;
+//                L_old = L;
+//                S_old = S;
+//            }
+//        }
+//        // update the history
+//        if (iter < m)
+//        {
+//            sVector.col(iter) = s;
+//            yVector.col(iter) = y;
+//        }
+//        else
+//        {
+//            sVector.leftCols(m - 1) = sVector.rightCols(m - 1).eval();
+//            sVector.rightCols(1) = s;
+//            yVector.leftCols(m - 1) = yVector.rightCols(m - 1).eval();
+//            yVector.rightCols(1) = y;
+//        }
+//        std::cout<<"s.dot(y) = "<<s.dot(y)<<std::endl;
+//
+//        ///////////////////////////////////////////// G-N /////////////////////////////////////////////////////////////////
+//        //        double rate = std::min(L.norm() / sqrt(L.size()) * 1e-2, 1.0/grad.norm());
+//        //        Eigen::SparseMatrix<double> H = (grad * grad.transpose()).sparseView();
+//        //        Eigen::SparseMatrix<double> I(H.rows(), H.cols());
+//        //        I.setIdentity();
+//        //        H += 1e-6 * I;
+//        //        Eigen::CholmodSimplicialLDLT<Eigen::SparseMatrix<double> > solver;
+//        //        solver.compute(H);
+//        //        Eigen::VectorXd dir = solver.solve(-grad);
+//        //        bool isSuccess = lineSearch(op, L, pos, dir, rate);
+//        //
+//        //        L = L + rate * dir;
+//        //        grad_old = grad;
+//        //        projectBackOp(sff, L, pos);
+//        //        op.gradient(L, pos, grad);
+//        //
+//
+//        /////////////////////////////////////////////// GD /////////////////////////////////////////////////////////////////
+//        //        // find steplength
+//        //        x.segment(0, L.rows()) = L;
+//        //        x.segment(L.rows(), S.rows()) = S;
+//        //        double rate = std::min(x.norm() / sqrt(x.size()) * 1e-3, 1e-5/grad.norm() * x.norm());
+//        //        bool isSuccess = lineSearch(op, L, S, pos, -grad, rate);
+//        //
+//        //        L = L - rate * grad.segment(0,L.size());
+//        //        S = S - rate * grad.segment(L.size(), S.size());
+//        //        op->projectBack(L, S, pos);
+//        //        op->gradient(L, S, pos, grad);
+//        //
+//        //        y = grad - grad_old;
+//        //        s.segment(0, L.size()) = L - L_old;
+//        //        s.segment(L.size(), S.size()) = S - S_old;
+//        //        grad_old = grad;
+//        //        L_old = L;
+//        //        S_old = S;
+//
+//        std::cout<<std::endl<< "iter: "<<iter<< ", Rate: "<<rate<< ", f = " <<  op->value(L, S, pos)<<", ||g||_inf "<< grad.lpNorm<Eigen::Infinity>()<<std::endl;
+//        std::cout <<"Shape Difference = "<<op->computeDifference(pos)<<", Abar Penalty: "<<op->computeAbarSmoothness(L);
+//
+//        if(selectedDynamicType == "ABbarPos")
+//        {
+//            auto op1 = std::dynamic_pointer_cast<SensitiveAnalysisABbarPos>(op);
+//            double smoothnessBbarValue = op1->computeBbarSmoothness(L, S, pos);
+//            std::cout<<", Bbar Penalty: "<<smoothnessBbarValue<<std::endl;
+//        }
+//        else
+//        {
+//            std::cout<<std::endl;
+//        }
+//
+//        std::cout<<"||g_L||_inf "<<grad.segment(0, L.rows()).lpNorm<Eigen::Infinity>()<<", ||g_s||_inf "<<grad.segment(L.rows(), S.rows()).lpNorm<Eigen::Infinity>()<<std::endl;
+//        std::cout<<"abar change "<<s.segment(0, L.size()).lpNorm<Eigen::Infinity>()<<", bbar changes: "<<s.segment(L.size(), S.size()).lpNorm<Eigen::Infinity>()<<", gradient change "<<y.lpNorm<Eigen::Infinity>()<<std::endl<<std::endl;
+//
+//
+//
+//        iter++;
+//        gradNorm = grad.template lpNorm<Eigen::Infinity>();
+//        if(isnan(gradNorm) || isnan(s.dot(y)))
+//        {
+//            std::cout<<"Something wrong happened!!"<<std::endl;
+//            std::cout<<s.norm()<<std::endl;
+//            std::cout<<y.norm()<<std::endl;
+//            std::ofstream outfile("error.dat", std::ios::trunc);
+//            int nverts = targetPos.rows();
+//            int nfaces = mesh.nFaces();
+//
+//            outfile<<thickness<<"\n";
+//            outfile<<abarCoef<<"\n";
+//            if(selectedDynamicType != "AbarPos")
+//                outfile<<bbarCoef<<"\n";
+//            outfile<<smoothCoef<<"\n";
+//            outfile<<3*nverts<<"\n";
+//            outfile<<3*nfaces<<"\n";
+//
+//            std::cout<<3*nverts + 3*nfaces<<std::endl;
+//
+//            for(int i=0;i<nverts;i++)
+//            {
+//                outfile<<std::setprecision(16)<<pos(i, 0)<<"\n";
+//                outfile<<std::setprecision(16)<<pos(i, 1)<<"\n";
+//                outfile<<std::setprecision(16)<<pos(i, 2)<<"\n";
+//            }
+//
+//            for(int i=0;i<3*nfaces;i++)
+//            {
+//                outfile<<std::setprecision(16)<<L(i)<<"\n";
+//            }
+//            outfile<<std::setprecision(16)<<L(L.size()-1);
+//            outfile.close();
+//            igl::writeOBJ("resampled_error.obj", pos, mesh.faces());
+//        }
+//        if(iter == MAX_ITR)
+//        {
+//            std::cout<<"Maximun iteration reached!"<<std::endl;
 //            break;
+//        }
+//        if(gradNorm <= M_TOL * std::max<double>(static_cast<double>(1.0), L.norm()))
+//        {
+//            std::cout<<"Force norm is less than "<<M_TOL<<std::endl;
+//            break;
+//        }
+//        if(s.template lpNorm<Eigen::Infinity>() <= M_TOL)
+//        {
+//            std::cout<<"variable update is less than "<<M_TOL<<std::endl;
+//            break;
+//        }
+//        if(y.template lpNorm<Eigen::Infinity>() <= M_TOL)
+//        {
+//            std::cout<<"gradient update is less than "<<M_TOL<<std::endl;
+//            break;
+//        }
+//        if(iter % 10 == 0)
+//        {
+//            double f = op->value(L, S, pos);
+//            if(f < fmin)
+//            {
+//                saveAbars(L, S, pos, false);
+//                fmin = f;
+//            }
+//        }
+//    }
 //
-///////////////////////////////////////////// L-BFGS /////////////////////////////////////////////////////////////////
-        double H0k = 1;
-        q = grad;
-        const int k = std::min<double>(m, iter);
-        // for i = k − 1, k − 2, . . . , k − m§
-        for (int i = k - 1; i >= 0; i--)
-        {
-            if(k < m)
-                break;
-            // alpha_i <- rho_i*s_i^T*q
-            double rho = 1.0 / (sVector.col(i)).dot(yVector.col(i));
-//            std::cout<<rho<<std::endl;
-            alpha(i) = rho * sVector.col(i).dot(q);
-            // q <- q - alpha_i*y_i
-            q = q - alpha(i) * yVector.col(i);
-        }
-        std::cout<<"2: "<<q.norm()<<std::endl;
-        // z <- H_k^0*q
-        // update the scaling factor
-        if(k >= m)
-        {
-            H0k = yVector.col(m-1).dot(sVector.col(m-1)) / yVector.col(m-1).dot(yVector.col(m-1));
-        }
-        std::cout<<"H0K: "<<H0k<<std::endl;
-        z = H0k * q;
-        //for i k − m, k − m + 1, . . . , k − 1
-        for (int i = 0; i <= k-1; i++)
-        {
-            if(k < m)
-                break;
-            // beta <- rho_i * y_i^T * r
-            double rho = 1.0 / (sVector.col(i)).dot(yVector.col(i));
-            double beta = rho * yVector.col(i).dot(z);
-            // r <- r + s_i * ( alpha_i - beta)
-            z = z + sVector.col(i) * (alpha(i) - beta);
-        }
-        std::cout<<"z: "<<z.norm()<<std::endl;
-        double rate = std::min(L.norm() / sqrt(L.size()) * 1e-2, 1.0/grad.norm());
-        if(k<m)
-        {
-            rate = std::min(L.norm() / sqrt(L.size()) * 1e-2, 1.0/grad.norm());
-            bool isSuccess = lineSearch(op, L, S, pos, -grad, rate);
-            L = L - rate * grad.segment(0,L.size());
-            S = S - rate * grad.segment(L.size(), S.size());
-            op->projectBack(L, S, pos);
-            op->gradient(L, S, pos, grad);
-            
-            y = grad - grad_old;
-            s.segment(0, L.size()) = L - L_old;
-            s.segment(L.size(), S.size()) = S - S_old;
-            grad_old = grad;
-            L_old = L;
-            S_old = S;
-        }
-        else
-        {
-            bool isSuccess = lineSearch(op, L, S, pos, -z, rate);
-            if(isSuccess)
-            {
-                std::cout<<"L-BFGS succeeded!"<<std::endl;
-                L = L - rate * z.segment(0,L.size());
-                S = S - rate * z.segment(L.size(), S.size());
-                op->projectBack(L, S, pos);
-                op->gradient(L, S, pos, grad);
-                
-                y = grad - grad_old;
-                s.segment(0, L.size()) = L - L_old;
-                s.segment(L.size(), S.size()) = S - S_old;
-                grad_old = grad;
-                L_old = L;
-                S_old = S;
-            }
-            else
-            {
-                std::cout<<"L-BFGS failed, using GD instead!!"<<std::endl;
-                rate = std::min(L.norm() / sqrt(L.size()) * 1e-2, 1.0/grad.norm());
-                bool isSuccess = lineSearch(op, L, S, pos, -grad, rate);
-                L = L - rate * grad.segment(0,L.size());
-                S = S - rate * grad.segment(L.size(), S.size());
-                op->projectBack(L, S, pos);
-                op->gradient(L, S, pos, grad);
-                
-                y = grad - grad_old;
-                s.segment(0, L.size()) = L - L_old;
-                s.segment(L.size(), S.size()) = S - S_old;
-                grad_old = grad;
-                L_old = L;
-                S_old = S;
-            }
-        }
-        // update the history
-        if (iter < m)
-        {
-            sVector.col(iter) = s;
-            yVector.col(iter) = y;
-        }
-        else
-        {
-            sVector.leftCols(m - 1) = sVector.rightCols(m - 1).eval();
-            sVector.rightCols(1) = s;
-            yVector.leftCols(m - 1) = yVector.rightCols(m - 1).eval();
-            yVector.rightCols(1) = y;
-        }
-        std::cout<<"s.dot(y) = "<<s.dot(y)<<std::endl;
-        
-///////////////////////////////////////////// G-N /////////////////////////////////////////////////////////////////
-//        double rate = std::min(L.norm() / sqrt(L.size()) * 1e-2, 1.0/grad.norm());
-//        Eigen::SparseMatrix<double> H = (grad * grad.transpose()).sparseView();
-//        Eigen::SparseMatrix<double> I(H.rows(), H.cols());
-//        I.setIdentity();
-//        H += 1e-6 * I;
-//        Eigen::CholmodSimplicialLDLT<Eigen::SparseMatrix<double> > solver;
-//        solver.compute(H);
-//        Eigen::VectorXd dir = solver.solve(-grad);
-//        bool isSuccess = lineSearch(op, L, pos, dir, rate);
-//
-//        L = L + rate * dir;
-//        grad_old = grad;
-//        projectBackOp(sff, L, pos);
-//        op.gradient(L, pos, grad);
-//
-        
-/////////////////////////////////////////////// GD /////////////////////////////////////////////////////////////////
-//        // find steplength
-//        double rate = std::min(L.norm() / sqrt(L.size()) * 1e-2, 1.0/grad.norm());
-//        bool isSuccess = lineSearch(op, L, pos, -grad, rate);
-//
-//        L = L - rate * grad;
-//        grad_old = grad;
-//        projectBackOp(sff, L, pos);
-//
-//        op.gradient(L, pos, grad);
-//
-//        L_old = L;
-        
-        std::cout << "iter: "<<iter<< ", f = " <<  op->value(L, S, pos) << ", ||g||_inf "<<grad.template lpNorm<Eigen::Infinity>()<<", abar change "<<s.segment(0, L.size()).lpNorm<Eigen::Infinity>()<<", bbar changes: "<<s.segment(L.size(), S.size()).lpNorm<Eigen::Infinity>()<<", gradient change "<<y.lpNorm<Eigen::Infinity>()<< ", Rate: "<<rate<<std::endl<<std::endl;
-        
-        iter++;
-        gradNorm = grad.template lpNorm<Eigen::Infinity>();
-        if(isnan(gradNorm) || isnan(s.dot(y)))
-        {
-            std::cout<<"Something wrong happened!!"<<std::endl;
-            std::cout<<s.norm()<<std::endl;
-            std::cout<<y.norm()<<std::endl;
-            std::ofstream outfile("error.dat", std::ios::trunc);
-            int nverts = targetPos.rows();
-            int nfaces = mesh.nFaces();
-            
-            outfile<<thickness<<"\n";
-            outfile<<abarCoef<<"\n";
-            if(selectedDynamicType != "AbarPos")
-                 outfile<<bbarCoef<<"\n";
-            outfile<<smoothCoef<<"\n";
-            outfile<<3*nverts<<"\n";
-            outfile<<3*nfaces<<"\n";
-            
-            std::cout<<3*nverts + 3*nfaces<<std::endl;
-            
-            for(int i=0;i<nverts;i++)
-            {
-                outfile<<std::setprecision(16)<<pos(i, 0)<<"\n";
-                outfile<<std::setprecision(16)<<pos(i, 1)<<"\n";
-                outfile<<std::setprecision(16)<<pos(i, 2)<<"\n";
-            }
-            
-            for(int i=0;i<3*nfaces;i++)
-            {
-                outfile<<std::setprecision(16)<<L(i)<<"\n";
-            }
-            outfile<<std::setprecision(16)<<L(L.size()-1);
-            outfile.close();
-            igl::writeOBJ("resampled_error.obj", pos, mesh.faces());
-        }
-        if(iter == MAX_ITR)
-        {
-            std::cout<<"Maximun iteration reached!"<<std::endl;
-            break;
-        }
-        if(gradNorm <= M_TOL * std::max<double>(static_cast<double>(1.0), L.norm()))
-        {
-            std::cout<<"Force norm is less than "<<M_TOL<<std::endl;
-            break;
-        }
-        if(s.template lpNorm<Eigen::Infinity>() <= M_TOL)
-        {
-            std::cout<<"Abar update is less than "<<M_TOL<<std::endl;
-            break;
-        }
-        if(y.template lpNorm<Eigen::Infinity>() <= M_TOL)
-        {
-            std::cout<<"gradient update is less than "<<M_TOL<<std::endl;
-            break;
-        }
-        if(iter % 10 == 0)
-        {
-            double f = op->value(L, S, pos);
-            if(f < fmin)
-            {
-                saveAbars(L, S, pos);
-                fmin = f;
-            }
-        }
-    }
-    
-    double f = op->value(L, S, pos);
-    if(f < fmin)
-    {
-        saveAbars(L, S, pos);
-        fmin = f;
-    }
+//    double f = op->value(L, S, pos);
+//    if(f < fmin)
+//    {
+//        saveAbars(L, S, pos, false);
+//        fmin = f;
+//    }
     
 }
 
-void SimulationSetupDynamicSolver::saveAbars(Eigen::VectorXd L, Eigen::VectorXd S, Eigen::MatrixXd pos)
+void SimulationSetupDynamicSolver::saveAbars(Eigen::VectorXd L, Eigen::VectorXd S, Eigen::MatrixXd pos, bool is_target)
 {
-    std::cout<<"Saving Abar path: "<<abarPath<<std::endl;
-    std::ofstream outfile(abarPath, std::ios::trunc);
-    int nverts = targetPos.rows();
-    int nfaces = mesh.nFaces();
-    
-    outfile<<thickness<<"\n";
-    outfile<<abarCoef<<"\n";
-    if(selectedDynamicType != "AbarPos")
-        outfile<<bbarCoef<<"\n";
-    outfile<<smoothCoef<<"\n";
-    outfile<<3*nverts<<"\n";
-    
-    int numEOFs = L.size() + S.size();
-    outfile<<numEOFs<<"\n";
-    
-    std::cout<<3*nverts + 3*nfaces<<std::endl;
-    
-    for(int i=0;i<nverts;i++)
+    if(is_target == false)
     {
-        outfile<<std::setprecision(16)<<pos(i, 0)<<"\n";
-        outfile<<std::setprecision(16)<<pos(i, 1)<<"\n";
-        outfile<<std::setprecision(16)<<pos(i, 2)<<"\n";
-    }
-    
-    for(int i=0;i<3*nfaces;i++)
-    {
-        outfile<<std::setprecision(16)<<L(i)<<"\n";
-    }
-    if(selectedDynamicType != "AbarPos")
-    {
-        for(int i=0;i<S.size();i++)
+        std::cout<<"Saving Abar path: "<<abarPath<<std::endl;
+        std::ofstream outfile(abarPath, std::ios::trunc);
+        int nverts = targetPos.rows();
+        int nfaces = mesh.nFaces();
+        
+        outfile<<thickness<<"\n";
+        outfile<<abarCoef<<"\n";
+        if(selectedDynamicType != "AbarPos")
+            outfile<<bbarCoef<<"\n";
+        outfile<<smoothCoef<<"\n";
+        outfile<<3*nverts<<"\n";
+        
+        int numEOFs = L.size() + S.size();
+        outfile<<numEOFs<<"\n";
+        
+        //        std::cout<<3*nverts + 3*nfaces<<std::endl;
+        
+        for(int i=0;i<nverts;i++)
         {
-            outfile<<std::setprecision(16)<<S(i)<<"\n";
+            outfile<<std::setprecision(16)<<pos(i, 0)<<"\n";
+            outfile<<std::setprecision(16)<<pos(i, 1)<<"\n";
+            outfile<<std::setprecision(16)<<pos(i, 2)<<"\n";
         }
+        
+        for(int i=0;i<3*nfaces;i++)
+        {
+            outfile<<std::setprecision(16)<<L(i)<<"\n";
+        }
+        if(selectedDynamicType != "AbarPos")
+        {
+            for(int i=0;i<S.size();i++)
+            {
+                outfile<<std::setprecision(16)<<S(i)<<"\n";
+            }
+        }
+        outfile.close();
     }
-    outfile.close();
-    
     int startIdx, endIdx, expCoef;
     std::string subString = "";
     std::string resampledPath = abarPath;
@@ -706,9 +800,12 @@ void SimulationSetupDynamicSolver::saveAbars(Eigen::VectorXd L, Eigen::VectorXd 
     resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.begin() + endIdx, subString);
     
     startIdx = resampledPath.rfind(".");
-    resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.end(), ".obj");
+    if(is_target)
+        resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.end(), "_target.obj");
+    else
+        resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.end(), ".obj");
     std::cout<<"Current abar loading path is: "<<resampledPath<<std::endl;
-    igl::writeOBJ("resampled.obj", pos, mesh.faces());
+    //    igl::writeOBJ("resampled.obj", pos, mesh.faces());
     igl::writeOBJ(resampledPath, pos, mesh.faces());
 }
 
@@ -724,13 +821,80 @@ void SimulationSetupDynamicSolver::testValueAndGradient()
 }
 
 
+bool SimulationSetupDynamicSolver::testLineSearch(Eigen::VectorXd x, Eigen::VectorXd dir, double &rate)
+{
+    double c1 = 0.1;
+    double c2 = 0.9;
+    double alpha = M_MIN;
+    double beta = M_MAX;
+    
+    Eigen::VectorXd grad;
+    double orig = testFunc(x, &grad);
+    double deriv = dir.dot(grad);
+    
+    while (true)
+    {
+        Eigen::VectorXd newdE;
+        Eigen::VectorXd newX = x + rate*dir;
+        double newenergy = testFunc(newX, &newdE);
+        
+        std::cout << "Trying rate = " << rate << ", energy now " << newenergy << std::endl;
+        
+        if (std::isnan(newenergy) || newenergy > orig + rate*deriv*c1)
+        {
+            //            std::cout<<"Voilate the first Wolfe Condition"<<std::endl;
+            beta = rate;
+            rate = 0.5*(alpha + beta);
+            if (beta - alpha < 1e-15)
+            {
+                rate = 1e-15;
+                std::cout<<"Line Search failed, finished with Rate = "<<rate<<" alpha: "<<alpha<<" beta: "<<beta<<std::endl;
+                //                pos = newPos;
+                return false;
+            }
+        }
+        else if (newdE.dot(dir) < c2*deriv)
+        {
+            //            std::cout<<"Voilate the second Wolfe Condition"<<std::endl;
+            alpha = rate;
+            if (beta == M_MAX)
+            {
+                rate = 2 * alpha;
+            }
+            else
+            {
+                rate = 0.5*(alpha + beta);
+            }
+            
+            if (beta - alpha < 1e-10)
+            {
+                if(newenergy > orig)
+                {
+                    std::cout<<"Line Search failed with beta - alph < 1e-10 without decreasing energy, Rate = "<<rate<<" alpha: "<<alpha<<" beta: "<<beta<<std::endl;
+                    return false;
+                }
+                else
+                {
+                    std::cout<<"Line Search succeed with beta - alph < 1e-10 without sufficient decrease, Rate = "<<rate<<" alpha: "<<alpha<<" beta: "<<beta<<std::endl;
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            std::cout<<"Line Search Finished with Rate = "<<rate<<std::endl;
+            return true;
+        }
+    }
+}
+
 void SimulationSetupDynamicSolver::testProjectBackSim()
 {
     SensitiveAnalysisAbarPos op;
     op.initialization(initialPos, targetPos, mesh, clampedDOFs, lameAlpha, lameBeta, thickness);
     op.setPenalty(abarCoef, bbarCoef, smoothCoef);
     
-   
+    
     Eigen::VectorXd initialL(3*mesh.nFaces()), tarL(3*mesh.nFaces());
     std::vector<Eigen::Matrix2d> as(mesh.nFaces());
     for(int i =0; i<mesh.nFaces();i++)
@@ -802,4 +966,160 @@ void SimulationSetupDynamicSolver::testProjectBackSim()
         std::cout<<(pos1 - pos0).norm()<<std::endl<<std::endl;
     }
     
+}
+
+double SimulationSetupDynamicSolver::testFunc(Eigen::VectorXd x, Eigen::VectorXd *grad)
+{
+    double fx = 0.0;
+    Eigen::VectorXd df(x.size());
+    for(int i = 0; i < x.size(); i += 2)
+    {
+        double t1 = 1.0 - x(i);
+        double t2 = 10 * (x(i + 1) - x(i) * x(i));
+        df(i + 1) = 20 * t2;
+        df(i)     = -2.0 * (x(i) * df(i + 1) + t1);
+        fx += t1 * t1 + t2 * t2;
+    }
+    *grad = df;
+    return fx;
+}
+
+void SimulationSetupDynamicSolver::testLBFGS()
+{
+    int DIM = 20;
+    int m = 10;
+    Eigen::VectorXd grad(DIM), q(DIM), grad_old(DIM), s(DIM), y(DIM), z(DIM), x(DIM), x_old(DIM);
+    Eigen::MatrixXd sVector = Eigen::MatrixXd ::Zero(DIM, m);
+    Eigen::MatrixXd yVector = Eigen::MatrixXd::Zero(DIM, m);
+    Eigen::Matrix<double, Eigen::Dynamic, 1> alpha = Eigen::Matrix<double, Eigen::Dynamic, 1>::Zero(m);
+    
+    x.setZero();
+    double f = testFunc(x, &grad);
+    
+    x_old = x;
+    grad_old = grad;
+    int iter = 0;
+    
+    
+    while(true)
+    {
+        
+        ///////////////////////////////////////////// L-BFGS /////////////////////////////////////////////////////////////////
+        double H0k = 1;
+        q = -grad;
+        const int k = std::min<double>(m, iter);
+        // for i = k − 1, k − 2, . . . , k − m§
+        for (int i = k - 1; i >= 0; i--)
+        {
+            if(k < m)
+                break;
+            // alpha_i <- rho_i*s_i^T*q
+            double rho = 1.0 / (sVector.col(i)).dot(yVector.col(i));
+            //            std::cout<<rho<<std::endl;
+            alpha(i) = rho * sVector.col(i).dot(q);
+            // q <- q - alpha_i*y_i
+            q = q - alpha(i) * yVector.col(i);
+        }
+        std::cout<<"q norm: "<<q.norm()<<std::endl;
+        // z <- H_k^0*q
+        // update the scaling factor
+        if(k >= m)
+        {
+            H0k = yVector.col(m-1).dot(sVector.col(m-1)) / yVector.col(m-1).dot(yVector.col(m-1));
+        }
+        std::cout<<"H0K: "<<H0k<<std::endl;
+        z = H0k * q;
+        //for i k − m, k − m + 1, . . . , k − 1
+        for (int i = 0; i <= k-1; i++)
+        {
+            if(k < m)
+                break;
+            // beta <- rho_i * y_i^T * r
+            double rho = 1.0 / (sVector.col(i)).dot(yVector.col(i));
+            double beta = rho * yVector.col(i).dot(z);
+            // z <- z + s_i * ( alpha_i - beta)
+            z = z + sVector.col(i) * (alpha(i) - beta);
+        }
+        std::cout<<"z: "<<z.norm()<<std::endl;
+        double rate = 1.0;
+        if(k<m)
+        {
+            rate = 1.0;
+            bool isSuccess = testLineSearch(x, -grad, rate);
+            x = x - rate * grad;
+            f = testFunc(x, &grad);
+            
+            y = grad - grad_old;
+            s = x - x_old;
+            grad_old = grad;
+            x_old = x;
+        }
+        else
+        {
+            rate = 1.0;
+            bool isSuccess = testLineSearch(x, z, rate);
+            if(isSuccess)
+            {
+                std::cout<<"L-BFGS succeeded!"<<std::endl;
+                x = x + rate * z;
+                f = testFunc(x, &grad);
+                
+                y = grad - grad_old;
+                s = x - x_old;
+                grad_old = grad;
+                x_old = x;
+            }
+            else
+            {
+                rate = 1.0;
+                bool isSuccess = testLineSearch(x, -grad, rate);
+                x = x - rate * grad;
+                f = testFunc(x, &grad);
+                
+                y = grad - grad_old;
+                s = x - x_old;
+                grad_old = grad;
+                x_old = x;
+            }
+        }
+        // update the history
+        if (iter < m)
+        {
+            sVector.col(iter) = s;
+            yVector.col(iter) = y;
+        }
+        else
+        {
+            sVector.leftCols(m - 1) = sVector.rightCols(m - 1).eval();
+            sVector.rightCols(1) = s;
+            yVector.leftCols(m - 1) = yVector.rightCols(m - 1).eval();
+            yVector.rightCols(1) = y;
+        }
+        std::cout<<"s.dot(y) = "<<s.dot(y)<<std::endl;
+        
+        std::cout<<std::endl<< "iter: "<<iter<< ", Rate: "<<rate<< ", f = " <<  f <<", ||g||_inf "<< grad.lpNorm<Eigen::Infinity>()<<std::endl;
+        
+        if(iter == MAX_ITR)
+        {
+            std::cout<<"Maximun iteration reached!"<<std::endl;
+            break;
+        }
+        if(grad.norm() <= M_TOL * std::max<double>(static_cast<double>(1.0), x.norm()))
+        {
+            std::cout<<"Force norm is less than "<<M_TOL<<std::endl;
+            break;
+        }
+        if(s.template lpNorm<Eigen::Infinity>() <= M_TOL)
+        {
+            std::cout<<"x update is less than "<<M_TOL<<std::endl;
+            break;
+        }
+        if(y.template lpNorm<Eigen::Infinity>() <= M_TOL)
+        {
+            std::cout<<"gradient update is less than "<<M_TOL<<std::endl;
+            break;
+        }
+        iter++;
+    }
+    std::cout<<x<<std::endl;
 }

@@ -13,10 +13,13 @@ public:
     virtual void buildRestFundamentalForms(const SecondFundamentalFormDiscretization &sff) override;
     void findFirstFundamentalForms(const SecondFundamentalFormDiscretization &sff);
     bool loadAbars() override;   // The path is given by abarPath + "L_list.dat".  abar = L*L^T
-    void saveAbars(Eigen::VectorXd L, Eigen::VectorXd S, Eigen::MatrixXd pos);
+    void saveAbars(Eigen::VectorXd L, Eigen::VectorXd S, Eigen::MatrixXd pos, bool is_target);
     
     void testValueAndGradient();
-
+    double testFunc(Eigen::VectorXd x, Eigen::VectorXd *grad);
+    void testLBFGS();
+    bool testLineSearch(Eigen::VectorXd x, Eigen::VectorXd dir, double &rate);
+    
 private:
     bool lineSearch(std::shared_ptr<SensitiveAnalysis> op, Eigen::VectorXd L, Eigen::VectorXd S, Eigen::MatrixXd &Pos, Eigen::VectorXd dir, double &rate);
     void testProjectBackSim();

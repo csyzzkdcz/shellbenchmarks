@@ -46,6 +46,42 @@ public:
         A.resize(3*nfaces, 3*nfaces);
         A.setFromTriplets(T.begin(), T.end());
         
+        Eigen::VectorXd infBound(4 * nfaces);  // 3*F = L.size, F = S.size;
+        infBound.setConstant(std::numeric_limits<double>::infinity());
+        m_lowerBound = -infBound;
+        m_upperBound = infBound;
+        
+        for(int i=0;i<nfaces;i++)
+        {
+            Eigen::Matrix2d abar = aList[i];
+            Eigen::Matrix2d TMat;
+            TMat.col(0) = ( initialPos.row(mesh.faceVertex(i, 1)) - initialPos.row(mesh.faceVertex(i, 0)) ).segment(0, 2);
+            TMat.col(1) = ( initialPos.row(mesh.faceVertex(i, 2)) - initialPos.row(mesh.faceVertex(i, 0)) ).segment(0, 2);
+            abar = (TMat.transpose()).inverse() * abar * TMat.inverse();
+            
+            m_lowerBound(3*nfaces + i) = -abar.trace() / (10 * _thickness);
+            m_upperBound(3*nfaces + i) = abar.trace() / (10 * _thickness);
+        }
+        
+        T.clear();
+        lapFaceMat.resize(nfaces, nfaces);
+        for(int i=0;i<nfaces;i++)
+        {
+            double totalNeiborArea = 0;
+            for(int j=0;j<3;j++)
+            {
+                int oppFace = _mesh.faceVertex(i,j);
+                if(oppFace!=-1)
+                {
+                    T.push_back(Eigen::Triplet<double>(i, oppFace, _areaList(oppFace)));
+                    totalNeiborArea += _areaList(oppFace);
+                }
+                T.push_back(Eigen::Triplet<double>(i,i, totalNeiborArea));
+            }
+            
+        }
+        lapFaceMat.setFromTriplets(T.begin(), T.end());
+        
     }
     
 public:
@@ -110,6 +146,7 @@ private:
     std::vector<Eigen::MatrixXd> bderivs;
     Eigen::VectorXd edgeDOFs;
     
+    Eigen::SparseMatrix<double> lapFaceMat;
     
 };
 
