@@ -55,6 +55,24 @@ class SimulationSetup
     
     bool _is_overwrite;
     bool _is_continue;
+    
+    // Some operation
+    Eigen::Vector3d abar2L(Eigen::Matrix2d abar)
+    {
+        Eigen::Vector3d L;
+        L(0) = sqrt(abar(0,0));
+        L(1) = abar(0,1)/L(0);
+        L(2) = sqrt(abar.determinant())/L(0);
+        return L;
+    }
+    
+    Eigen::Matrix2d L2abar(Eigen::Vector3d L)
+    {
+        Eigen::Matrix2d abar;
+        abar << L(0), 0, L(1), L(2);
+        abar = abar * abar.transpose();
+        return abar;
+    }
 };
 
 

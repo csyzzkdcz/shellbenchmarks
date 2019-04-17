@@ -1,3 +1,5 @@
+#ifndef LBFGSB_H
+#define LBFGSB_H
 #include <iostream>
 #include <vector>
 #include <set>
@@ -146,6 +148,8 @@ protected:
     double theta;
     int DIM;
     int m_historySize = 5;
+    VariableTVector reductupperBound;
+    VariableTVector reductlowerBound;
     
     double TOL;
     int MAXITR;
@@ -182,6 +186,7 @@ protected:
         std::vector<std::pair<int, Scalar> > SetOfT;
         // the feasible set is implicitly given by "SetOfT - {t_i==0}"
         VariableTVector d = -g;
+        
         // n operations
         for (int j = 0; j < DIM; j++) {
             if (g(j) == 0) {
@@ -189,9 +194,9 @@ protected:
             } else {
                 double tmp = 0;
                 if (g(j) < 0) {
-                    tmp = (x(j) - problem->upperBound()(j)) / g(j);
+                    tmp = (x(j) - reductupperBound(j)) / g(j);
                 } else {
-                    tmp = (x(j) - problem->lowerBound()(j)) / g(j);
+                    tmp = (x(j) - reductlowerBound(j)) / g(j);
                 }
                 SetOfT.push_back(std::make_pair(j, tmp));
                 if (tmp == 0) d(j) = 0;
@@ -231,9 +236,9 @@ protected:
         // examination of subsequent segments
         while ((dt_min >= dt) && (i < DIM)) {
             if (d(b) > 0)
-                x_cauchy(b) = problem->upperBound()(b);
+                x_cauchy(b) = reductupperBound(b);
             else if (d(b) < 0)
-                x_cauchy(b) = problem->lowerBound()(b);
+                x_cauchy(b) = reductlowerBound(b);
             // z_b = x_p^{cp} - x_b
             Scalar zb = x_cauchy(b) - x(b);
             // c   :=  c +\delta t*p
@@ -278,9 +283,9 @@ protected:
         assert(du.rows() == n);
         for (unsigned int i = 0; i < n; i++) {
             if (du(i) > 0) {
-                alphastar = std::min<Scalar>(alphastar, (problem->upperBound()(FreeVariables[i]) - x_cp(FreeVariables[i])) / du(i));
+                alphastar = std::min<Scalar>(alphastar, (reductupperBound(FreeVariables[i]) - x_cp(FreeVariables[i])) / du(i));
             } else {
-                alphastar = std::min<Scalar>(alphastar, (problem->lowerBound()(FreeVariables[i]) - x_cp(FreeVariables[i])) / du(i));
+                alphastar = std::min<Scalar>(alphastar, (reductlowerBound(FreeVariables[i]) - x_cp(FreeVariables[i])) / du(i));
             }
         }
         return alphastar;
@@ -295,8 +300,10 @@ protected:
                               VariableTVector &SubspaceMin) {
         Scalar theta_inverse = 1 / theta;
         std::vector<int> FreeVariablesIndex;
-        for (int i = 0; i < x_cauchy.rows(); i++) {
-            if ((x_cauchy(i) != problem->upperBound()(i)) && (x_cauchy(i) != problem->lowerBound()(i))) {
+        
+        for (int i = 0; i < x_cauchy.rows(); i++)
+        {
+            if ((x_cauchy(i) != reductupperBound(i)) && (x_cauchy(i) != reductlowerBound(i))) {
                 FreeVariablesIndex.push_back(i);
             }
         }
@@ -339,6 +346,8 @@ public:
     {
         if(!problem->isValid(x0))
             std::cerr << "start with invalid x0" << std::endl;
+        reductupperBound = problem -> projM * problem->upperBound();
+        reductlowerBound = problem -> projM * problem->lowerBound();
         DIM = x0.rows();
         theta = 1.0;
         W = MatrixType::Zero(DIM, 0);
@@ -346,24 +355,31 @@ public:
         MatrixType yHistory = MatrixType::Zero(DIM, 0);
         MatrixType sHistory = MatrixType::Zero(DIM, 0);
         
-        int L_size = DIM / 4 * 3;
-        int S_size = DIM / 4;
-        Eigen::VectorXd L = x0.segment(0, L_size);
-        Eigen::VectorXd S = x0.segment(L_size, S_size);
+        int nfaces = problem -> _mesh.nFaces();
+        int L_size = nfaces * 3;
+        int S_size = nfaces;
+        
+        Eigen::VectorXd fullx0, fullx;
+        fullx0 = problem->getFullVariables(x0);
+        
+        Eigen::VectorXd L = fullx0.segment(0, L_size);
+        Eigen::VectorXd S = fullx0.segment(L_size, S_size);
         Eigen::MatrixXd newPos = pos0;
         
         Eigen::VectorXd x = x0, g = x0;
-        
+        std::cout<<"Optimization begins!!"<<std::endl;
         problem->projectBack(L, S, newPos);
         
         Scalar f = problem->value(L, S, newPos);
         problem->gradient(L, S, newPos, g);
+        
         double fmin = f;
-        save(L,S,newPos,problem, true);
+        save(L,problem->Ws * S,newPos,problem, true);
         // conv. crit.
         auto noConvergence =
-        [&](Eigen::VectorXd &x, Eigen::VectorXd &g)->bool {
-            return (((x - g).cwiseMax(problem->lowerBound()).cwiseMin(problem->upperBound()) - x).template lpNorm<Eigen::Infinity>() >= TOL);
+        [&](Eigen::VectorXd &x, Eigen::VectorXd &g)->bool
+        {
+            return (((x - g).cwiseMax(reductlowerBound).cwiseMin(reductupperBound) - x).template lpNorm<Eigen::Infinity>() >= TOL);
         };
     
         int itr = 0;
@@ -376,21 +392,38 @@ public:
             Eigen::VectorXd CauchyPoint = VariableTVector::Zero(DIM);
             VariableTVector c = VariableTVector::Zero(W.cols());
             getGeneralizedCauchyPoint(problem, x, g, CauchyPoint, c);
+            std::cout<<"Compute the Cauchy point finished!"<<std::endl;
             // STEP 3: compute a search direction d_k by the primal method for the sub-problem
             Eigen::VectorXd SubspaceMin;
             SubspaceMinimization(problem, CauchyPoint, x, c, g, SubspaceMin);
+             std::cout<<"compute a search direction d_k by the primal method for the sub-problem finished!"<<std::endl;
             // STEP 4: perform linesearch and STEP 5: compute gradient
             Scalar rate = 1.0;
             if(itr < m_historySize)
             {
                 rate = std::min(x.norm() / sqrt(x.size()) * 1e-3, 1e-5/(SubspaceMin-x).norm() * x.norm());
             }
-            bool is_success = lineSearch(problem, L,  S, newPos, SubspaceMin-x,  rate);
+            bool is_success = lineSearch(problem, x, newPos, SubspaceMin-x,  rate);
+            if(!is_success)
+            {
+                std::cout<<"L-BFGS-B failed, using GD instead!"<<std::endl;
+                rate = std::min(x.norm() / sqrt(x.size()) * 1e-3, 1e-5/(SubspaceMin-x).norm() * x.norm());
+                is_success = lineSearch(problem, x, newPos, -g, rate);
+                if(!is_success)
+                {
+                    std::cout<<"Line Search failed to find a reasonable step"<<std::endl;
+                    return;
+                }
+                x = x - rate * g;
+            }
             // update current guess and function information
-            x = x - rate*(x-SubspaceMin);
-            
-            L = x.segment(0, L_size);
-            S = x.segment(L_size, S_size);
+            else
+            {
+                x = x - rate*(x-SubspaceMin);
+            }
+            fullx = problem->getFullVariables(x);
+            L = fullx.segment(0, L_size);
+            S = fullx.segment(L_size, S_size);
             problem->projectBack(L, S, newPos);
             
             f = problem->value(L, S, newPos);
@@ -426,7 +459,13 @@ public:
                 MM << D, L.transpose(), L, ((sHistory.transpose() * sHistory) * theta);
                 M = MM.inverse();
             }
-            std::cout<<std::endl<< "iter: "<<itr<< ", Rate: "<<rate<< ", f = " <<  f<<", ||g||_inf "<< g.lpNorm<Eigen::Infinity>()<<std::endl;
+            
+            Eigen::VectorXd fullg = problem->projM.transpose() * g;
+            
+            std::cout<<std::endl<< "iter: "<<itr<< ", \t Rate: "<<rate<< ", \t f = " <<  f<<", \t ||g||_inf = "<< g.lpNorm<Eigen::Infinity>()<<", \t ||Dir||_Inf = "<<(SubspaceMin-x_old).lpNorm<Eigen::Infinity>()<<std::endl;
+            std::cout<<"||g_L||_inf = "<<fullg.segment(0, L.rows()).lpNorm<Eigen::Infinity>()<<", \t ||g_s||_inf = "<<fullg.segment(L.rows(), S.rows()).lpNorm<Eigen::Infinity>()<<std::endl;
+            std::cout<<"abar change "<<(fullx-fullx0).segment(0, L.size()).lpNorm<Eigen::Infinity>()<<", \t bbar changes: "<<(fullx-fullx0).segment(L.size(), S.size()).lpNorm<Eigen::Infinity>()<<std::endl;
+            std::cout <<"Shape Difference = "<<problem->computeDifference(newPos)<<", \t Abar Penalty: "<<problem->computeAbarSmoothness(L)<<", \t Bbar Penalty: "<<problem->computeBbarSmoothness(L, S, newPos)<<std::endl<<std::endl;
             itr++;
             if (fabs(f_old - f) < TOL)
             {
@@ -439,20 +478,23 @@ public:
                 double f = problem->value(L, S, newPos);
                 if(f < fmin)
                 {
-                    save(L, S, newPos, problem, false);
+                    save(L, problem->Ws * S, newPos, problem, false);
                     fmin = f;
                 }
             }
             
         }
         x0 = x;
+        fullx0 = fullx;
         pos0 = newPos;
-        L = x0.segment(0, L_size);
-        S = x0.segment(L_size, S_size);
+        L = fullx0.segment(0, L_size);
+        S = fullx0.segment(L_size, S_size);
         f = problem->value(L, S, pos0);
         if(f < fmin)
         {
-            save(L, S, pos0, problem, false);
+            save(L, problem->Ws * S, pos0, problem, false);
         }
     }
 };
+
+#endif

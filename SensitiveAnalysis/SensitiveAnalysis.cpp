@@ -247,5 +247,4 @@ void SensitiveAnalysis::computeDifferenceGrad(Eigen::MatrixXd curPos, Eigen::Vec
     {
         grad.segment(3*i, 3) = _massVec(i) * (curPos.row(i) - _tarPos.row(i));
     }
-    grad = grad;
 }

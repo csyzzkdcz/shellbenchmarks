@@ -23,6 +23,8 @@ public:
 private:
     bool lineSearch(std::shared_ptr<SensitiveAnalysis> op, Eigen::VectorXd L, Eigen::VectorXd S, Eigen::MatrixXd &Pos, Eigen::VectorXd dir, double &rate);
     void testProjectBackSim();
+    
+    bool cutoffL(Eigen::VectorXd &curL, std::set<int> &cutAbar); // cutAbar stores the faces where abar is cut of\
 
 private:
     std::vector<Eigen::Matrix<double, 4, 9> > aderivs;

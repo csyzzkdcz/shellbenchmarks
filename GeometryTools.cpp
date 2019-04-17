@@ -40,12 +40,12 @@ void GeometryTools::rigidMotionTransformation(Eigen::MatrixXd pos, Eigen::Matrix
     
     for(int i=0;i<nverts;i++)
     {
-        avePos += pos.row(i);
-        aveTarPos += tarPos.row(i);
+        avePos += massVec(i) * pos.row(i);
+        aveTarPos += massVec(i) * tarPos.row(i);
     }
     
-    avePos = avePos / (1.0 * nverts);
-    aveTarPos = aveTarPos / (1.0 * nverts);
+    avePos = avePos / massVec.sum();
+    aveTarPos = aveTarPos / massVec.sum();
     
     Eigen::MatrixXd onesMat(nverts,1);
     onesMat.setOnes();

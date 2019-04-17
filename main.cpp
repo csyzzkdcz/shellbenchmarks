@@ -502,10 +502,10 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
                         double s = abar.trace() / 2.0;
 
                         Z(i) = s;
-                        if (abs(Z(i)) > max)
-                            max = abs(Z(i));
-                        if(abs(Z(i)) < min)
-                            min = abs(Z(i));
+                        if (Z(i) > max)
+                            max = Z(i);
+                        if (Z(i) < min)
+                            min = Z(i);
                     }
 
                 }
@@ -514,6 +514,7 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
             max = Z.maxCoeff();
 //            Z = Z / Z.lpNorm<Eigen::Infinity>();
             std::cout<<max<<" "<<min<<" "<<max - min <<std::endl;
+            std::cout<<Z<<std::endl;
             igl::colormap(vizColor, Z, true, faceColors); // true here means libigl will automatically normalize Z, which may or may not be what you want.
             viewer.data().set_colors(faceColors);
 
@@ -1172,6 +1173,38 @@ int main(int argc, char *argv[])
 
         if(ImGui::Button("Set target metric", ImVec2(-1, 0)))
         {
+            updateAbarPath(curPath, selectedType, selectedMethod, selectedDynamicType, thickness, abarCoef, bbarCoef, smoothnessCoef, setup->abarPath, isFixedConer);
+            bool ok = parseWimFiles(resShape, tarShape, *setup, sff);
+            if (!ok)
+            {
+                std::cerr << "Couldn't load problem: " << std::endl;
+                std::cerr << "Rest Shape: "<< resShape << std::endl;
+                std::cerr << "Target Shape: "<< tarShape << std::endl;
+                return -1;
+            }
+            
+            if(isFixedConer)
+            {
+                for(int vid = 0; vid < 4; vid++)
+                {
+                    setup->clampedDOFs[3*vid + 0] = setup->targetPos(vid,0);
+                    setup->clampedDOFs[3*vid + 1] = setup->targetPos(vid,0);
+                    setup->clampedDOFs[3*vid + 2] = setup->targetPos(vid,0);
+                }
+            }
+            else
+            {
+                setup->clampedDOFs.clear();
+            }
+            
+            std::cout<<thickness<<std::endl;
+            setup->thickness = thickness;
+            setup->abarCoef = abarCoef;
+            setup->bbarCoef = bbarCoef;
+            setup->smoothCoef = smoothnessCoef;
+            setup->selectedDynamicType = selectedDynamicType;
+            setup->_is_overwrite = isOverWrite;
+            setup->_is_continue = isContinue;
             int nfaces =  setup->mesh.nFaces();
             setup->abars.resize(nfaces);
             setup->bbars.resize(nfaces);

@@ -1,6 +1,7 @@
 #ifndef SENSITIVEANALYSISABBARPOS_H
 #define SENSITIVEANALYSISABBARPOS_H
 
+#include <set>
 #include "SensitiveAnalysis.h"
 
 class SensitiveAnalysisABbarPos : public SensitiveAnalysis
@@ -22,12 +23,8 @@ public:
     {
         
         generalInitialization(initialPos, tarPos, mesh, clampedDOFs, lameAlpha, lameBeta, thickness);
-        std::vector<Eigen::Triplet<double> >T;
+        std::vector<Eigen::Triplet<double> >T, Ts;
         int nfaces = _mesh.nFaces();
-        aList.resize(nfaces);
-        bList.resize(nfaces);
-        aderivs.resize(nfaces);
-        bderivs.resize(nfaces);
         
         MidedgeAverageFormulation sff;
         
@@ -38,33 +35,18 @@ public:
             T.push_back(Eigen::Triplet<double>(3*i+1, 3*i+1, 1));
             T.push_back(Eigen::Triplet<double>(3*i+2, 3*i+2, 1));
             
-            aList[i] = firstFundamentalForm(_mesh, _tarPos, i, &aderivs[i], NULL);
-            bderivs[i].resize(4, 18);
-            bList[i] = sff.secondFundamentalForm(_mesh, _tarPos, edgeDOFs, i, &bderivs[i], NULL);
         }
         
         A.resize(3*nfaces, 3*nfaces);
         A.setFromTriplets(T.begin(), T.end());
         
-        Eigen::VectorXd infBound(4 * nfaces);  // 3*F = L.size, F = S.size;
-        infBound.setConstant(std::numeric_limits<double>::infinity());
-        m_lowerBound = -infBound;
-        m_upperBound = infBound;
-        
-        for(int i=0;i<nfaces;i++)
-        {
-            Eigen::Matrix2d abar = aList[i];
-            Eigen::Matrix2d TMat;
-            TMat.col(0) = ( initialPos.row(mesh.faceVertex(i, 1)) - initialPos.row(mesh.faceVertex(i, 0)) ).segment(0, 2);
-            TMat.col(1) = ( initialPos.row(mesh.faceVertex(i, 2)) - initialPos.row(mesh.faceVertex(i, 0)) ).segment(0, 2);
-            abar = (TMat.transpose()).inverse() * abar * TMat.inverse();
-            
-            m_lowerBound(3*nfaces + i) = -abar.trace() / (10 * _thickness);
-            m_upperBound(3*nfaces + i) = abar.trace() / (10 * _thickness);
-        }
+        updateBoxConstraint();
+      
         
         T.clear();
+        Ts.clear();
         lapFaceMat.resize(nfaces, nfaces);
+        Ws.resize(nfaces, nfaces);
         for(int i=0;i<nfaces;i++)
         {
             double totalNeiborArea = 0;
@@ -73,15 +55,29 @@ public:
                 int oppFace = _mesh.faceVertex(i,j);
                 if(oppFace!=-1)
                 {
-                    T.push_back(Eigen::Triplet<double>(i, oppFace, _areaList(oppFace)));
                     totalNeiborArea += _areaList(oppFace);
                 }
-                T.push_back(Eigen::Triplet<double>(i,i, totalNeiborArea));
+            }
+            for(int j=0;j<3;j++)
+            {
+                int oppFace = _mesh.faceVertex(i,j);
+                if(oppFace!=-1)
+                {
+                    T.push_back(Eigen::Triplet<double>(i, oppFace, _areaList(oppFace) / totalNeiborArea));
+                }
             }
             
+            T.push_back(Eigen::Triplet<double>(i,i, -1));
+            Ts.push_back(Eigen::Triplet<double>(i,i, 1.0 / _areaList(i)));
         }
         lapFaceMat.setFromTriplets(T.begin(), T.end());
+        Ws.setFromTriplets(Ts.begin(), Ts.end());
         
+        projM.resize(4*nfaces, 4*nfaces);
+        projM.setIdentity();
+        
+        fixedVariables.resize(4*nfaces);
+        fixedVariables.setZero();
     }
     
 public:
@@ -99,6 +95,10 @@ public:
     
     Eigen::Vector3d convertBar2s(Eigen::Matrix2d abar, Eigen::Matrix2d bbar);
     Eigen::Matrix2d converts2Bbar(Eigen::Matrix2d abar, Eigen::Vector3d s);
+    
+    void setProjM(std::set<int> fixedFlags);
+    void updateFixedVariables(Eigen::VectorXd L, Eigen::VectorXd S);
+    Eigen::VectorXd getFullVariables(Eigen::VectorXd reductVariables);
     
 public:
     void convertEquilibrium2MatrixForm(Eigen::VectorXd curL, Eigen::VectorXd curS, Eigen::MatrixXd curPos, Eigen::VectorXd *C, Eigen::SparseMatrix<double> &W);
@@ -138,16 +138,89 @@ public:
     
     
     
-private:
+public:
     Eigen::SparseMatrix<double> A;
-    std::vector<Eigen::Matrix2d> aList;
-    std::vector<Eigen::Matrix2d> bList;
-    std::vector<Eigen::Matrix<double, 4, 9>> aderivs;
-    std::vector<Eigen::MatrixXd> bderivs;
     Eigen::VectorXd edgeDOFs;
-    
     Eigen::SparseMatrix<double> lapFaceMat;
+    Eigen::SparseMatrix<double> Ws;
+    Eigen::SparseMatrix<double> projM;
     
+    Eigen::VectorXd fixedVariables;
+    
+// Box Constraint
+    
+public:
+    const Eigen::VectorXd &lowerBound() const { return m_lowerBound; }
+    void setLowerBound(const Eigen::VectorXd &lb) { m_lowerBound = lb; }
+    const Eigen::VectorXd &upperBound() const { return m_upperBound; }
+    void setUpperBound(const Eigen::VectorXd &ub) { m_upperBound = ub; }
+    
+    void setBoxConstraint(Eigen::VectorXd  lb, Eigen::VectorXd  ub) {
+        setLowerBound(lb);
+        setUpperBound(ub);
+    }
+    
+    void updateBoxConstraint()
+    {
+        int nfaces = _mesh.nFaces();
+        Eigen::VectorXd infBound(4 * nfaces);  // 3*F = L.size, F = S.size;
+        infBound.setConstant(std::numeric_limits<double>::infinity());
+        m_lowerBound = -infBound;
+        m_upperBound = infBound;
+        
+        for(int i=0;i<nfaces;i++)
+        {
+            Eigen::Matrix2d abar = _atarget[i];
+            Eigen::Matrix2d TMat;
+            TMat.col(0) = ( _initialPos.row(_mesh.faceVertex(i, 1)) - _initialPos.row(_mesh.faceVertex(i, 0)) ).segment(0, 2);
+            TMat.col(1) = ( _initialPos.row(_mesh.faceVertex(i, 2)) - _initialPos.row(_mesh.faceVertex(i, 0)) ).segment(0, 2);
+            abar = (TMat.transpose()).inverse() * abar * TMat.inverse();
+            
+            m_lowerBound(3*nfaces + i) = -abar.trace() / (10 * _thickness) * _areaList(i);
+            m_upperBound(3*nfaces + i) = abar.trace() / (10 * _thickness) * _areaList(i);
+        }
+    }
+    
+    bool isValid(const Eigen::VectorXd x)
+    {
+        Eigen::VectorXd fullx = getFullVariables(x);
+        return ((fullx - m_lowerBound).array() >= 0.0).all() && ((fullx - m_upperBound).array() <= 0.0).all();
+    }
+    
+    double maxStep(Eigen::VectorXd x, Eigen::VectorXd dir)
+    {
+        Eigen::VectorXd reductlowerBound, reductupperBound;
+        reductlowerBound = projM * m_lowerBound;
+        reductupperBound = projM * m_upperBound;
+        
+        if(!isValid(x))
+        {
+            std::cout<<"infeasible!"<<std::endl;
+        }
+        double step = 1e10;
+        for(int i=0;i<x.size();i++)
+        {
+            double li = reductlowerBound(i);
+            double ui = reductupperBound(i);
+            double di = dir(i);
+            double curStep = 1e10;
+            if(di>0)
+            {
+                curStep = ( ui - x(i) ) / di;
+            }
+            if(di < 0)
+            {
+                curStep = ( li - x(i) ) / di;
+            }
+            
+            if(curStep < step)
+            {
+                step = curStep;
+            }
+        }
+        return step;
+    }
+
 };
 
 #endif

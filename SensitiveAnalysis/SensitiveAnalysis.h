@@ -70,7 +70,7 @@ protected:
         {
             _atarget[i] = firstFundamentalForm(_mesh, _tarPos, i, NULL, NULL);
             Eigen::Matrix2d b = sff.secondFundamentalForm(_mesh, _tarPos, extraDOFs, i, NULL, NULL);
-            _starget(i) = (_atarget[i].inverse() * b).trace() / 2.0;
+            _starget(i) = (_atarget[i].inverse() * b).trace() / 2.0 * _areaList(i);
 //            _starget(i) = 0;
         }
         
@@ -159,54 +159,6 @@ public:
     Eigen::VectorXd m_lowerBound;
     Eigen::VectorXd m_upperBound;
     
-public:
-    const Eigen::VectorXd &lowerBound() const { return m_lowerBound; }
-    void setLowerBound(const Eigen::VectorXd &lb) { m_lowerBound = lb; }
-    const Eigen::VectorXd &upperBound() const { return m_upperBound; }
-    void setUpperBound(const Eigen::VectorXd &ub) { m_upperBound = ub; }
-    
-    void setBoxConstraint(Eigen::VectorXd  lb, Eigen::VectorXd  ub) {
-        setLowerBound(lb);
-        setUpperBound(ub);
-    }
-    
-    bool isValid(const Eigen::VectorXd &x)
-    {
-        return ((x - m_lowerBound).array() >= 0.0).all() && ((x - m_upperBound).array() <= 0.0).all();
-    }
-    
-    double maxStep(Eigen::VectorXd L, Eigen::VectorXd S, Eigen::VectorXd dir)
-    {
-        Eigen::VectorXd x(L.size() + S.size());
-        x.segment(0, L.size()) = L;
-        x.segment(L.size(), S.size()) = S;
-        if(!isValid(x))
-        {
-            std::cout<<"infeasible!"<<std::endl;
-        }
-        double step = 1e10;
-        for(int i=0;i<S.size();i++)
-        {
-            double li = m_lowerBound(L.size() + i);
-            double ui = m_upperBound(L.size() + i);
-            double di = dir(L.size() + i);
-            double curStep = 1e10;
-            if(di>0)
-            {
-                curStep = ( ui - S(i) ) / di;
-            }
-            if(di < 0)
-            {
-                curStep = ( li - S(i) ) / di;
-            }
-            
-            if(curStep < step)
-            {
-                step = curStep;
-            }
-        }
-        return step;
-    }
 
 };
     

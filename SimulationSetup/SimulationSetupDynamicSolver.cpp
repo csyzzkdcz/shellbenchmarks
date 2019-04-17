@@ -27,8 +27,8 @@
 
 bool SimulationSetupDynamicSolver::loadAbars()
 {
-    //    testValueAndGradient();
-    //    return true;
+//        testValueAndGradient();
+//        return true;
     //    testLBFGS();
     //    return true;
     auto op = std::shared_ptr<SensitiveAnalysis>();
@@ -55,6 +55,8 @@ bool SimulationSetupDynamicSolver::loadAbars()
     if(selectedDynamicType != "AbarPos")
         infile >> bbarCoef;
     infile >> smoothCoef;
+    
+    op->initialization(initialPos, targetPos, mesh, clampedDOFs, lameAlpha, lameBeta, thickness);
     int vertNum, faceNum;
     infile >> vertNum >> faceNum;
     Eigen::VectorXd x(vertNum), curL, curS;
@@ -112,7 +114,7 @@ bool SimulationSetupDynamicSolver::loadAbars()
             infile >> d1;
             bbars[i] = d1 * abars[i];
             
-            curS(i) = d1;
+            curS(i) = d1 * op->_areaList(i);
             
         }
     }
@@ -130,19 +132,22 @@ bool SimulationSetupDynamicSolver::loadAbars()
     igl::edge_lengths(curPos, mesh.faces(), L);
     
     
-    op->initialization(initialPos, targetPos, mesh, clampedDOFs, lameAlpha, lameBeta, thickness);
+  
     
     
     Eigen::VectorXd sol(curL.size() + curS.size());
     sol.segment(0, curL.size()) = curL;
     sol.segment(curL.size(), curS.size()) = curS;
-    if(op->isValid(sol))
+    auto op1 = std::dynamic_pointer_cast<SensitiveAnalysisABbarPos>(op);
+    if(op1->isValid(sol))
     {
         std::cout<<"Solution is feasible"<<std::endl;
     }
     else
     {
+        
         std::cout<<"Solution is not feasible"<<std::endl;
+        std::cout<<(sol - op1->lowerBound()).minCoeff()<<" "<<(sol - op1->upperBound()).maxCoeff()<<std::endl;
     }
     
     double differenceValue = op->computeDifference(curPos);
@@ -203,6 +208,10 @@ bool SimulationSetupDynamicSolver::loadAbars()
     energy = elasticEnergy(mesh, targetPos, initialEdgeDOFs, lameAlpha, lameBeta, thickness, abars, bbars, sff, &derivative, NULL);
     std::cout<<"Energy with target positions: "<<energy<<" Derivative with target positions: "<<(projM * derivative).norm()<<std::endl;
     targetPosAfterFirstStep = curPos;
+    
+    std::cout<<curS.norm()<<std::endl;
+    std::cout<<curL.norm()<<std::endl;
+    
     return true;
 }
 
@@ -359,12 +368,8 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
                 Eigen::VectorXd extraDOFs(0);
                 Eigen::Matrix2d b = sff.secondFundamentalForm(mesh, targetPos, extraDOFs, i, NULL, NULL);
                 auto op1 = std::dynamic_pointer_cast<SensitiveAnalysisABbarPos>(op);
-                S(i) = 0.5 * (a.inverse() * b).trace();
-                double len = op->m_upperBound(3*nfaces + i) - op->m_lowerBound(3*nfaces + i);
-                if(S(i) < op->m_lowerBound(3*nfaces + i))
-                    S(i) = op->m_lowerBound(3*nfaces + i) + 1e-2 * len;
-                if(S(i) > op->m_upperBound(3*nfaces + i))
-                    S(i) = op->m_upperBound(3* nfaces + i) - 1e-2 * len;
+                S(i) = 0.5 * (a.inverse() * b).trace()  * op->_areaList(i);
+                
                 //            S(i) = 0;
             }
         }
@@ -381,7 +386,7 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
         }
         
         pos = targetPos;
-        op->projectBack(L, S, pos);
+//        op->projectBack(L, S, pos);
         saveAbars(L, S, pos, true);
     }
     else
@@ -402,18 +407,77 @@ void SimulationSetupDynamicSolver::findFirstFundamentalForms(const SecondFundame
                 S.resize(nfaces);
                 Eigen::Matrix2d b = bbars[i];
                 auto op1 = std::dynamic_pointer_cast<SensitiveAnalysisABbarPos>(op);
-                S(i) = 0.5 * (a.inverse() * b).trace();
+                S(i) = 0.5 * (a.inverse() * b).trace() * op->_areaList(i);
             }
         }
         pos = targetPosAfterFirstStep;
     }
     
+    // First Stage: cut off L to satisfy the fibrication constraints
+    std::set<int> cutAbar;
+    Eigen::VectorXd infBound(4 * nfaces);  // 3*F = L.size, F = S.size;
+    infBound.setConstant(std::numeric_limits<double>::infinity());
+    int itr = 0;
+    Eigen::VectorXd old_L = L;
+    while(cutoffL(L, cutAbar))
+    {
+        std::cout<<"Outer iteration: "<<itr<<std::endl;
+        LbfgsbSolver<SensitiveAnalysisABbarPos> solver;
+        solver.setOptions(M_TOL, int (0.1 * MAX_ITR), abarPath);
+        Eigen::VectorXd x(4*nfaces);
+        x.segment(0, L.size()) = L;
+        x.segment(L.size(), S.size()) = S;
+        auto op1 = std::dynamic_pointer_cast<SensitiveAnalysisABbarPos>(op);
+        op1->setProjM(cutAbar);
+        op1->updateFixedVariables(L, S);
+        op1->setLowerBound(-infBound);
+        op1->setUpperBound(infBound);
+        for(int i = 1; i< 10; i++)
+        {
+            double rate =  0.1 * i;
+            Eigen::VectorXd mid_L = (1 - rate) * old_L + rate * L;
+            op1->projectBack(mid_L, S, pos);
+        }
+        
+        op1->_lambdaAbar = 1e-2;
+        
+        Eigen::VectorXd reductX = op1->projM * x;
+        std::cout<<"L-BGFS solver"<<std::endl;
+        solver.minimize(op1, reductX, pos);
+        x = op1->getFullVariables(reductX);
+        L = x.segment(0, L.size());
+        S = x.segment(L.size(), S.size());
+        itr ++;
+        old_L = L;
+        if(itr == 10)
+            break;
+    }
+    
+    
     LbfgsbSolver<SensitiveAnalysisABbarPos> solver;
     solver.setOptions(M_TOL, MAX_ITR, abarPath);
     Eigen::VectorXd x(4*nfaces);
+    auto op1 = std::dynamic_pointer_cast<SensitiveAnalysisABbarPos>(op);
+    op1->projM.resize(x.size(), x.size());
+    op1->projM.setIdentity();
+    op1->_lambdaAbar = 1;
+    for(int i=0;i<nfaces;i++)
+    {
+        op1->_atarget[i] = L2abar(L.segment(3*i, 3));
+        op1->_starget(i) = S(i);
+    }
+    op1->updateBoxConstraint();
+    for(int i=0;i<nfaces;i++)
+    {
+        double len = op->m_upperBound(3*nfaces + i) - op->m_lowerBound(3*nfaces + i);
+        if(S(i) < op->m_lowerBound(3*nfaces + i))
+            S(i) = op->m_lowerBound(3*nfaces + i) + 1e-2 * len;
+        if(S(i) > op->m_upperBound(3*nfaces + i))
+            S(i) = op->m_upperBound(3* nfaces + i) - 1e-2 * len;
+    }
     x.segment(0, L.size()) = L;
     x.segment(L.size(), S.size()) = S;
-    auto op1 = std::dynamic_pointer_cast<SensitiveAnalysisABbarPos>(op);
+    
     solver.minimize(op1, x, pos);
     
     
@@ -809,6 +873,93 @@ void SimulationSetupDynamicSolver::saveAbars(Eigen::VectorXd L, Eigen::VectorXd 
     igl::writeOBJ(resampledPath, pos, mesh.faces());
 }
 
+bool SimulationSetupDynamicSolver::cutoffL(Eigen::VectorXd &curL, std::set<int> &cutAbar)
+{
+    int nfaces = curL.size() / 3;
+    Eigen::VectorXd valueList(nfaces);
+    std::vector<Eigen::Matrix2d> abarList(nfaces);
+    for(int i=0;i<nfaces;i++)
+    {
+        Eigen::Matrix2d T, abar;
+        abar = L2abar(curL.segment(3*i, 3));
+        T.col(0) = ( initialPos.row(mesh.faceVertex(i, 1)) - initialPos.row(mesh.faceVertex(i, 0)) ).segment(0, 2);
+        T.col(1) = ( initialPos.row(mesh.faceVertex(i, 2)) - initialPos.row(mesh.faceVertex(i, 0)) ).segment(0, 2);
+        abar = (T.transpose()).inverse() * abar * T.inverse();
+        abarList[i] = abar;
+        
+        valueList(i) = abar.trace() / 2.0;
+    }
+    
+    double min = valueList.minCoeff();
+    double max = valueList.maxCoeff();
+    
+    if(min >= 0.6 * max)
+        return false;
+    
+    
+    int intervalNum = 10;
+    double interval = ( max - 5.0/3 * min ) / (intervalNum * 1.0);  // maximum shrinking rate is 0.7 => min / max >= 0.7*2 * 11.0 / 9.0 (11.0 / 9.0 is for bbar soften)
+    int bestCount = 0;
+    double bestDivision = max;
+    for(int i = 0; i<intervalNum;i++)
+    {
+        int count = 0;
+        double end = max - i * interval;
+        double begin = 0.6 * end;
+        for(int j=0;j<nfaces;j++)
+        {
+            if(valueList(j) >= begin && valueList(j) <= end)
+            {
+                count ++;
+            }
+        }
+        if(count > bestCount)
+        {
+            bestCount = count;
+            bestDivision = end;
+        }
+    }
+   
+    cutAbar.clear();
+    for(int i=0;i<nfaces;i++)
+    {
+        if(valueList(i) < 0.6 * bestDivision)
+        {
+            valueList(i) = 0.6 * bestDivision;
+            cutAbar.insert(i);
+        }
+        else if(valueList(i) > bestDivision)
+        {
+            valueList(i) = bestDivision;
+            cutAbar.insert(i);
+        }
+        
+    }
+    
+    for(auto it=cutAbar.begin();it!=cutAbar.end();it++)
+    {
+        int fid = *it;
+        abarList[fid] = abarList[fid] / (abarList[fid].trace() * 0.5) * valueList(fid);
+        
+        Eigen::Matrix2d T;
+        T.col(0) = ( initialPos.row(mesh.faceVertex(fid, 1)) - initialPos.row(mesh.faceVertex(fid, 0)) ).segment(0, 2);
+        T.col(1) = ( initialPos.row(mesh.faceVertex(fid, 2)) - initialPos.row(mesh.faceVertex(fid, 0)) ).segment(0, 2);
+        Eigen::Matrix2d abar = T.transpose() * abarList[fid] * T;
+        
+        Eigen::Vector3d L = abar2L(abar);
+        
+        if(curL(3*fid) >= 0)
+        {
+            curL.segment(3*fid, 3) = L;
+        }
+        else
+        {
+            curL.segment(3*fid, 3) = -L;
+        }
+    }
+    return true;
+}
+
 void SimulationSetupDynamicSolver::testValueAndGradient()
 {
     SensitiveAnalysisABbarPos op;
@@ -887,6 +1038,9 @@ bool SimulationSetupDynamicSolver::testLineSearch(Eigen::VectorXd x, Eigen::Vect
         }
     }
 }
+
+
+
 
 void SimulationSetupDynamicSolver::testProjectBackSim()
 {
