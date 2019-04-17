@@ -1,7 +1,6 @@
 #include "StaticSolve.h"
 #include "SimulationSetup/SimulationSetup.h"
-#include "SimulationSetup/SimulationSetupNormal.h"
-#include "SimulationSetup/SimulationSetupAlglibSolver.h"
+#include "SimulationSetup/SimulationSetupDynamicSolver.h"
 #include "SimulationState.h"
 #include "ElasticShell.h"
 #include "GeometryDerivatives.h"

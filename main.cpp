@@ -35,14 +35,11 @@
 #include "ElasticShell.h"
 #include "SimulationSetup/SimulationSetup.h"
 #include "SimulationSetup/SimulationSetupNormal.h"
-#include "SimulationSetup/SimulationSetupAlglibSolver.h"
-#include "SimulationSetup/SimulationSetupIpoptSolver.h"
 #include "SimulationSetup/SimulationSetupDynamicSolver.h"
 #include "ParseWimFiles.h"
 #include "StaticSolve.h"
 #include "SimulationState.h"
 #include "GeometryTools.h"
-#include "SensitiveAnalysis/SensitiveAnalysisAbarBbar.h"
 #include "SensitiveAnalysis/SensitiveAnalysisABbarPos.h"
 
 
@@ -64,7 +61,7 @@ bool isPlotForce = false;
 bool isOverWrite = false;
 bool isContinue = false;
 
-enum Methods {Normal=0, alglibSolver, ipoptSolver, dynamicSolver};
+enum Methods {Normal=0, dynamicSolver};
 static Methods methodType =  dynamicSolver;
 
 enum faceColorTypes {optimal2target, optimal2plate, bbar, topLayer, bottomLayer};
@@ -73,7 +70,7 @@ static faceColorTypes faceColorType =  optimal2target;
 enum paramatrizationTypes {ARAP = 0, Conformal};
 static paramatrizationTypes paramatrizationType = Conformal;
 
-enum dynamicSolverTypes {AbarPos = 0, AbarBbar, ABbarPos};
+enum dynamicSolverTypes {ABbarPos = 0};
 static dynamicSolverTypes dynamicSolverType = ABbarPos;
 
 std::string selectedMethod = "dynamicSolver";
@@ -380,56 +377,6 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
     viewer.data().set_colors(colors);
     viewer.data().line_width = 2;
 
-    if(isPlotForce != 0)
-    {
-        MidedgeAverageFormulation sff;
-        SensitiveAnalysisAbarBbar op;
-        bool ok = parseWimFiles(resShape, tarShape, *setup, sff);
-        setup->thickness = thickness;
-        setup->abarCoef = abarCoef;
-        setup->bbarCoef = bbarCoef;
-        setup->smoothCoef = smoothnessCoef;
-        double lameAlpha = setup->YoungsModulus * setup->PoissonsRatio / (1.0 - setup->PoissonsRatio * setup->PoissonsRatio);
-        double lameBeta = setup->YoungsModulus / 2.0 / (1.0 + setup->PoissonsRatio);
-        op.initialization(setup->initialPos, setup->targetPos, setup->mesh, setup->clampedDOFs, lameAlpha, lameBeta, setup->thickness);
-        op.setPenalty(abarCoef, bbarCoef, smoothnessCoef);
-        Eigen::VectorXd inplaneForce = op.getInplaneForce();
-        Eigen::MatrixXd force(viewer.data().V.rows(), 3);
-        for(int i=0;i<force.rows();i++)
-        {
-            force.row(i) = inplaneForce.segment(3*i, 3);
-        }
-        force = force / force.norm() * viewer.data().V.norm();
-        const Eigen::RowVector3d red(1,0,0), black(0,0,0);
-        Eigen::MatrixXd V = setup->targetPos;
-        Eigen::MatrixXi F = setup->mesh.faces();
-        Eigen::MatrixXd FN, VN;
-        igl::per_face_normals(V, F, FN);
-        igl::per_vertex_normals(V, F, igl::PER_VERTEX_NORMALS_WEIGHTING_TYPE_AREA, VN);
-        VN = VN / VN.norm() * viewer.data().V.norm();
-        viewer.data().add_edges(viewer.data().V,viewer.data().V+force, red);
-        viewer.data().add_edges(viewer.data().V, viewer.data().V+VN, black);
-        Eigen::VectorXd theta(force.rows());
-        for(int i=0;i<force.rows();i++)
-        {
-            double cos = force.row(i).dot(VN.row(i)) / (force.row(i).norm() * VN.row(i).norm());
-            theta(i) = acos(cos) / 3.1415926 * 180;
-        }
-        Eigen::VectorXi bl;
-        igl::boundary_loop(F, bl);
-        for(int i=0;i<bl.size();i++)
-        {
-            theta(bl(i)) = 90.0;
-        }
-        for(int i=0;i<force.rows();i++)
-        {
-            std::cout<<force(i)<<" "<<theta(i)<<std::endl;
-        }
-        std::cout<<theta.minCoeff()<<" "<<theta.maxCoeff()<<" "<<theta.sum()/ theta.size()<<std::endl;
-    }
-    else
-    {
-
         if(isShowFaceColor != 0)
         {
             viewer.data().set_mesh(setup->initialPos, setup->mesh.faces());
@@ -574,7 +521,7 @@ void repaint(igl::opengl::glfw::Viewer &viewer)
             viewer.data().add_edges(BC,BC+Vec2/2, black);
             viewer.data().add_edges(BC,BC-Vec2/2, black);
         }
-    }
+    
 
 }
 
@@ -1001,31 +948,14 @@ int main(int argc, char *argv[])
                      );
 
 
-        if (ImGui::Combo("Methods", (int *)(&methodType), "Normal\0alglibSolver\0ifOptSolver\0dynamicSolver\0\0"))
+        if (ImGui::Combo("Methods", (int *)(&methodType), "Normal\0dynamicSolver\0\0"))
         {
             if (methodType == 0)
             {
                 setup = std::make_unique<SimulationSetupNormal>();
             }
+           
             else if (methodType == 1)
-            {
-                setup = std::make_unique<SimulationSetupAlglibSolver>();
-                setup->abarCoef = abarCoef;
-                setup->bbarCoef = bbarCoef;
-                setup->smoothCoef = smoothnessCoef;
-                setup->thickness = thickness;
-                selectedMethod = "alglibSolver";
-            }
-            else if (methodType == 2)
-            {
-                setup = std::make_unique<SimulationSetupIpoptSolver>();
-                setup->abarCoef = abarCoef;
-                setup->bbarCoef = bbarCoef;
-                setup->smoothCoef = smoothnessCoef;
-                setup->thickness = thickness;
-                selectedMethod = "ifOptSolver";
-            }
-            else if (methodType == 3)
             {
                 setup = std::make_unique<SimulationSetupDynamicSolver>();
                 setup->abarCoef = abarCoef;
@@ -1036,17 +966,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (ImGui::Combo("Types", (int *)(&dynamicSolverType), "AbarPos\0AbarBbar\0ABbarPos\0\0"))
+        if (ImGui::Combo("Types", (int *)(&dynamicSolverType), "ABbarPos\0\0"))
         {
             if(dynamicSolverType == 0)
-            {
-                selectedDynamicType = "AbarPos";
-            }
-            else if(dynamicSolverType == 1)
-            {
-                selectedDynamicType = "AbarBbar";
-            }
-            else if(dynamicSolverType == 2)
             {
                 selectedDynamicType = "ABbarPos";
             }

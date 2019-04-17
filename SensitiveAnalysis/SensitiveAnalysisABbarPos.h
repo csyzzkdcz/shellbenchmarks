@@ -11,13 +11,11 @@ class SensitiveAnalysisABbarPos : public SensitiveAnalysis
  */
 {
 public:
-    double value(Eigen::VectorXd curL, Eigen::VectorXd curS, Eigen::MatrixXd curPos) override;
-    void gradient(Eigen::VectorXd curL, Eigen::VectorXd curS, Eigen::MatrixXd curPos, Eigen::VectorXd &grad) override;
-    void projectBack(Eigen::VectorXd curL, Eigen::VectorXd &curS, Eigen::MatrixXd &curPos) override;
-    void projectS(Eigen::VectorXd curL, Eigen::VectorXd &curS, Eigen::MatrixXd curPos);
-    void projectPos(Eigen::VectorXd curL, Eigen::VectorXd curS, Eigen::MatrixXd &curPos);
+    double value(Eigen::VectorXd params, Eigen::MatrixXd pos) override;
+    void gradient(Eigen::VectorXd params, Eigen::MatrixXd pos, Eigen::VectorXd &grad) override;
+    void projectBack(Eigen::VectorXd params, Eigen::MatrixXd &pos) override;
     
-    void computeConvertedGrad(Eigen::VectorXd curL, Eigen::VectorXd curS, Eigen::MatrixXd curPos, Eigen::VectorXd grad, Eigen::VectorXd &convertedGrad);
+    void computeConvertedGrad(Eigen::VectorXd params, Eigen::MatrixXd pos, Eigen::VectorXd grad, Eigen::VectorXd &convertedGrad);
     
     void initialization(Eigen::MatrixXd initialPos, Eigen::MatrixXd tarPos, MeshConnectivity mesh, std::map<int, double> clampedDOFs, double lameAlpha, double lameBeta, double thickness) override
     {
@@ -96,9 +94,6 @@ public:
     Eigen::Vector3d convertBar2s(Eigen::Matrix2d abar, Eigen::Matrix2d bbar);
     Eigen::Matrix2d converts2Bbar(Eigen::Matrix2d abar, Eigen::Vector3d s);
     
-    void setProjM(std::set<int> fixedFlags);
-    void updateFixedVariables(Eigen::VectorXd L, Eigen::VectorXd S);
-    Eigen::VectorXd getFullVariables(Eigen::VectorXd reductVariables);
     
 public:
     void convertEquilibrium2MatrixForm(Eigen::VectorXd curL, Eigen::VectorXd curS, Eigen::MatrixXd curPos, Eigen::VectorXd *C, Eigen::SparseMatrix<double> &W);
@@ -136,6 +131,8 @@ public:
         dAbarinvBbar.row(3) << dA1(1,1), dA2(1,1), dA3(1,1);
     }
     
+
+    
     
     
 public:
@@ -143,9 +140,6 @@ public:
     Eigen::VectorXd edgeDOFs;
     Eigen::SparseMatrix<double> lapFaceMat;
     Eigen::SparseMatrix<double> Ws;
-    Eigen::SparseMatrix<double> projM;
-    
-    Eigen::VectorXd fixedVariables;
     
 // Box Constraint
     

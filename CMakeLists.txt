@@ -32,16 +32,16 @@ option(LIBIGL_WITH_VIEWER            "Use OpenGL viewer"  ON)
 option(LIBIGL_WITH_XML               "Use XML"            OFF)
 
 find_package(LIBIGL REQUIRED QUIET)
-find_package(ifopt REQUIRED)
+# find_package(ifopt REQUIRED)
 find_package(eigen3 REQUIRED)
-find_package(MOSEK REQUIRED)
+# find_package(MOSEK REQUIRED)
 
 # Add your project files
 file(GLOB SRCFILES *.cpp  *.h SecondFundamentalForm/*.cpp SimulationSetup/*.cpp SecondFundamentalForm/*.h SimulationSetup/*.h cppoptlib/*.cpp cppoptlib/*.h SensitiveAnalysis/*.h SensitiveAnalysis/*.cpp)
 
 # find_package(ifopt REQUIRED)
-message("Found IFOPT at ${ifopt_INCLUDE_DIRS} from $ENV(ifopt}")
-include_directories( ${ifopt_INCLUDE_DIRS} )
+# message("Found IFOPT at ${ifopt_INCLUDE_DIRS} from $ENV(ifopt}")
+# include_directories( ${ifopt_INCLUDE_DIRS} )
 
 if (LAPACK_FOUND)
   include_directories(${LAPACK_INCLUDE_DIRS})
@@ -60,13 +60,13 @@ if (UMFPACK_FOUND)
 endif()
 
 
-message("Found MOSEK at ${MOSEK_INCLUDE_DIR}")
-include_directories(${MOSEK_INCLUDE_DIR})
+# message("Found MOSEK at ${MOSEK_INCLUDE_DIR}")
+# include_directories(${MOSEK_INCLUDE_DIR})
 
 message("Found Eigen at ${EIGEN3_INCLUDE_DIR}")
 message("Eigen version is ${EIGEN3_VERSION}")
 
-message(" MOSEK Libs are ${MOSEK_LIBRARIES} ${MOSEK_FUSION_LIBRARIES}")
+# message(" MOSEK Libs are ${MOSEK_LIBRARIES} ${MOSEK_FUSION_LIBRARIES}")
 
 
 # External libs
@@ -74,6 +74,6 @@ add_subdirectory(alglib)
 
 add_executable(${PROJECT_NAME}_bin ${SRCFILES})
 target_link_libraries(${PROJECT_NAME}_bin igl::core igl::opengl_glfw igl::opengl_glfw_imgui igl::triangle)
-target_link_libraries(${PROJECT_NAME}_bin alglib ifopt::ifopt_ipopt)
-target_link_libraries(${PROJECT_NAME}_bin ${MOSEK_LIBRARIES} ${MOSEK_FUSION_LIBRARIES})
+# target_link_libraries(${PROJECT_NAME}_bin alglib ifopt::ifopt_ipopt)
+# target_link_libraries(${PROJECT_NAME}_bin ${MOSEK_LIBRARIES} ${MOSEK_FUSION_LIBRARIES})
 target_link_libraries(${PROJECT_NAME}_bin ${SUITESPARSE_LIBRARIES} ${UMFPACK_LIBRARIES})

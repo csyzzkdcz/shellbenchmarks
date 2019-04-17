@@ -25,122 +25,6 @@ public:
         dataSavingPath = path;
     }
     
-    void save(Eigen::VectorXd L, Eigen::VectorXd S, Eigen::MatrixXd pos, std::shared_ptr<TProblem> problem, bool is_initial)
-    {
-        if(is_initial == false)
-        {
-            std::cout<<"Saving Abar path: "<<dataSavingPath<<std::endl;
-            std::ofstream outfile(dataSavingPath, std::ios::trunc);
-            int nverts = pos.rows();
-            int nfaces = problem->_mesh.nFaces();
-            
-            outfile<<problem->_thickness<<"\n";
-            outfile<<problem->_lambdaAbar<<"\n";
-            outfile<<problem->_lambdaBbar<<"\n";
-            outfile<<problem->_mu<<"\n";
-            outfile<<3*nverts<<"\n";
-            
-            int numEOFs = L.size() + S.size();
-            outfile<<numEOFs<<"\n";
-            
-            //        std::cout<<3*nverts + 3*nfaces<<std::endl;
-            
-            for(int i=0;i<nverts;i++)
-            {
-                outfile<<std::setprecision(16)<<pos(i, 0)<<"\n";
-                outfile<<std::setprecision(16)<<pos(i, 1)<<"\n";
-                outfile<<std::setprecision(16)<<pos(i, 2)<<"\n";
-            }
-            
-            for(int i=0;i<3*nfaces;i++)
-            {
-                outfile<<std::setprecision(16)<<L(i)<<"\n";
-            }
-           
-            for(int i=0;i<S.size();i++)
-            {
-                outfile<<std::setprecision(16)<<S(i)<<"\n";
-            }
-            
-            outfile.close();
-        }
-        int startIdx, endIdx, expCoef;
-        std::string subString = "";
-        std::string resampledPath = dataSavingPath;
-        
-        startIdx = resampledPath.rfind("/");
-        endIdx = resampledPath.find("_");
-        resampledPath = resampledPath.replace(resampledPath.begin() + startIdx + 1,resampledPath.begin() + endIdx, "resampled");
-        
-        // thickness
-        if(problem->_thickness == 0)
-            expCoef = 0;
-        else
-            expCoef = int(std::log10(problem->_thickness));
-        startIdx = resampledPath.rfind("T");
-        endIdx = resampledPath.rfind("A");
-        subString = "";
-        if(problem->_thickness > 0)
-            subString = "T_1e" + std::to_string(expCoef);
-        else
-            subString = "T_0";
-        resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.begin() + endIdx - 1, subString);
-        
-        //Abar penalty
-        if(problem->_lambdaAbar == 0)
-            expCoef = 0;
-        else
-            expCoef = int(std::log10(problem->_lambdaAbar));
-        
-        startIdx = resampledPath.rfind("A");
-        endIdx = resampledPath.rfind("B");
-        subString = "";
-        if(problem->_lambdaAbar > 0)
-            subString = "A_1e" + std::to_string(expCoef);
-        else
-            subString = "A_0";
-        resampledPath= resampledPath .replace(resampledPath.begin() + startIdx,resampledPath.begin() + endIdx - 1, subString);
-        
-        // Bbar penalty
-        if(problem->_lambdaBbar == 0)
-            expCoef = 0;
-        else
-            expCoef = int(std::log10(problem->_lambdaBbar));
-        startIdx = resampledPath.rfind("B");
-        endIdx = resampledPath.rfind("S");
-        subString = "";
-        if(problem->_lambdaAbar > 0)
-            subString = "B_1e" + std::to_string(expCoef);
-        else
-            subString = "B_0";
-        resampledPath= resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.begin() + endIdx - 1, subString);
-        
-        
-        // smoothness
-        if(problem->_mu == 0)
-            expCoef = 0;
-        else
-            expCoef = int(std::log10(problem->_mu));
-        
-        startIdx = resampledPath.rfind("S");
-        endIdx = resampledPath.rfind(".");
-        subString = "";
-        if(problem->_mu > 0)
-            subString = "S_1e" + std::to_string(expCoef);
-        else
-            subString = "S_0";
-        resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.begin() + endIdx, subString);
-        
-        startIdx = resampledPath.rfind(".");
-        if(is_initial)
-            resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.end(), "_target.obj");
-        else
-            resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.end(), ".obj");
-        std::cout<<"Current abar loading path is: "<<resampledPath<<std::endl;
-        //    igl::writeOBJ("resampled.obj", pos, mesh.faces());
-        igl::writeOBJ(resampledPath, pos, problem->_mesh.faces());
-    }
-    
 
 protected:
     // workspace matrices
@@ -355,26 +239,20 @@ public:
         MatrixType yHistory = MatrixType::Zero(DIM, 0);
         MatrixType sHistory = MatrixType::Zero(DIM, 0);
         
-        int nfaces = problem -> _mesh.nFaces();
-        int L_size = nfaces * 3;
-        int S_size = nfaces;
         
         Eigen::VectorXd fullx0, fullx;
         fullx0 = problem->getFullVariables(x0);
-        
-        Eigen::VectorXd L = fullx0.segment(0, L_size);
-        Eigen::VectorXd S = fullx0.segment(L_size, S_size);
         Eigen::MatrixXd newPos = pos0;
         
         Eigen::VectorXd x = x0, g = x0;
         std::cout<<"Optimization begins!!"<<std::endl;
-        problem->projectBack(L, S, newPos);
+        problem->projectBack(x, newPos);
         
-        Scalar f = problem->value(L, S, newPos);
-        problem->gradient(L, S, newPos, g);
+        Scalar f = problem->value(x, newPos);
+        problem->gradient(x, newPos, g);
         
         double fmin = f;
-        save(L,problem->Ws * S,newPos,problem, true);
+        problem->save(x, newPos, dataSavingPath, true);
         // conv. crit.
         auto noConvergence =
         [&](Eigen::VectorXd &x, Eigen::VectorXd &g)->bool
@@ -422,12 +300,10 @@ public:
                 x = x - rate*(x-SubspaceMin);
             }
             fullx = problem->getFullVariables(x);
-            L = fullx.segment(0, L_size);
-            S = fullx.segment(L_size, S_size);
-            problem->projectBack(L, S, newPos);
+            problem->projectBack(x, newPos);
             
-            f = problem->value(L, S, newPos);
-            problem->gradient(L, S, newPos, g);
+            f = problem->value(x, newPos);
+            problem->gradient(x, newPos, g);
             // prepare for next iteration
             Eigen::VectorXd newY = g - g_old;
             Eigen::VectorXd newS = x - x_old;
@@ -462,10 +338,13 @@ public:
             
             Eigen::VectorXd fullg = problem->projM.transpose() * g;
             
+            Eigen::VectorXd curL, curS;
+            problem -> convertParams2LAndS(x, curL, curS);
+            
             std::cout<<std::endl<< "iter: "<<itr<< ", \t Rate: "<<rate<< ", \t f = " <<  f<<", \t ||g||_inf = "<< g.lpNorm<Eigen::Infinity>()<<", \t ||Dir||_Inf = "<<(SubspaceMin-x_old).lpNorm<Eigen::Infinity>()<<std::endl;
-            std::cout<<"||g_L||_inf = "<<fullg.segment(0, L.rows()).lpNorm<Eigen::Infinity>()<<", \t ||g_s||_inf = "<<fullg.segment(L.rows(), S.rows()).lpNorm<Eigen::Infinity>()<<std::endl;
-            std::cout<<"abar change "<<(fullx-fullx0).segment(0, L.size()).lpNorm<Eigen::Infinity>()<<", \t bbar changes: "<<(fullx-fullx0).segment(L.size(), S.size()).lpNorm<Eigen::Infinity>()<<std::endl;
-            std::cout <<"Shape Difference = "<<problem->computeDifference(newPos)<<", \t Abar Penalty: "<<problem->computeAbarSmoothness(L)<<", \t Bbar Penalty: "<<problem->computeBbarSmoothness(L, S, newPos)<<std::endl<<std::endl;
+            std::cout<<"||g_L||_inf = "<<fullg.segment(0, curL.rows()).lpNorm<Eigen::Infinity>()<<", \t ||g_s||_inf = "<<fullg.segment(curL.rows(), curS.rows()).lpNorm<Eigen::Infinity>()<<std::endl;
+            std::cout<<"abar change "<<(fullx-fullx0).segment(0, curL.rows()).lpNorm<Eigen::Infinity>()<<", \t bbar changes: "<<(fullx-fullx0).segment(curL.rows(), curS.rows()).lpNorm<Eigen::Infinity>()<<std::endl;
+            std::cout <<"Shape Difference = "<<problem->computeDifference(newPos)<<", \t Abar Penalty: "<<problem->computeAbarSmoothness(curL)<<", \t Bbar Penalty: "<<problem->computeBbarSmoothness(curL, curS, newPos)<<std::endl<<std::endl;
             itr++;
             if (fabs(f_old - f) < TOL)
             {
@@ -475,10 +354,10 @@ public:
             
             if(itr % 10 == 0)
             {
-                double f = problem->value(L, S, newPos);
+                double f = problem->value(x, newPos);
                 if(f < fmin)
                 {
-                    save(L, problem->Ws * S, newPos, problem, false);
+                    problem->save(x, newPos, dataSavingPath, false);
                     fmin = f;
                 }
             }
@@ -487,12 +366,10 @@ public:
         x0 = x;
         fullx0 = fullx;
         pos0 = newPos;
-        L = fullx0.segment(0, L_size);
-        S = fullx0.segment(L_size, S_size);
-        f = problem->value(L, S, pos0);
+        f = problem->value(x, pos0);
         if(f < fmin)
         {
-            save(L, problem->Ws * S, pos0, problem, false);
+            problem->save(x, newPos, dataSavingPath, false);
         }
     }
 };

@@ -7,6 +7,8 @@
 #include <igl/cotmatrix.h>
 #include <igl/doublearea.h>
 #include <igl/barycenter.h>
+#include <igl/writeOBJ.h>
+
 #include "../cppoptlib/solver/lbfgssolver.h"
 #include "../MeshConnectivity.h"
 #include "../SecondFundamentalForm/MidedgeAverageFormulation.h"
@@ -18,9 +20,9 @@ class SensitiveAnalysis
  */
 {
 public:
-    virtual double value(Eigen::VectorXd X, Eigen::VectorXd Y, Eigen::MatrixXd Z) = 0;
-    virtual void gradient(Eigen::VectorXd X, Eigen::VectorXd Y, Eigen::MatrixXd Z, Eigen::VectorXd &grad) = 0;
-    virtual void projectBack(Eigen::VectorXd X, Eigen::VectorXd &Y, Eigen::MatrixXd &Z) = 0; 
+    virtual double value(Eigen::VectorXd params, Eigen::MatrixXd pos) = 0;
+    virtual void gradient(Eigen::VectorXd params, Eigen::MatrixXd pos, Eigen::VectorXd &grad) = 0;
+    virtual void projectBack(Eigen::VectorXd params, Eigen::MatrixXd &pos) = 0;
     
     virtual void initialization(Eigen::MatrixXd initialPos, Eigen::MatrixXd tarPos, MeshConnectivity mesh, std::map<int, double> clampedDOFs, double lameAlpha, double lameBeta, double thickness) = 0;
     
@@ -31,11 +33,28 @@ public:
         _mu = deltaqPenalty;
     }
     
+    void convertParams2LAndS(Eigen::VectorXd params, Eigen::VectorXd &curL, Eigen::VectorXd &curS)
+    {
+        Eigen::VectorXd fullParams = getFullVariables(params);
+        if(fullParams.size() == 4 * _mesh.nFaces())
+            curL = fullParams.segment(0, 3 * _mesh.nFaces());
+        else if(fullParams.size() == 2 * _mesh.nFaces())
+            curL = fullParams.segment(0, _mesh.nFaces());
+        curS = fullParams.segment(curL.size(), _mesh.nFaces());
+    }
+    
+    void save(Eigen::VectorXd params, Eigen::MatrixXd pos, std::string path, bool is_initial);
+    
+
+    
     double computeAbarSmoothness(Eigen::VectorXd curL);
     double computeDifference(Eigen::MatrixXd curPos);
     void computeDifferenceGrad(Eigen::MatrixXd curPos, Eigen::VectorXd &grad);
     void computeAbarSmoothnessGrad(Eigen::VectorXd curL, Eigen::VectorXd &grad);
-    void testValueGrad(Eigen::VectorXd X, Eigen::VectorXd Y, Eigen::MatrixXd Z);
+    void testValueGrad(Eigen::VectorXd params, Eigen::MatrixXd pos);
+    void setProjM(std::set<int> fixedFlags);
+    void updateFixedVariables(Eigen::VectorXd variables);
+    Eigen::VectorXd getFullVariables(Eigen::VectorXd reductVariables);
     
     virtual void test() = 0;
     
@@ -127,6 +146,8 @@ protected:
         return M;
     }
     
+    
+    
     void computeMassMatrix( Eigen::VectorXd &massVec, MeshConnectivity mesh, Eigen::MatrixXd V);
 
     
@@ -152,6 +173,10 @@ public:
     
     Eigen::VectorXd _areaList;
     Eigen::VectorXd _massVec;
+    
+    Eigen::SparseMatrix<double> projM;
+    
+    Eigen::VectorXd fixedVariables;
     
 
 // Box Constraints

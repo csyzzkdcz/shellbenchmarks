@@ -5,10 +5,8 @@
 template<typename TProblem>
 bool lineSearch(std::shared_ptr<TProblem> op, Eigen::VectorXd x, Eigen::MatrixXd &pos, Eigen::VectorXd dir, double &rate)
 {
-    Eigen::VectorXd fullX = op -> getFullVariables(x);
-    int num = fullX.size() / 4;
-    Eigen::VectorXd L = fullX.segment(0, 3 * num);
-    Eigen::VectorXd S = fullX.segment(3*num, num);
+    Eigen::VectorXd L, S;
+    op->convertParams2LAndS(x, L, S);
                                       
     double c1 = 0.1;
     double c2 = 0.9;
@@ -27,21 +25,20 @@ bool lineSearch(std::shared_ptr<TProblem> op, Eigen::VectorXd x, Eigen::MatrixXd
         rate = (alpha + beta) / 2;
     
     Eigen::VectorXd grad;
-    double orig = op->value(L, S, pos);
-    op->gradient(L, S, pos, grad);
+    double orig = op->value(x, pos);
+    op->gradient(x, pos, grad);
     double deriv = dir.dot(grad);
     
     while (true)
     {
-        Eigen::VectorXd newdE, newX, newFullX;
-        newX =  x + rate*dir;
-        newFullX = op -> getFullVariables(newX);
-        Eigen::VectorXd newL = newFullX.segment(0, L.size());
+        Eigen::VectorXd newdE, newX, newL, newS;
         Eigen::MatrixXd newPos = pos;
-        Eigen::VectorXd newS = newFullX.segment(L.size(), S.size());
-        op->projectBack(newL, newS, newPos);
-        double newenergy = op->value(newL, newS, newPos);
-        op->gradient(newL, newS, newPos, newdE);
+        newX =  x + rate*dir;
+        op->convertParams2LAndS(newX, newL, newS);
+        op->projectBack(newX, newPos);
+        double newenergy = op->value(newX, newPos);
+        std::cout<<newenergy<<std::endl;
+        op->gradient(newX, newPos, newdE);
         Eigen::VectorXd fullGrad = op -> projM.transpose() * newdE;
         std::cout << "Trying rate = " << rate << ", energy now " << newenergy<<", L update "<<(newL-L).norm()<<", S update "<<(newS - S).norm() << ", L grad "<<fullGrad.segment(0, L.rows()).norm()<<" , S grad "<<fullGrad.segment(L.rows(), S.rows()).norm() << std::endl;
         

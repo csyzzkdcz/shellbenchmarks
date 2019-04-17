@@ -47,7 +47,7 @@ class SimulationSetup
     std::vector<Eigen::Matrix2d> bbars;
 
     virtual void buildRestFundamentalForms(const SecondFundamentalFormDiscretization &sff) = 0;
-    virtual bool loadAbars() = 0;   // The path is given by abarPath + "L_list.dat".  abar = L*L^T
+    virtual bool loadParams() = 0;   // The path is given by abarPath + "L_list.dat".  abar = L*L^T
     
     void remeshProcessing(Eigen::MatrixXd remeshedPos, Eigen::MatrixXi remeshedFaces);
     

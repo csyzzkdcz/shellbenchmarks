@@ -5,34 +5,39 @@
 #include "../ElasticShell.h"
 #include "../GeometryTools.h"
 
-double SensitiveAnalysisABbarPos::value(Eigen::VectorXd curL, Eigen::VectorXd curS, Eigen::MatrixXd curPos)
+double SensitiveAnalysisABbarPos::value(Eigen::VectorXd params, Eigen::MatrixXd pos)
 {
+    Eigen::VectorXd curL, curS;
+    convertParams2LAndS(params, curL, curS);
     //    std::cout<<curS.rows()<<" "<<curS.cols()<<" "<<A.rows()<<" "<<A.cols()<<std::endl;
-    return computeDifference(curPos) +_lambdaAbar * computeAbarSmoothness(curL) + _lambdaBbar * computeBbarSmoothness(curL, curS, curPos);
+    return computeDifference(pos) +_lambdaAbar * computeAbarSmoothness(curL) + _lambdaBbar * computeBbarSmoothness(curL, curS, pos);
 }
 
-void SensitiveAnalysisABbarPos::gradient(Eigen::VectorXd curL, Eigen::VectorXd curS, Eigen::MatrixXd curPos, Eigen::VectorXd &grad)
+void SensitiveAnalysisABbarPos::gradient(Eigen::VectorXd params, Eigen::MatrixXd pos, Eigen::VectorXd &grad)
 {
+    Eigen::VectorXd curL, curS;
+    convertParams2LAndS(params, curL, curS);
+    
     Eigen::VectorXd gradDiff, gradAbarSmooth, gradPosSmooth, gradPos;
-    Eigen::SparseMatrix<double> gradF2L(3*curPos.rows(), curL.size()), gradF2S(3*curPos.rows(), curS.size());
+    Eigen::SparseMatrix<double> gradF2L(3*pos.rows(), curL.size()), gradF2S(3*pos.rows(), curS.size());
     
     std::vector<Eigen::Triplet<double> > hessian;
     
-    computeAbarDerivative(curL, curS, curPos, &hessian);
+    computeAbarDerivative(curL, curS, pos, &hessian);
     gradF2L.setFromTriplets(hessian.begin(), hessian.end());
-    computeBbarDerivative(curL, curS, curPos, &gradF2S);
+    computeBbarDerivative(curL, curS, pos, &gradF2S);
     
-    computeDifferenceGrad(curPos, gradDiff);
+    computeDifferenceGrad(pos, gradDiff);
     gradPos = gradDiff;
     Eigen::VectorXd convertedGrad;
-    computeConvertedGrad(curL, curS, curPos, gradPos, convertedGrad);
+    computeConvertedGrad(params, pos, gradPos, convertedGrad);
     
     computeAbarSmoothnessGrad(curL, gradAbarSmooth);
     Eigen::VectorXd gradAbar(curL.rows()), gradBbar(curS.rows());
     gradAbar.transpose() = convertedGrad.transpose() * gradF2L + _lambdaAbar * gradAbarSmooth.transpose();
     
     Eigen::VectorXd gradE2b;
-    computeBbarSmoothnessGrad(curL, curS, curPos, gradE2b);
+    computeBbarSmoothnessGrad(curL, curS, pos, gradE2b);
     gradBbar.transpose() = convertedGrad.transpose() * gradF2S + _lambdaBbar * gradE2b.transpose();
     
     Eigen::VectorXd fullgrad(curL.size() + curS.size());
@@ -43,100 +48,18 @@ void SensitiveAnalysisABbarPos::gradient(Eigen::VectorXd curL, Eigen::VectorXd c
     
 }
 
-void SensitiveAnalysisABbarPos::setProjM(std::set<int> fixedFlags)
-{
-    std::vector<Eigen::Triplet<double>> T;
-    int nfaces = _mesh.nFaces();
-    if(fixedFlags.size() == 0)
-    {
-        projM.resize(4*nfaces, 4*nfaces);
-        projM.setIdentity();
-        return;
-    }
-    int freeEOFs = 4 * nfaces - fixedFlags.size();
-    projM.resize(freeEOFs, 4*nfaces);
-    int row = 0;
-    for (int i = 0; i < nfaces; i++)
-    {
-        if (fixedFlags.find(i) != fixedFlags.end())
-            continue;
-        for (int j = 0; j < 3; j++)
-        {
-            T.push_back(Eigen::Triplet<double>(row, 3 * i + j, 1.0));
-            row++;
-        }
-    }
 
-    for(int i =0;i<nfaces;i++)
-    {
-        if (fixedFlags.find(i) != fixedFlags.end())
-            continue;
-        T.push_back(Eigen::Triplet<double>(row, 3 * nfaces + i, 1.0));
-            row++;
-    }
-
-    projM.setFromTriplets(T.begin(), T.end());
-    
-}
-
-void SensitiveAnalysisABbarPos::updateFixedVariables(Eigen::VectorXd L, Eigen::VectorXd S)
-{
-    if(projM.rows() == projM.cols())
-        return;
-    Eigen::VectorXd fullx(L.size() + S.size());
-    fullx.segment(0, L.size()) = L;
-    fullx.segment(L.size(), S.size()) = S;
-
-    fixedVariables = fullx - projM.transpose() * projM * fullx;
-}
-
-Eigen::VectorXd SensitiveAnalysisABbarPos::getFullVariables(Eigen::VectorXd reductVariables)
-{
-    if(projM.rows() == projM.cols())
-        return reductVariables;
-    else
-        return projM.transpose() * reductVariables + fixedVariables;
-}
-
-void SensitiveAnalysisABbarPos::projectBack(Eigen::VectorXd curL, Eigen::VectorXd &curS, Eigen::MatrixXd &curPos)
-{
-    projectPos(curL, curS, curPos);
-}
-
-void SensitiveAnalysisABbarPos::projectS(Eigen::VectorXd curL, Eigen::VectorXd &curS, Eigen::MatrixXd curPos)
-{
-    int nfaces = _mesh.nFaces();
-    int nverts = _tarPos.rows();
-    Eigen::VectorXd c, rhs(3*nfaces + 3*nverts);
-    Eigen::SparseMatrix<double> W;
-    convertEquilibrium2MatrixForm(curL, curS, curPos, &c, W);
-    rhs.setZero();
-    rhs.segment(3*nfaces, 3*nverts) = c;
-    
-    Eigen::MatrixXd M(3*nfaces + 3*nverts, 3*nfaces + 3*nverts);
-    M.setZero();
-    M.block(0, 0, 3*nfaces, 3*nfaces) = A.toDense();
-    M.block(0, 3*nfaces, 3*nfaces, 3*nverts) = W.transpose().toDense();
-    M.block(3*nfaces, 0, 3*nverts, 3*nfaces) = W.toDense();
-    
-    
-    Eigen::SparseMatrix<double> sparseM = M.sparseView();
-    Eigen::SPQR<Eigen::SparseMatrix<double>> solver;
-    solver.compute(sparseM);
-    Eigen::VectorXd sol = solver.solve(rhs);
-    Eigen::VectorXd oldS = curS;
-    curS = sol.segment(0, 3*nfaces);
-    std::cout<<"bbar changes: "<<(curS - oldS).norm()<<std::endl;
-}
-
-void SensitiveAnalysisABbarPos::projectPos(Eigen::VectorXd curL, Eigen::VectorXd curS, Eigen::MatrixXd &curPos)
+void SensitiveAnalysisABbarPos::projectBack(Eigen::VectorXd params, Eigen::MatrixXd &pos)
 {
     double reg = 1e-6;
-    int nverts = curPos.rows();
+    int nverts = pos.rows();
     int nfaces = _mesh.nFaces();
     
     std::vector<Eigen::Matrix2d> curAbars(nfaces);
     std::vector<Eigen::Matrix2d> bbars(nfaces);
+    
+    Eigen::VectorXd curL, curS;
+    convertParams2LAndS(params, curL, curS);
     
     
     for(int i = 0; i < nfaces; i++)
@@ -147,7 +70,6 @@ void SensitiveAnalysisABbarPos::projectPos(Eigen::VectorXd curL, Eigen::VectorXd
         
         bbars[i] = curS(i) / _areaList(i) * curAbars[i];
     }
-    
     Eigen::VectorXd edgeEOFs(0);
     double forceResidual = std::numeric_limits<double>::infinity();
     double updateMag = std::numeric_limits<double>::infinity();
@@ -161,8 +83,7 @@ void SensitiveAnalysisABbarPos::projectPos(Eigen::VectorXd curL, Eigen::VectorXd
         {
             Eigen::VectorXd derivative;
             std::vector<Eigen::Triplet<double> > hessian;
-            double energy = elasticEnergy(_mesh, curPos, edgeEOFs, _lameAlpha, _lameBeta, _thickness, curAbars, bbars, sff, &derivative, &hessian);
-            
+            double energy = elasticEnergy(_mesh, pos, edgeEOFs, _lameAlpha, _lameBeta, _thickness, curAbars, bbars, sff, &derivative, &hessian);
             Eigen::SparseMatrix<double> H(3 * nverts, 3 * nverts);
             H.setFromTriplets(hessian.begin(), hessian.end());
             
@@ -188,7 +109,7 @@ void SensitiveAnalysisABbarPos::projectPos(Eigen::VectorXd curL, Eigen::VectorXd
             Eigen::VectorXd descentDir = solver.solve(reducedForce);
             Eigen::VectorXd fullDir =descentDir;
             
-            Eigen::MatrixXd newPos = curPos;
+            Eigen::MatrixXd newPos = pos;
             for (int i = 0; i < nverts; i++)
             {
                 newPos.row(i) += fullDir.segment<3>(3 * i);
@@ -203,7 +124,7 @@ void SensitiveAnalysisABbarPos::projectPos(Eigen::VectorXd curL, Eigen::VectorXd
             if (newenergy <= energy)
             {
 //                std::cout << "Old energy: " << energy << " new energy: " << newenergy << " force residual " << forceResidual << " pos change " << updateMag << std::endl;
-                curPos = newPos;
+                pos = newPos;
                 reg = std::max(1e-6, reg * 0.5);
                 break;
             }
@@ -221,17 +142,17 @@ void SensitiveAnalysisABbarPos::projectPos(Eigen::VectorXd curL, Eigen::VectorXd
     Eigen::Matrix3d R;
     Eigen::Vector3d t;
     
-    GeometryTools::rigidMotionTransformation(curPos, _tarPos, _mesh, R, t);
+    GeometryTools::rigidMotionTransformation(pos, _tarPos, _mesh, R, t);
     
-    Eigen::MatrixXd ones(1, curPos.rows());
+    Eigen::MatrixXd ones(1, pos.rows());
     ones.setOnes();
     
-    curPos.transpose() = R * curPos.transpose() + t * ones;
+    pos.transpose() = R * pos.transpose() + t * ones;
     
 }
 
 
-void SensitiveAnalysisABbarPos::computeConvertedGrad(Eigen::VectorXd curL, Eigen::VectorXd curS, Eigen::MatrixXd curPos, Eigen::VectorXd grad, Eigen::VectorXd &convertedGrad)
+void SensitiveAnalysisABbarPos::computeConvertedGrad(Eigen::VectorXd params, Eigen::MatrixXd pos, Eigen::VectorXd grad, Eigen::VectorXd &convertedGrad)
 // convertedGrad = -Hessian(q)^-1 * grad
 {
     int nverts = _tarPos.rows();
@@ -239,6 +160,8 @@ void SensitiveAnalysisABbarPos::computeConvertedGrad(Eigen::VectorXd curL, Eigen
     std::vector<Eigen::Matrix2d> abars(nfaces);
     std::vector<Eigen::Matrix2d> bbars(nfaces);
     
+    Eigen::VectorXd curL, curS;
+    convertParams2LAndS(params, curL, curS);
     for(int i=0;i<nfaces;i++)
     {
         abars[i] << curL(3*i), 0,
@@ -251,7 +174,7 @@ void SensitiveAnalysisABbarPos::computeConvertedGrad(Eigen::VectorXd curL, Eigen
     Eigen::VectorXd edgeDOFS(0);
     Eigen::VectorXd f;
     MidedgeAverageFormulation sff;
-    elasticEnergy(_mesh, curPos, edgeDOFS, _lameAlpha, _lameBeta, _thickness, abars, bbars, sff, &f, &hessian);
+    elasticEnergy(_mesh, pos, edgeDOFS, _lameAlpha, _lameBeta, _thickness, abars, bbars, sff, &f, &hessian);
     Eigen::SparseMatrix<double> hessianQ(3*nverts, 3*nverts);
     hessianQ.setFromTriplets(hessian.begin(), hessian.end());
     
@@ -627,7 +550,10 @@ void SensitiveAnalysisABbarPos::test()
     testBbarSmoothAndGrad(tarL, tarS, _tarPos);
     
     std::cout<<std::endl<<"gradient validation"<<std::endl;
-    testValueGrad(tarL, tarS, curPos);
+    Eigen::VectorXd params(tarL.size()+tarL.size());
+    params.segment(0, tarL.size()) = tarL;
+    params.segment(tarL.size(), tarS.size()) = tarS;
+    testValueGrad(params, curPos);
 }
 
 void SensitiveAnalysisABbarPos::testAbarDerivative(Eigen::VectorXd curL, Eigen::VectorXd curS, Eigen::MatrixXd curPos)

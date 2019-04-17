@@ -164,30 +164,27 @@ void SensitiveAnalysis::computeAbarSmoothnessGrad(Eigen::VectorXd curL, Eigen::V
 }
 
 
-void SensitiveAnalysis::testValueGrad(Eigen::VectorXd X, Eigen::VectorXd Y, Eigen::MatrixXd Z)
+void SensitiveAnalysis::testValueGrad(Eigen::VectorXd params, Eigen::MatrixXd pos)
 {
-    projectBack(X, Y, Z);
+    projectBack(params, pos);
     std::cout<<"Projection Done!!"<<std::endl;
-    Eigen::VectorXd updatedY = Y;
-    Eigen::MatrixXd updatedZ = Z;
-    double f = value(X, Y, Z);
+    double f = value(params, pos);
     Eigen::VectorXd df;
-    gradient(X, Y, Z, df);
-    Eigen::VectorXd epsVec = Eigen::VectorXd::Random(X.size() + Y.size());
+    gradient(params, pos, df);
+    Eigen::VectorXd epsVec = Eigen::VectorXd::Random(params.size());
     
     epsVec.normalized();
     for(int i = 6; i< 20; i++ )
     {
         double eps = pow(4, -i);
-        Eigen::VectorXd updatedX = X + eps * epsVec.segment(0, X.size());
-        Eigen::VectorXd updatedY = Y + eps * epsVec.segment(X.size(), Y.size());
-        projectBack(updatedX, updatedY, updatedZ);
-        double f1 = value(updatedX, updatedY, updatedZ);
+        Eigen::VectorXd updatedParams = params + eps * params;
+        Eigen::MatrixXd updatedPos = pos;
+        projectBack(updatedParams, updatedPos);
+        double f1 = value(updatedParams, updatedPos);
         std::cout<<"EPS is "<<eps<<std::endl;
         std::cout<< "Gradient is "<<df.dot(epsVec)<< " Finite difference is "<<(f1 - f)/eps<<std::endl;
         std::cout<< "The error is "<<std::abs(df.dot(epsVec) - (f1 - f)/eps )<<std::endl;
-        updatedY = Y;
-        updatedZ = Z;
+        updatedParams = params;
     }
     
 }
@@ -248,3 +245,184 @@ void SensitiveAnalysis::computeDifferenceGrad(Eigen::MatrixXd curPos, Eigen::Vec
         grad.segment(3*i, 3) = _massVec(i) * (curPos.row(i) - _tarPos.row(i));
     }
 }
+
+
+void SensitiveAnalysis::updateFixedVariables(Eigen::VectorXd variables)
+{
+    if(projM.rows() == projM.cols())
+        return;
+    
+    fixedVariables = variables - projM.transpose() * projM * variables;
+}
+
+Eigen::VectorXd SensitiveAnalysis::getFullVariables(Eigen::VectorXd reductVariables)
+{
+    if(projM.rows() == projM.cols())
+        return reductVariables;
+    else
+        return projM.transpose() * reductVariables + fixedVariables;
+}
+
+
+void SensitiveAnalysis::setProjM(std::set<int> fixedFlags)
+{
+    std::vector<Eigen::Triplet<double>> T;
+    int nfaces = _mesh.nFaces();
+    if(fixedFlags.size() == 0)
+    {
+        return;
+    }
+    int totalEOFs = projM.cols();
+    int freeEOFs = totalEOFs - fixedFlags.size();
+    projM.resize(freeEOFs, totalEOFs);
+    
+    int row = 0;
+    for (int i = 0; i < nfaces; i++)
+    {
+        if (fixedFlags.find(i) != fixedFlags.end())
+            continue;
+        if(totalEOFs == 4 * nfaces)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                T.push_back(Eigen::Triplet<double>(row, 3 * i + j, 1.0));
+                row++;
+            }
+        }
+        else
+        {
+            T.push_back(Eigen::Triplet<double>(row, i, 1.0));
+            row++;
+        }
+    }
+    
+    for(int i =0;i<nfaces;i++)
+    {
+        if (fixedFlags.find(i) != fixedFlags.end())
+            continue;
+        T.push_back(Eigen::Triplet<double>(row, totalEOFs - nfaces + i, 1.0));
+        row++;
+    }
+    
+    projM.setFromTriplets(T.begin(), T.end());
+    
+}
+
+void SensitiveAnalysis::save(Eigen::VectorXd params, Eigen::MatrixXd pos, std::string path, bool is_initial)
+{
+    if(is_initial == false)
+    {
+        std::cout<<"Saving Abar path: "<<path<<std::endl;
+        std::ofstream outfile(path, std::ios::trunc);
+        int nverts = pos.rows();
+        int nfaces = _mesh.nFaces();
+        
+        outfile<<_thickness<<"\n";
+        outfile<<_lambdaAbar<<"\n";
+        outfile<<_lambdaBbar<<"\n";
+        outfile<<_mu<<"\n";
+        outfile<<3*nverts<<"\n";
+        
+        Eigen::VectorXd L, S;
+        convertParams2LAndS(params, L, S);
+        
+        int numEOFs = L.size() + S.size();
+        outfile<<numEOFs<<"\n";
+        
+        //        std::cout<<3*nverts + 3*nfaces<<std::endl;
+        
+        for(int i=0;i<nverts;i++)
+        {
+            outfile<<std::setprecision(16)<<pos(i, 0)<<"\n";
+            outfile<<std::setprecision(16)<<pos(i, 1)<<"\n";
+            outfile<<std::setprecision(16)<<pos(i, 2)<<"\n";
+        }
+        
+        for(int i=0;i<L.size();i++)
+        {
+            outfile<<std::setprecision(16)<<L(i)<<"\n";
+        }
+        
+        for(int i=0;i<S.size();i++)
+        {
+            outfile<<std::setprecision(16)<<S(i)<<"\n";
+        }
+        
+        outfile.close();
+    }
+    int startIdx, endIdx, expCoef;
+    std::string subString = "";
+    std::string resampledPath = path;
+    
+    startIdx = resampledPath.rfind("/");
+    endIdx = resampledPath.find("_");
+    resampledPath = resampledPath.replace(resampledPath.begin() + startIdx + 1,resampledPath.begin() + endIdx, "resampled");
+    
+    // thickness
+    if(_thickness == 0)
+        expCoef = 0;
+    else
+        expCoef = int(std::log10(_thickness));
+    startIdx = resampledPath.rfind("T");
+    endIdx = resampledPath.rfind("A");
+    subString = "";
+    if(_thickness > 0)
+        subString = "T_1e" + std::to_string(expCoef);
+    else
+        subString = "T_0";
+    resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.begin() + endIdx - 1, subString);
+    
+    //Abar penalty
+    if(_lambdaAbar == 0)
+        expCoef = 0;
+    else
+        expCoef = int(std::log10(_lambdaAbar));
+    
+    startIdx = resampledPath.rfind("A");
+    endIdx = resampledPath.rfind("B");
+    subString = "";
+    if(_lambdaAbar > 0)
+        subString = "A_1e" + std::to_string(expCoef);
+    else
+        subString = "A_0";
+    resampledPath= resampledPath .replace(resampledPath.begin() + startIdx,resampledPath.begin() + endIdx - 1, subString);
+    
+    // Bbar penalty
+    if(_lambdaBbar == 0)
+        expCoef = 0;
+    else
+        expCoef = int(std::log10(_lambdaBbar));
+    startIdx = resampledPath.rfind("B");
+    endIdx = resampledPath.rfind("S");
+    subString = "";
+    if(_lambdaAbar > 0)
+        subString = "B_1e" + std::to_string(expCoef);
+    else
+        subString = "B_0";
+    resampledPath= resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.begin() + endIdx - 1, subString);
+    
+    
+    // smoothness
+    if(_mu == 0)
+        expCoef = 0;
+    else
+        expCoef = int(std::log10(_mu));
+    
+    startIdx = resampledPath.rfind("S");
+    endIdx = resampledPath.rfind(".");
+    subString = "";
+    if(_mu > 0)
+        subString = "S_1e" + std::to_string(expCoef);
+    else
+        subString = "S_0";
+    resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.begin() + endIdx, subString);
+    
+    startIdx = resampledPath.rfind(".");
+    if(is_initial)
+        resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.end(), "_target.obj");
+    else
+        resampledPath = resampledPath.replace(resampledPath.begin() + startIdx,resampledPath.end(), ".obj");
+    std::cout<<"Current abar loading path is: "<<resampledPath<<std::endl;
+    igl::writeOBJ(resampledPath, pos, _mesh.faces());
+}
+
